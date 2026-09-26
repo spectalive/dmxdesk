@@ -30,14 +30,16 @@ static int get(const char *path) {
 int main(void) {
     char root[] = "./output/dmxdesk-power-XXXXXX";
     assert(mkdtemp(root));
-    char bl[256], conf[256], node[256], maxp[256];
+    char bl[256], conf[256], node[256];
+    // The files under the node are sized from it, so GCC can prove the path
+    // fits: a 256-byte node plus a suffix would not fit another 256.
+    char maxp[sizeof node + 32], cur[sizeof node + 32];
     snprintf(bl, sizeof bl, "%s/backlight", root);
     snprintf(node, sizeof node, "%s/backlight/backlight", root);
     snprintf(maxp, sizeof maxp, "%s/max_brightness", node);
     snprintf(conf, sizeof conf, "%s/taq102.conf", root);
     assert(mkdir(bl, 0755) == 0 && mkdir(node, 0755) == 0);
     put(maxp, "255\n");
-    char cur[256];
     snprintf(cur, sizeof cur, "%s/brightness", node);
     put(cur, "120\n");
 

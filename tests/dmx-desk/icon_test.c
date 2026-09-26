@@ -60,6 +60,7 @@ int main(void) {
         fwrite(rgb, 1, 3, f);
     }
     fclose(f);
+    free(c.px);
     printf("icons ok\n");
     return 0;
 }

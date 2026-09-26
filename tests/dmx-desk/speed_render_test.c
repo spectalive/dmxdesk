@@ -86,6 +86,7 @@ int main(void) {
     assert(canvas.px[SPEED_CARD_Y(0) * DESK_W + 900] == DESK_GLASS);
     assert(canvas.px[20 * DESK_W + 400] == DESK_GLASS);
     printf("speed_render ok\n");
+    free(canvas.px);
     vc_free(&console);
     free(map_text);
     free(vc_text);

@@ -15,8 +15,10 @@ void audit_text(struct font *f, struct canvas *c, int x, int y, int max_w, const
         int x0=scratch.w, y0=scratch.h, x1=-1, y1=-1;
         for (int yy=0; yy<scratch.h; yy++) for (int xx=0; xx<scratch.w; xx++)
             if (scratch.px[yy*scratch.w+xx]) {
-                if(xx<x0)x0=xx; if(xx>x1)x1=xx;
-                if(yy<y0)y0=yy; if(yy>y1)y1=yy;
+                if(xx<x0)x0=xx;
+                if(xx>x1)x1=xx;
+                if(yy<y0)y0=yy;
+                if(yy>y1)y1=yy;
             }
         if (x1>=x0) {
             int iw=x1-x0+1, ih=y1-y0+1;

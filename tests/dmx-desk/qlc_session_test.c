@@ -68,9 +68,17 @@ static void fake_close(struct fake *k) {
     close(k->ls);
 }
 
+// One write per frame. Header and payload as two writes met Nagle on Linux:
+// the payload waited for the header's delayed ACK, some 30 ms of real time,
+// while the fake clock allows the session a few 2 ms polls to hear it.
 static void server_text(int fd, const char *s) {
-    unsigned char h[2] = { 0x81, (unsigned char)strlen(s) };
-    assert(write(fd, h, 2) == 2 && write(fd, s, strlen(s)) == (ssize_t)strlen(s));
+    size_t len = strlen(s);
+    unsigned char f[2 + 125];
+    assert(len <= 125);
+    f[0] = 0x81;
+    f[1] = (unsigned char)len;
+    memcpy(f + 2, s, len);
+    assert(write(fd, f, 2 + len) == (ssize_t)(2 + len));
 }
 
 // One round of servicing: accept anything pending, tell the two connections

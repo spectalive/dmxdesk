@@ -170,8 +170,13 @@ static void start(struct wifi_join *j, const char *ssid, const char *key,
 }
 
 int main(void) {
-    char conf[128];
-    snprintf(conf, sizeof conf, "./output/dmxdesk-join-%d.conf", (int)getpid());
+    // The config lives in TMPDIR, which the host script makes on local disk.
+    // A failed join restores it inside one step, fsync included, and under
+    // ./output in an OrbStack VM that fsync crossed to the Mac's disk and
+    // took up to 252 ms against the 50 ms bound below.
+    const char *tmp = getenv("TMPDIR");
+    char conf[256];
+    snprintf(conf, sizeof conf, "%s/dmxdesk-join-%d.conf", tmp && *tmp ? tmp : "/tmp", (int)getpid());
     unlink(conf);
     assert(wifi_conf_write_block(conf, "TestNet", "firstkey1", 1) == 0);
     char *original;
@@ -205,7 +210,7 @@ int main(void) {
         start(&j, ssid, scenario == 4 ? NULL : "examplekey", scenario == 4, "TestNet");
         int64_t offset = 0;
         if (scenario == 6) {
-            char obstacle[160];
+            char obstacle[sizeof conf + 8];
             snprintf(obstacle, sizeof obstacle, "%s.tmp", conf);
             assert(mkdir(obstacle, 0700) == 0);
             assert(drive(&j, c, 0, "", 30) == WIFI_JOIN_FAILED);

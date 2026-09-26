@@ -119,6 +119,7 @@ int main(void) {
     desk_setup_paint(&canvas, &e, &fonts);
     save(&canvas, "setup-find-partial.ppm");
     fclose(result);
+    free(canvas.px);
     printf("setup_render ok\n");
     return 0;
 }
