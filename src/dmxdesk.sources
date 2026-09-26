@@ -31,6 +31,7 @@ qlc_session.c
 ws_client.c
 send_queue.c
 desk_toggle_queue.c
+desk_release_hook.c
 desk_action_log.c
 http_fetch.c
 status.c

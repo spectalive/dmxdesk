@@ -55,6 +55,7 @@
 #include "desk_speed_layout.h"
 #include "desk_speed_paint.h"
 #include "desk_toggle_queue.h"
+#include "desk_release_hook.h"
 #include "desk_view.h"
 #include "display_power.h"
 #include "font.h"
@@ -244,18 +245,29 @@ static void toggle_drain(struct qlc_session *session, struct desk_toggle_queue *
 // tick cannot both land before either one's effect is read back (2026-09-26:
 // AUTO plus a colour pick of the same solo frame left the pick's colour
 // stopped with RGB at 0 while AUTO ran); stop-all and the master go at once.
+// A pick released in its solo frame is followed, one slot later, by the hook
+// the room state runs there (desk_release_hook), queued like any toggle.
 static void send_action(struct qlc_session *session, struct desk_toggle_queue *toggles,
+                        const struct desk_model *model, const struct show_map *map,
                         struct desk_action action, int64_t now) {
     char frame[64];
     int n = -1;
     switch (action.kind) {
-    case DESK_ACT_TOGGLE:
+    case DESK_ACT_TOGGLE: {
         n = qlc_encode_toggle(frame, sizeof frame, action.widget_id);
         if (n <= 0)
+            return;
+        if (desk_toggle_queue_push(toggles, frame) != 0) {
+            desk_action_log_dropped("toggle", frame, "queue full");
+            return;
+        }
+        int hook = desk_release_hook(model, map, action.widget_id);
+        if (hook < 0 || qlc_encode_toggle(frame, sizeof frame, hook) <= 0)
             return;
         if (desk_toggle_queue_push(toggles, frame) != 0)
             desk_action_log_dropped("toggle", frame, "queue full");
         return;
+    }
     case DESK_ACT_MASTER:
         n = qlc_encode_grand_master(frame, sizeof frame, action.value);
         break;
@@ -941,7 +953,7 @@ int main(int argc, char **argv) {
                     desk_touch_cancel(&model, events[i].slot);
                     break;
                 }
-                send_action(session, &toggles, action, now);
+                send_action(session, &toggles, &model, &map, action, now);
             }
         }
 
