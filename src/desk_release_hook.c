@@ -13,7 +13,7 @@ int desk_release_hook(const struct desk_model *model, const struct show_map *map
         if (map->control[i].widget_id == widget_id)
             pick = &map->control[i];
     const struct desk_control *tapped = cue_of(model, widget_id);
-    if (!pick || pick->releases == 0 || !tapped || tapped->state != DESK_ON)
+    if (!pick || pick->releases == 0 || !tapped || tapped->state != DESK_ON || tapped->pending)
         return -1;
     int room = -1;
     for (int i = 0; i < model->count && room < 0; i++) {
@@ -27,7 +27,7 @@ int desk_release_hook(const struct desk_model *model, const struct show_map *map
         if (pick->release_to[e].state_widget != room)
             continue;
         const struct desk_control *hook = cue_of(model, pick->release_to[e].hook_widget);
-        if (!hook || !hook->enabled || hook->state != DESK_OFF)
+        if (!hook || !hook->enabled || hook->state != DESK_OFF || hook->pending)
             return -1;
         return hook->widget_id;
     }

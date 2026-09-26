@@ -248,7 +248,7 @@ static void toggle_drain(struct qlc_session *session, struct desk_toggle_queue *
 // A pick released in its solo frame is followed, one slot later, by the hook
 // the room state runs there (desk_release_hook), queued like any toggle.
 static void send_action(struct qlc_session *session, struct desk_toggle_queue *toggles,
-                        const struct desk_model *model, const struct show_map *map,
+                        struct desk_model *model, const struct show_map *map,
                         struct desk_action action, int64_t now) {
     char frame[64];
     int n = -1;
@@ -264,8 +264,14 @@ static void send_action(struct qlc_session *session, struct desk_toggle_queue *t
         int hook = desk_release_hook(model, map, action.widget_id);
         if (hook < 0 || qlc_encode_toggle(frame, sizeof frame, hook) <= 0)
             return;
-        if (desk_toggle_queue_push(toggles, frame) != 0)
+        if (desk_toggle_queue_push(toggles, frame) != 0) {
             desk_action_log_dropped("toggle", frame, "queue full");
+            return;
+        }
+        // Both stay pending until QLC+ answers: a second tap before then is
+        // not a second release, and the hook is not pressed off again.
+        desk_note_sent(model, action.widget_id, now);
+        desk_note_sent(model, hook, now);
         return;
     }
     case DESK_ACT_MASTER:

@@ -107,6 +107,20 @@ int main(void) {
             model.control[i].enabled = 0;
     assert(desk_release_hook(&model, &map, 70) == -1);
 
+    // A release already sent and not yet answered is not released again, and a
+    // hook already pressed is not pressed off: both stay pending until QLC+ answers.
+    for (int i = 0; i < model.count; i++)
+        if (model.control[i].widget_id == 64)
+            model.control[i].enabled = 1;
+    assert(desk_release_hook(&model, &map, 70) == 64);
+    desk_note_sent(&model, 70, 1000);
+    assert(desk_release_hook(&model, &map, 70) == -1);
+    for (int i = 0; i < model.count; i++)
+        if (model.control[i].widget_id == 70)
+            model.control[i].pending = 0;
+    desk_note_sent(&model, 64, 1000);
+    assert(desk_release_hook(&model, &map, 70) == -1);
+
     printf("desk release hook ok\n");
     return 0;
 }
