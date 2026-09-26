@@ -5,7 +5,7 @@
  "show": {
   "key": "vibra",
   "workspace": "Vibra.qxw",
-  "sha256": "3eb5376452fcae9043bef8812bf6a635dfa38f92617846de0e4cd3ba9bcccf02"
+  "sha256": "12a75704c7096c3d2c3940799e88925008817313d50428e1de0cfc2c2cc301aa"
  },
  "grandMaster": {
   "widget": 258
@@ -72,6 +72,7 @@
       "colores-completos",
       "colores-simples",
       "pastel-tenue",
+      "multicolor",
       "mezcla",
       "luz-charla"
      ]
@@ -98,7 +99,6 @@
       "rig-magenta",
       "rig-fucsia",
       "rig-rosa",
-      "rig-blanco",
       "arcoiris-junto",
       "arcoiris-fases"
      ]
@@ -317,7 +317,7 @@
  "controls": {
   "auto": {
    "widget": 4,
-   "function": 886,
+   "function": 807,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "AUTO",
@@ -334,7 +334,7 @@
   },
   "charla": {
    "widget": 5,
-   "function": 889,
+   "function": 810,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "CHARLA",
@@ -351,7 +351,7 @@
   },
   "tranquilo": {
    "widget": 6,
-   "function": 890,
+   "function": 811,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "TRANQUILO",
@@ -368,7 +368,7 @@
   },
   "fiesta": {
    "widget": 7,
-   "function": 891,
+   "function": 812,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "FIESTA",
@@ -385,7 +385,7 @@
   },
   "locura": {
    "widget": 8,
-   "function": 892,
+   "function": 813,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "LOCURA",
@@ -435,8 +435,8 @@
    "reason": ""
   },
   "flash": {
-   "widget": 674,
-   "function": 990,
+   "widget": 604,
+   "function": 910,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "FLASH",
@@ -455,8 +455,8 @@
    "burstNote": "Luz a máxima intensidad; rueda de color y estrobo pueden ser pisados por el show."
   },
   "flash-lento": {
-   "widget": 675,
-   "function": 992,
+   "widget": 605,
+   "function": 912,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "FLASH LENTO",
@@ -475,8 +475,8 @@
    "burstNote": "Luz a máxima intensidad; rueda de color y estrobo pueden ser pisados por el show."
   },
   "flash-color": {
-   "widget": 676,
-   "function": 994,
+   "widget": 606,
+   "function": 914,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "FLASH COLOR",
@@ -493,8 +493,8 @@
    "burstNote": "Conserva el color del show; otro barrido de shutter puede pisar el estrobo."
   },
   "humo-ya": {
-   "widget": 677,
-   "function": 996,
+   "widget": 607,
+   "function": 916,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "HUMO YA",
@@ -510,8 +510,8 @@
    "source": "humo-ya"
   },
   "humo-vert": {
-   "widget": 678,
-   "function": 998,
+   "widget": 608,
+   "function": 918,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "HUMO VERT",
@@ -527,8 +527,8 @@
    "source": "humo-vert"
   },
   "strobo": {
-   "widget": 679,
-   "function": 1000,
+   "widget": 609,
+   "function": 920,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "STROBO",
@@ -545,8 +545,8 @@
    "burstNote": "Sin prioridad Override: otro barrido de shutter puede pisar el estrobo."
   },
   "strobo-suave": {
-   "widget": 680,
-   "function": 1002,
+   "widget": 610,
+   "function": 922,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "STROBO SUAVE",
@@ -564,7 +564,7 @@
   },
   "cada-1-min": {
    "widget": 29,
-   "function": 738,
+   "function": 664,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "cada 1 min",
@@ -579,7 +579,7 @@
   },
   "cada-2-min": {
    "widget": 30,
-   "function": 739,
+   "function": 665,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "cada 2 min",
@@ -594,7 +594,7 @@
   },
   "cada-4-min": {
    "widget": 31,
-   "function": 740,
+   "function": 666,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "cada 4 min",
@@ -609,7 +609,7 @@
   },
   "cada-8-min": {
    "widget": 32,
-   "function": 741,
+   "function": 667,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "cada 8 min",
@@ -623,8 +623,8 @@
    "reason": ""
   },
   "rojo": {
-   "widget": 681,
-   "function": 1004,
+   "widget": 611,
+   "function": 924,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "ROJO",
@@ -643,8 +643,8 @@
    "burstNote": "Sin ForceLTP ni Override: el color se suma al show; rueda y estrobo pueden ser pisados."
   },
   "verde": {
-   "widget": 682,
-   "function": 1006,
+   "widget": 612,
+   "function": 926,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "VERDE",
@@ -663,8 +663,8 @@
    "burstNote": "Sin ForceLTP ni Override: el color se suma al show; rueda y estrobo pueden ser pisados."
   },
   "azul": {
-   "widget": 683,
-   "function": 1008,
+   "widget": 613,
+   "function": 928,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "AZUL",
@@ -683,8 +683,8 @@
    "burstNote": "Sin ForceLTP ni Override: el color se suma al show; rueda y estrobo pueden ser pisados."
   },
   "ultravioleta": {
-   "widget": 684,
-   "function": 1010,
+   "widget": 614,
+   "function": 930,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "ULTRAVIOLETA",
@@ -703,8 +703,8 @@
    "burstNote": "Sin ForceLTP ni Override: el color se suma al show; rueda y estrobo pueden ser pisados."
   },
   "amarillo": {
-   "widget": 685,
-   "function": 1012,
+   "widget": 615,
+   "function": 932,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "AMARILLO",
@@ -723,8 +723,8 @@
    "burstNote": "Sin ForceLTP ni Override: el color se suma al show; rueda y estrobo pueden ser pisados."
   },
   "cyan": {
-   "widget": 686,
-   "function": 1014,
+   "widget": 616,
+   "function": 934,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "CYAN",
@@ -743,8 +743,8 @@
    "burstNote": "Sin ForceLTP ni Override: el color se suma al show; rueda y estrobo pueden ser pisados."
   },
   "magenta": {
-   "widget": 687,
-   "function": 1016,
+   "widget": 617,
+   "function": 936,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "MAGENTA",
@@ -763,8 +763,8 @@
    "burstNote": "Sin ForceLTP ni Override: el color se suma al show; rueda y estrobo pueden ser pisados."
   },
   "blanco": {
-   "widget": 688,
-   "function": 1018,
+   "widget": 618,
+   "function": 938,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "BLANCO",
@@ -783,8 +783,8 @@
    "burstNote": "Luz a máxima intensidad; rueda de color y estrobo pueden ser pisados por el show."
   },
   "naranja": {
-   "widget": 689,
-   "function": 1020,
+   "widget": 619,
+   "function": 940,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "NARANJA",
@@ -803,8 +803,8 @@
    "burstNote": "Sin ForceLTP ni Override: el color se suma al show; rueda y estrobo pueden ser pisados."
   },
   "rosa": {
-   "widget": 690,
-   "function": 1022,
+   "widget": 620,
+   "function": 942,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "ROSA",
@@ -824,7 +824,7 @@
   },
   "colores-completos": {
    "widget": 64,
-   "function": 818,
+   "function": 742,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "Colores completos",
@@ -841,7 +841,7 @@
   },
   "colores-simples": {
    "widget": 65,
-   "function": 833,
+   "function": 756,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "Colores simples",
@@ -858,7 +858,7 @@
   },
   "pastel-tenue": {
    "widget": 66,
-   "function": 870,
+   "function": 791,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "Pastel tenue",
@@ -868,14 +868,31 @@
    "solo": 62,
    "key": "L",
    "swatches": [
+    "#737373"
+   ],
+   "enabled": true,
+   "reason": ""
+  },
+  "multicolor": {
+   "widget": 67,
+   "function": 743,
+   "functionType": "Chaser",
+   "action": "toggle",
+   "caption": "Multicolor",
+   "icon": "🎨",
+   "detail": "",
+   "role": "hook",
+   "solo": 62,
+   "key": "R",
+   "swatches": [
     "#ffffff"
    ],
    "enabled": true,
    "reason": ""
   },
   "mezcla": {
-   "widget": 67,
-   "function": 871,
+   "widget": 68,
+   "function": 792,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Mezcla",
@@ -891,8 +908,8 @@
    "reason": ""
   },
   "luz-charla": {
-   "widget": 68,
-   "function": 888,
+   "widget": 69,
+   "function": 809,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Luz Charla",
@@ -908,8 +925,8 @@
    "reason": ""
   },
   "rig-rojo": {
-   "widget": 69,
-   "function": 893,
+   "widget": 70,
+   "function": 814,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Rojo",
@@ -925,8 +942,8 @@
    "reason": ""
   },
   "rig-rojo-fuego": {
-   "widget": 70,
-   "function": 894,
+   "widget": 71,
+   "function": 815,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Rojo Fuego",
@@ -942,8 +959,8 @@
    "reason": ""
   },
   "rig-naranja": {
-   "widget": 71,
-   "function": 895,
+   "widget": 72,
+   "function": 816,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Naranja",
@@ -959,8 +976,8 @@
    "reason": ""
   },
   "rig-ambar": {
-   "widget": 72,
-   "function": 896,
+   "widget": 73,
+   "function": 817,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Ambar",
@@ -976,8 +993,8 @@
    "reason": ""
   },
   "rig-amarillo": {
-   "widget": 73,
-   "function": 897,
+   "widget": 74,
+   "function": 818,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Amarillo",
@@ -993,8 +1010,8 @@
    "reason": ""
   },
   "rig-verde": {
-   "widget": 74,
-   "function": 898,
+   "widget": 75,
+   "function": 819,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Verde",
@@ -1010,8 +1027,8 @@
    "reason": ""
   },
   "rig-verde-menta": {
-   "widget": 75,
-   "function": 899,
+   "widget": 76,
+   "function": 820,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Verde Menta",
@@ -1027,8 +1044,8 @@
    "reason": ""
   },
   "rig-cyan": {
-   "widget": 76,
-   "function": 900,
+   "widget": 77,
+   "function": 821,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Cyan",
@@ -1044,8 +1061,8 @@
    "reason": ""
   },
   "rig-celeste": {
-   "widget": 77,
-   "function": 901,
+   "widget": 78,
+   "function": 822,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Celeste",
@@ -1061,8 +1078,8 @@
    "reason": ""
   },
   "rig-azul-cielo": {
-   "widget": 78,
-   "function": 902,
+   "widget": 79,
+   "function": 823,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Azul Cielo",
@@ -1078,8 +1095,8 @@
    "reason": ""
   },
   "rig-azul": {
-   "widget": 79,
-   "function": 903,
+   "widget": 80,
+   "function": 824,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Azul",
@@ -1095,8 +1112,8 @@
    "reason": ""
   },
   "rig-azul-profundo": {
-   "widget": 80,
-   "function": 904,
+   "widget": 81,
+   "function": 825,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Azul Profundo",
@@ -1112,8 +1129,8 @@
    "reason": ""
   },
   "rig-morado": {
-   "widget": 81,
-   "function": 905,
+   "widget": 82,
+   "function": 826,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Morado",
@@ -1129,8 +1146,8 @@
    "reason": ""
   },
   "rig-ultravioleta": {
-   "widget": 82,
-   "function": 906,
+   "widget": 83,
+   "function": 827,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig UltraVioleta",
@@ -1146,8 +1163,8 @@
    "reason": ""
   },
   "rig-magenta": {
-   "widget": 83,
-   "function": 907,
+   "widget": 84,
+   "function": 828,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Magenta",
@@ -1163,8 +1180,8 @@
    "reason": ""
   },
   "rig-fucsia": {
-   "widget": 84,
-   "function": 908,
+   "widget": 85,
+   "function": 829,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Fucsia",
@@ -1180,8 +1197,8 @@
    "reason": ""
   },
   "rig-rosa": {
-   "widget": 85,
-   "function": 909,
+   "widget": 86,
+   "function": 830,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Rig Rosa",
@@ -1196,26 +1213,9 @@
    "enabled": true,
    "reason": ""
   },
-  "rig-blanco": {
-   "widget": 86,
-   "function": 910,
-   "functionType": "Collection",
-   "action": "toggle",
-   "caption": "Rig Blanco",
-   "icon": "🎨",
-   "detail": "",
-   "role": "pick",
-   "solo": 62,
-   "key": null,
-   "swatches": [
-    "#ffffff"
-   ],
-   "enabled": true,
-   "reason": ""
-  },
   "arcoiris-junto": {
    "widget": 87,
-   "function": 911,
+   "function": 831,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Arcoiris junto",
@@ -1230,7 +1230,7 @@
   },
   "arcoiris-fases": {
    "widget": 88,
-   "function": 912,
+   "function": 832,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Arcoiris fases",
@@ -1245,7 +1245,7 @@
   },
   "auto-paneles": {
    "widget": 91,
-   "function": 270,
+   "function": 200,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "AUTO paneles",
@@ -1260,7 +1260,7 @@
   },
   "paneles-charla": {
    "widget": 92,
-   "function": 429,
+   "function": 359,
    "functionType": "Scene",
    "action": "toggle",
    "caption": "Paneles Charla",
@@ -1275,7 +1275,7 @@
   },
   "effect-1": {
    "widget": 93,
-   "function": 913,
+   "function": 833,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 1",
@@ -1290,7 +1290,7 @@
   },
   "effect-5": {
    "widget": 94,
-   "function": 914,
+   "function": 834,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 5",
@@ -1305,7 +1305,7 @@
   },
   "effect-8": {
    "widget": 95,
-   "function": 915,
+   "function": 835,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 8",
@@ -1320,7 +1320,7 @@
   },
   "effect-12": {
    "widget": 96,
-   "function": 916,
+   "function": 836,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 12",
@@ -1335,7 +1335,7 @@
   },
   "effect-16": {
    "widget": 97,
-   "function": 917,
+   "function": 837,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 16",
@@ -1350,7 +1350,7 @@
   },
   "effect-20": {
    "widget": 98,
-   "function": 918,
+   "function": 838,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 20",
@@ -1365,7 +1365,7 @@
   },
   "effect-23": {
    "widget": 99,
-   "function": 919,
+   "function": 839,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 23",
@@ -1380,7 +1380,7 @@
   },
   "effect-27": {
    "widget": 100,
-   "function": 920,
+   "function": 840,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 27",
@@ -1395,7 +1395,7 @@
   },
   "effect-31": {
    "widget": 101,
-   "function": 921,
+   "function": 841,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 31",
@@ -1410,7 +1410,7 @@
   },
   "effect-35": {
    "widget": 102,
-   "function": 922,
+   "function": 842,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 35",
@@ -1425,7 +1425,7 @@
   },
   "effect-38": {
    "widget": 103,
-   "function": 923,
+   "function": 843,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 38",
@@ -1440,7 +1440,7 @@
   },
   "effect-42": {
    "widget": 104,
-   "function": 924,
+   "function": 844,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Effect 42",
@@ -1455,7 +1455,7 @@
   },
   "paneles-manual": {
    "widget": 105,
-   "function": 925,
+   "function": 845,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Paneles Manual",
@@ -1470,7 +1470,7 @@
   },
   "auto-lento": {
    "widget": 108,
-   "function": 636,
+   "function": 562,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "AUTO lento",
@@ -1485,7 +1485,7 @@
   },
   "auto-normal": {
    "widget": 109,
-   "function": 662,
+   "function": 588,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "AUTO normal",
@@ -1500,7 +1500,7 @@
   },
   "auto-rapido": {
    "widget": 110,
-   "function": 663,
+   "function": 589,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "AUTO rapido",
@@ -1515,7 +1515,7 @@
   },
   "centro": {
    "widget": 111,
-   "function": 664,
+   "function": 590,
    "functionType": "Scene",
    "action": "toggle",
    "caption": "Centro",
@@ -1530,7 +1530,7 @@
   },
   "circulo": {
    "widget": 112,
-   "function": 926,
+   "function": 846,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Circulo",
@@ -1545,7 +1545,7 @@
   },
   "ocho": {
    "widget": 113,
-   "function": 927,
+   "function": 847,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Ocho",
@@ -1560,7 +1560,7 @@
   },
   "linea": {
    "widget": 114,
-   "function": 928,
+   "function": 848,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Linea",
@@ -1575,7 +1575,7 @@
   },
   "diamante": {
    "widget": 115,
-   "function": 929,
+   "function": 849,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Diamante",
@@ -1590,7 +1590,7 @@
   },
   "cuadrado": {
    "widget": 116,
-   "function": 930,
+   "function": 850,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Cuadrado",
@@ -1605,7 +1605,7 @@
   },
   "hoja": {
    "widget": 117,
-   "function": 931,
+   "function": 851,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Hoja",
@@ -1620,7 +1620,7 @@
   },
   "lissajous": {
    "widget": 118,
-   "function": 932,
+   "function": 852,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Lissajous",
@@ -1635,7 +1635,7 @@
   },
   "circulo-simultaneo": {
    "widget": 119,
-   "function": 933,
+   "function": 853,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Circulo Simultaneo",
@@ -1650,7 +1650,7 @@
   },
   "ocho-simultaneo": {
    "widget": 120,
-   "function": 934,
+   "function": 854,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Ocho Simultaneo",
@@ -1665,7 +1665,7 @@
   },
   "linea-simultaneo": {
    "widget": 121,
-   "function": 935,
+   "function": 855,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Linea Simultaneo",
@@ -1680,7 +1680,7 @@
   },
   "diamante-simultaneo": {
    "widget": 122,
-   "function": 936,
+   "function": 856,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Diamante Simultaneo",
@@ -1695,7 +1695,7 @@
   },
   "cuadrado-simultaneo": {
    "widget": 123,
-   "function": 937,
+   "function": 857,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Cuadrado Simultaneo",
@@ -1710,7 +1710,7 @@
   },
   "hoja-simultaneo": {
    "widget": 124,
-   "function": 938,
+   "function": 858,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Hoja Simultaneo",
@@ -1725,7 +1725,7 @@
   },
   "lissajous-simultaneo": {
    "widget": 125,
-   "function": 939,
+   "function": 859,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Lissajous Simultaneo",
@@ -1740,7 +1740,7 @@
   },
   "circulo-alternado": {
    "widget": 126,
-   "function": 940,
+   "function": 860,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Circulo Alternado",
@@ -1755,7 +1755,7 @@
   },
   "ocho-alternado": {
    "widget": 127,
-   "function": 941,
+   "function": 861,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Ocho Alternado",
@@ -1770,7 +1770,7 @@
   },
   "linea-alternado": {
    "widget": 128,
-   "function": 942,
+   "function": 862,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Linea Alternado",
@@ -1785,7 +1785,7 @@
   },
   "diamante-alternado": {
    "widget": 129,
-   "function": 943,
+   "function": 863,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Diamante Alternado",
@@ -1800,7 +1800,7 @@
   },
   "cuadrado-alternado": {
    "widget": 130,
-   "function": 944,
+   "function": 864,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Cuadrado Alternado",
@@ -1815,7 +1815,7 @@
   },
   "hoja-alternado": {
    "widget": 131,
-   "function": 945,
+   "function": 865,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Hoja Alternado",
@@ -1830,7 +1830,7 @@
   },
   "lissajous-alternado": {
    "widget": 132,
-   "function": 946,
+   "function": 866,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Lissajous Alternado",
@@ -1845,7 +1845,7 @@
   },
   "ola-vertical": {
    "widget": 133,
-   "function": 947,
+   "function": 867,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Ola Vertical",
@@ -1860,7 +1860,7 @@
   },
   "barrido-unison": {
    "widget": 134,
-   "function": 948,
+   "function": 868,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Barrido Unison",
@@ -1875,7 +1875,7 @@
   },
   "beams-abanico": {
    "widget": 135,
-   "function": 949,
+   "function": 869,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Beams Abanico",
@@ -1890,7 +1890,7 @@
   },
   "beams-cruce": {
    "widget": 136,
-   "function": 950,
+   "function": 870,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Beams Cruce",
@@ -1905,7 +1905,7 @@
   },
   "escenario": {
    "widget": 137,
-   "function": 951,
+   "function": 871,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Escenario",
@@ -1920,7 +1920,7 @@
   },
   "auto-gobos": {
    "widget": 139,
-   "function": 697,
+   "function": 623,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "AUTO gobos",
@@ -1935,7 +1935,7 @@
   },
   "reposo": {
    "widget": 140,
-   "function": 734,
+   "function": 660,
    "functionType": "Scene",
    "action": "toggle",
    "caption": "Reposo",
@@ -1950,7 +1950,7 @@
   },
   "gobo-1": {
    "widget": 143,
-   "function": 952,
+   "function": 872,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 1",
@@ -1965,7 +1965,7 @@
   },
   "gobo-2": {
    "widget": 144,
-   "function": 953,
+   "function": 873,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 2",
@@ -1980,7 +1980,7 @@
   },
   "gobo-3": {
    "widget": 145,
-   "function": 954,
+   "function": 874,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 3",
@@ -1995,7 +1995,7 @@
   },
   "gobo-4": {
    "widget": 146,
-   "function": 955,
+   "function": 875,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 4",
@@ -2010,7 +2010,7 @@
   },
   "gobo-5": {
    "widget": 147,
-   "function": 956,
+   "function": 876,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 5",
@@ -2025,7 +2025,7 @@
   },
   "gobo-6": {
    "widget": 148,
-   "function": 957,
+   "function": 877,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 6",
@@ -2040,7 +2040,7 @@
   },
   "gobo-7": {
    "widget": 149,
-   "function": 958,
+   "function": 878,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 7",
@@ -2055,7 +2055,7 @@
   },
   "gobo-8": {
    "widget": 150,
-   "function": 959,
+   "function": 879,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 8",
@@ -2070,7 +2070,7 @@
   },
   "gobo-9": {
    "widget": 151,
-   "function": 960,
+   "function": 880,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 9",
@@ -2085,7 +2085,7 @@
   },
   "gobo-10": {
    "widget": 152,
-   "function": 961,
+   "function": 881,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 10",
@@ -2100,7 +2100,7 @@
   },
   "gobo-11": {
    "widget": 153,
-   "function": 962,
+   "function": 882,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 11",
@@ -2115,7 +2115,7 @@
   },
   "gobo-12": {
    "widget": 154,
-   "function": 963,
+   "function": 883,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 12",
@@ -2130,7 +2130,7 @@
   },
   "gobo-13": {
    "widget": 155,
-   "function": 964,
+   "function": 884,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 13",
@@ -2145,7 +2145,7 @@
   },
   "gobo-14": {
    "widget": 156,
-   "function": 965,
+   "function": 885,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 14",
@@ -2160,7 +2160,7 @@
   },
   "gobo-15": {
    "widget": 157,
-   "function": 966,
+   "function": 886,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 15",
@@ -2175,7 +2175,7 @@
   },
   "gobo-16": {
    "widget": 158,
-   "function": 967,
+   "function": 887,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 16",
@@ -2190,7 +2190,7 @@
   },
   "gobo-17": {
    "widget": 159,
-   "function": 968,
+   "function": 888,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo 17",
@@ -2205,7 +2205,7 @@
   },
   "gobo-repartido-1": {
    "widget": 160,
-   "function": 969,
+   "function": 889,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Repartido 1",
@@ -2220,7 +2220,7 @@
   },
   "gobo-repartido-2": {
    "widget": 161,
-   "function": 970,
+   "function": 890,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Repartido 2",
@@ -2235,7 +2235,7 @@
   },
   "gobo-repartido-3": {
    "widget": 162,
-   "function": 971,
+   "function": 891,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Repartido 3",
@@ -2250,7 +2250,7 @@
   },
   "gobo-repartido-4": {
    "widget": 163,
-   "function": 972,
+   "function": 892,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Repartido 4",
@@ -2265,7 +2265,7 @@
   },
   "gobo-repartido-5": {
    "widget": 164,
-   "function": 973,
+   "function": 893,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Repartido 5",
@@ -2280,7 +2280,7 @@
   },
   "gobo-repartido-6": {
    "widget": 165,
-   "function": 974,
+   "function": 894,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Repartido 6",
@@ -2295,7 +2295,7 @@
   },
   "gobo-repartido-7": {
    "widget": 166,
-   "function": 975,
+   "function": 895,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Repartido 7",
@@ -2310,7 +2310,7 @@
   },
   "gobo-repartido-8": {
    "widget": 167,
-   "function": 976,
+   "function": 896,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Repartido 8",
@@ -2325,7 +2325,7 @@
   },
   "gobo-shake-gobo-1": {
    "widget": 168,
-   "function": 977,
+   "function": 897,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Shake - Gobo 1",
@@ -2340,7 +2340,7 @@
   },
   "gobo-shake-gobo-9": {
    "widget": 169,
-   "function": 978,
+   "function": 898,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Shake - Gobo 9",
@@ -2355,7 +2355,7 @@
   },
   "gobo-shake-gobo-17": {
    "widget": 170,
-   "function": 979,
+   "function": 899,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Gobo Shake - Gobo 17",
@@ -2370,7 +2370,7 @@
   },
   "auto-prisma": {
    "widget": 173,
-   "function": 733,
+   "function": 659,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "AUTO prisma",
@@ -2385,7 +2385,7 @@
   },
   "reposo-174": {
    "widget": 174,
-   "function": 735,
+   "function": 661,
    "functionType": "Scene",
    "action": "toggle",
    "caption": "Reposo",
@@ -2400,7 +2400,7 @@
   },
   "insert-prism": {
    "widget": 175,
-   "function": 980,
+   "function": 900,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Insert Prism",
@@ -2415,7 +2415,7 @@
   },
   "1": {
    "widget": 176,
-   "function": 981,
+   "function": 901,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "1",
@@ -2430,7 +2430,7 @@
   },
   "2": {
    "widget": 177,
-   "function": 982,
+   "function": 902,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "2",
@@ -2445,7 +2445,7 @@
   },
   "3": {
    "widget": 178,
-   "function": 983,
+   "function": 903,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "3",
@@ -2460,7 +2460,7 @@
   },
   "4": {
    "widget": 179,
-   "function": 984,
+   "function": 904,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "4",
@@ -2475,7 +2475,7 @@
   },
   "1-y-3": {
    "widget": 180,
-   "function": 985,
+   "function": 905,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "1 y 3",
@@ -2490,7 +2490,7 @@
   },
   "2-y-4": {
    "widget": 181,
-   "function": 986,
+   "function": 906,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "2 y 4",
@@ -2505,7 +2505,7 @@
   },
   "prisma-giro-rapido": {
    "widget": 182,
-   "function": 987,
+   "function": 907,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Prisma Giro Rapido",
@@ -2520,7 +2520,7 @@
   },
   "prisma-giro-inverso": {
    "widget": 183,
-   "function": 988,
+   "function": 908,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Prisma Giro Inverso",
@@ -2535,7 +2535,7 @@
   },
   "barrido-de-intensidad": {
    "widget": 251,
-   "function": 747,
+   "function": 673,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Barrido de intensidad",
@@ -2550,7 +2550,7 @@
   },
   "barrido-inverso": {
    "widget": 252,
-   "function": 752,
+   "function": 678,
    "functionType": "Collection",
    "action": "toggle",
    "caption": "Barrido inverso",
@@ -2565,7 +2565,7 @@
   },
   "pares": {
    "widget": 253,
-   "function": 755,
+   "function": 681,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "Pares / impares",
@@ -2580,7 +2580,7 @@
   },
   "rotacion-de-barridos": {
    "widget": 254,
-   "function": 878,
+   "function": 799,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "Rotación de barridos",
@@ -2595,7 +2595,7 @@
   },
   "humo-vertical": {
    "widget": 264,
-   "function": 271,
+   "function": 201,
    "functionType": "Chaser",
    "action": "toggle",
    "caption": "Luz del humo vertical",
@@ -2617,7 +2617,7 @@
    "timeMs": 500,
    "members": [
     {
-     "function": 818,
+     "function": 742,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2635,7 +2635,7 @@
      }
     },
     {
-     "function": 833,
+     "function": 756,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2653,7 +2653,7 @@
      }
     },
     {
-     "function": 870,
+     "function": 791,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2671,7 +2671,43 @@
      }
     },
     {
-     "function": 100,
+     "function": 743,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 9,
+      "name": "8",
+      "factor": 8.0
+     }
+    },
+    {
+     "function": 86,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 8,
+      "name": "4",
+      "factor": 4.0
+     }
+    },
+    {
+     "function": 114,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2707,7 +2743,7 @@
      }
     },
     {
-     "function": 184,
+     "function": 170,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2725,7 +2761,7 @@
      }
     },
     {
-     "function": 226,
+     "function": 198,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2743,25 +2779,7 @@
      }
     },
     {
-     "function": 268,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 8,
-      "name": "4",
-      "factor": 4.0
-     }
-    },
-    {
-     "function": 697,
+     "function": 623,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2779,7 +2797,7 @@
      }
     },
     {
-     "function": 733,
+     "function": 659,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2797,7 +2815,7 @@
      }
     },
     {
-     "function": 755,
+     "function": 681,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2815,7 +2833,7 @@
      }
     },
     {
-     "function": 743,
+     "function": 669,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2833,7 +2851,7 @@
      }
     },
     {
-     "function": 744,
+     "function": 670,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2851,7 +2869,7 @@
      }
     },
     {
-     "function": 745,
+     "function": 671,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2869,7 +2887,7 @@
      }
     },
     {
-     "function": 746,
+     "function": 672,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2887,7 +2905,7 @@
      }
     },
     {
-     "function": 748,
+     "function": 674,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2905,7 +2923,7 @@
      }
     },
     {
-     "function": 749,
+     "function": 675,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2923,7 +2941,7 @@
      }
     },
     {
-     "function": 750,
+     "function": 676,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2941,7 +2959,7 @@
      }
     },
     {
-     "function": 751,
+     "function": 677,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2967,7 +2985,7 @@
    "timeMs": 500,
    "members": [
     {
-     "function": 535,
+     "function": 461,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -2985,7 +3003,7 @@
      }
     },
     {
-     "function": 536,
+     "function": 462,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -3003,7 +3021,7 @@
      }
     },
     {
-     "function": 537,
+     "function": 463,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -3021,7 +3039,7 @@
      }
     },
     {
-     "function": 559,
+     "function": 485,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -3039,7 +3057,7 @@
      }
     },
     {
-     "function": 560,
+     "function": 486,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -3057,7 +3075,7 @@
      }
     },
     {
-     "function": 561,
+     "function": 487,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -3075,7 +3093,241 @@
      }
     },
     {
-     "function": 562,
+     "function": 488,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 489,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 490,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 491,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 492,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 493,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 524,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 528,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 532,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 554,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 10,
+      "name": "16",
+      "factor": 16.0
+     }
+    },
+    {
+     "function": 555,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 9,
+      "name": "8",
+      "factor": 8.0
+     }
+    },
+    {
+     "function": 556,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 9,
+      "name": "8",
+      "factor": 8.0
+     }
+    },
+    {
+     "function": 557,
+     "fadeIn": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "fadeOut": {
+      "raw": 0,
+      "name": "None",
+      "factor": null
+     },
+     "duration": {
+      "raw": 9,
+      "name": "8",
+      "factor": 8.0
+     }
+    },
+    {
+     "function": 558,
      "fadeIn": {
       "raw": 0,
       "name": "None",
@@ -3095,14 +3347,14 @@
     {
      "function": 563,
      "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
+      "raw": 9,
+      "name": "8",
+      "factor": 8.0
      },
      "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
+      "raw": 9,
+      "name": "8",
+      "factor": 8.0
      },
      "duration": {
       "raw": 10,
@@ -3112,240 +3364,6 @@
     },
     {
      "function": 564,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 565,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 566,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 567,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 598,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 602,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 606,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 628,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 629,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 9,
-      "name": "8",
-      "factor": 8.0
-     }
-    },
-    {
-     "function": 630,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 9,
-      "name": "8",
-      "factor": 8.0
-     }
-    },
-    {
-     "function": 631,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 9,
-      "name": "8",
-      "factor": 8.0
-     }
-    },
-    {
-     "function": 632,
-     "fadeIn": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "fadeOut": {
-      "raw": 0,
-      "name": "None",
-      "factor": null
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 637,
-     "fadeIn": {
-      "raw": 9,
-      "name": "8",
-      "factor": 8.0
-     },
-     "fadeOut": {
-      "raw": 9,
-      "name": "8",
-      "factor": 8.0
-     },
-     "duration": {
-      "raw": 10,
-      "name": "16",
-      "factor": 16.0
-     }
-    },
-    {
-     "function": 638,
      "fadeIn": {
       "raw": 9,
       "name": "8",

@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <cjson/cJSON.h>
+
 #include "desk_layout.h"
 #include "desk_layout_resolve.h"
 #include "desk_model.h"
@@ -44,6 +46,27 @@ static char *edited(const char *text, const char *from, const char *to) {
     return out;
 }
 
+// An integer from the map's own JSON, read with cJSON rather than the parser
+// under test: the ids move with every regenerated show, and the test should
+// check that the parser reports what the file says, not one show's numbers.
+static int map_int(const cJSON *root, const char *a, const char *b, const char *c) {
+    const cJSON *n = cJSON_GetObjectItemCaseSensitive(root, a);
+    if (b)
+        n = cJSON_GetObjectItemCaseSensitive(n, b);
+    if (c)
+        n = cJSON_GetObjectItemCaseSensitive(n, c);
+    assert(cJSON_IsNumber(n));
+    return n->valueint;
+}
+
+// A dial's member count and its first member's function and raw duration.
+static const cJSON *dial_members(const cJSON *root, const char *key) {
+    const cJSON *m = cJSON_GetObjectItemCaseSensitive(
+        cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(root, "dials"), key), "members");
+    assert(cJSON_IsArray(m) && cJSON_GetArraySize(m) > 0);
+    return m;
+}
+
 static const struct desk_control *by_label(const struct desk_model *m, const char *label) {
     for (int i = 0; i < m->count; i++)
         if (strcmp(m->control[i].label, label) == 0)
@@ -66,18 +89,20 @@ int main(void) {
     // The map, as generated.
     struct show_map map;
     assert(showmap_parse(map_text, map_len, &map) == 0);
+    cJSON *json = cJSON_Parse(map_text);
+    assert(json);
     assert(map.schema == 2 && strcmp(map.qlc_version, "5.2.2") == 0);
     assert(strcmp(map.key, "vibra") == 0);
-    // show/vibra.desk.json stopAll and grandMaster, regenerated at ed1dac1.
-    assert(map.stop_all_widget == 20 && map.stop_all_fade_ms == 1000);
-    assert(map.grand_master_widget == 258);
+    assert(map.stop_all_widget == map_int(json, "stopAll", "widget", NULL));
+    assert(map.stop_all_fade_ms == map_int(json, "stopAll", "fadeOutMs", NULL));
+    assert(map.grand_master_widget == map_int(json, "grandMaster", "widget", NULL));
     assert(map.pages == 7 && strcmp(map.page[0].key, "live") == 0);
     const struct map_section *state = &map.page[0].section[0];
     assert(strcmp(state->key, "state") == 0 && state->count == 7 && state->solo_id == 3);
     assert(state->first == 0);
     const struct map_control *auto_ctl = &map.control[state->first];
-    assert(strcmp(auto_ctl->caption, "AUTO") == 0 && auto_ctl->widget_id == 4 &&
-           auto_ctl->function_id == 886 && auto_ctl->role == MAP_ROLE_STATE &&
+    assert(strcmp(auto_ctl->caption, "AUTO") == 0 && auto_ctl->widget_id == map_int(json, "controls", "auto", "widget") &&
+           auto_ctl->function_id == map_int(json, "controls", "auto", "function") && auto_ctl->role == MAP_ROLE_STATE &&
            auto_ctl->solo_id == 3 && auto_ctl->page == 0 && auto_ctl->section == 0);
     assert(strcmp(auto_ctl->detail, "el show se lleva solo") == 0);
     const struct map_section *accents = NULL;
@@ -107,17 +132,24 @@ int main(void) {
         }
     }
     assert(red_found);
-    // The generated ed1dac1 map has 144 controls, each carrying an icon.
-    assert(strstr(map_text, "\"icon\":") && map.count == 144);
-    // The two dials and first member of each, from the ed1dac1 map.
+    // Every control is parsed, each carrying an icon.
+    assert(strstr(map_text, "\"icon\":"));
+    assert(map.count == cJSON_GetArraySize(cJSON_GetObjectItemCaseSensitive(json, "controls")));
+    // The two dials and the first member of each, as the file has them.
     // Check exact parser output here; behavioural tests resolve dial keys.
     assert(map.dials == 2);
-    assert(strcmp(map.dial[0].key, "tempo-show") == 0 && map.dial[0].widget_id == 33);
-    assert(map.dial[0].time_ms == 500 && map.dial[0].members == 19);
-    assert(map.dial[0].member[0].function_id == 818 && map.dial[0].member[0].duration == 9);
-    assert(map.dial[0].member[0].fade_in == 0);
-    assert(strcmp(map.dial[1].key, "vel-movimiento") == 0 && map.dial[1].widget_id == 286);
-    assert(map.dial[1].members == 22 && map.dial[1].member[0].duration == 10);
+    const char *dial_key[2] = { "tempo-show", "vel-movimiento" };
+    for (int d = 0; d < 2; d++) {
+        const cJSON *members = dial_members(json, dial_key[d]);
+        const cJSON *first = cJSON_GetArrayItem(members, 0);
+        assert(strcmp(map.dial[d].key, dial_key[d]) == 0);
+        assert(map.dial[d].widget_id == map_int(json, "dials", dial_key[d], "widget"));
+        assert(map.dial[d].time_ms == map_int(json, "dials", dial_key[d], "timeMs"));
+        assert(map.dial[d].members == cJSON_GetArraySize(members));
+        assert(map.dial[d].member[0].function_id == map_int(first, "function", NULL, NULL));
+        assert(map.dial[d].member[0].duration == map_int(first, "duration", "raw", NULL));
+        assert(map.dial[d].member[0].fade_in == map_int(first, "fadeIn", "raw", NULL));
+    }
 
     // Refusals: a widget listed twice, a section naming a missing control, a
     // swatch that is not a colour, a wrong schema.
@@ -234,6 +266,7 @@ int main(void) {
     free(newer);
 
     vc_free(&console);
+    cJSON_Delete(json);
     free(map_text);
     free(vc_text);
     printf("showmap v2 ok\n");
