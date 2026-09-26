@@ -1,4 +1,4 @@
-// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c
+// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c
 // The resolver over the real map: every control placed, nothing overlapping,
 // nothing outside the content area, the banks as the arithmetic yields them.
 #include <assert.h>

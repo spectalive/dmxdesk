@@ -1,4 +1,4 @@
-// SOURCES: desk_view_pager.c desk_pager_label.c desk_pager_caption.c desk_pager_bank_caption.c desk_view.c desk_layout_resolve.c desk_show_layout.c showmap.c font.c canvas.c canvas_blend.c
+// SOURCES: desk_view_pager.c desk_pager_label.c desk_pager_caption.c desk_pager_bank_caption.c desk_view.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c font.c canvas.c canvas_blend.c
 // Label budgets never steal content space, even with six long Spanish captions.
 #include <assert.h>
 #include <stdio.h>

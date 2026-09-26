@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c showmap.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c
 // The SPEED page's cards painted: both dials known from the console, one
 // change waiting, one noted; then the page before anything is known.
 #include <assert.h>

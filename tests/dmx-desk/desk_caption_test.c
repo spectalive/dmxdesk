@@ -1,4 +1,4 @@
-// SOURCES: desk_caption.c showmap.c canvas.c canvas_blend.c font.c
+// SOURCES: desk_caption.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c canvas.c canvas_blend.c font.c
 // Captions measured against the bundled Inter: the show's own words on the
 // tiles that will carry them, with the cuts counted rather than assumed.
 #include <assert.h>

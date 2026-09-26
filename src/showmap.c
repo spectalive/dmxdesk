@@ -1,4 +1,6 @@
 #include "showmap.h"
+#include "showmap_release_to_parse.h"
+#include "showmap_release_to_prune.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -143,6 +145,7 @@ static int parse_control(const char *key, const cJSON *item, struct map_control 
         }
         c->swatches++;
     }
+    showmap_release_to_parse(item, c);
     return 0;
 }
 
@@ -367,6 +370,7 @@ int showmap_parse(const char *json, size_t len, struct show_map *out) {
         goto done;
     if (parse_dials(cJSON_GetObjectItemCaseSensitive(root, "dials"), out) != 0)
         goto done;
+    showmap_release_to_prune(out);
     if (out->pages == 0 || out->count == 0) {
         fprintf(stderr, "map: nothing to show\n");
         goto done;

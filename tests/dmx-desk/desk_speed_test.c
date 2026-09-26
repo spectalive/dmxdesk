@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_tap.c speed_factor.c showmap.c vcjson.c
+// SOURCES: desk_speed.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c
 // The cards against the Vibra map and console: unknown until the snapshot,
 // then 120 BPM on both; +1 sends 496 and waits; an echo of 496 is silent, an
 // unexpected one is "State updated"; x2 sends factor 7; a same-value tap

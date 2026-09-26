@@ -22,6 +22,8 @@ display_power.c
 power_key.c
 perf_window.c
 showmap.c
+showmap_release_to_parse.c
+showmap_release_to_prune.c
 showmap_validate.c
 vcjson.c
 qlc_codec.c

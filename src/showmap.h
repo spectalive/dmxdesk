@@ -19,6 +19,7 @@
 #define MAP_MAX_SWATCHES 4
 #define MAP_MAX_DIALS 4
 #define MAP_MAX_DIAL_MEMBERS 24
+#define MAP_MAX_RELEASES 16
 
 enum map_role {
     MAP_ROLE_STATE,     // the room's one state at a time
@@ -29,6 +30,15 @@ enum map_role {
     MAP_ROLE_CHASE,     // a dimmer chase
     MAP_ROLE_TOGGLE,    // any other toggle
     MAP_ROLE_BURST,     // a hit as a bounded burst: a SingleShot chaser the master ends itself
+};
+
+// One releaseTo entry: while the state control on `state_widget` is on,
+// releasing the pick presses the hook on `hook_widget`, of the pick's own
+// solo frame. In QLC+ 5 a latched pick released in a solo frame leaves
+// nothing running there; the hook gives the family back to the room state.
+struct map_release {
+    int state_widget;
+    int hook_widget;
 };
 
 struct map_control {
@@ -47,6 +57,8 @@ struct map_control {
     int swatches;
     int burst_ms;       // MAP_ROLE_BURST: how long the master runs it, then stops it
     char source[MAP_KEY_MAX];   // MAP_ROLE_BURST: the hit it stands for
+    struct map_release release_to[MAP_MAX_RELEASES];   // optional; none in older maps
+    int releases;
 };
 
 struct map_section {
@@ -101,7 +113,10 @@ struct show_map {
 // the reason on stderr: a wrong schema, a section naming a control that is
 // not there, a control no section lists, two controls on one widget, a swatch
 // that is not #rrggbb, a dial member's enum outside 0..10, or any string past
-// its bound. Dials are optional: a map without them has none.
+// its bound. Dials are optional: a map without them has none. A control's
+// releaseTo is optional too, and an entry that does not name a state and a
+// hook of the control's own solo frame is dropped with a line on stderr,
+// never failing the map.
 int showmap_parse(const char *json, size_t len, struct show_map *out);
 
 // Reads the file, with the same rules and a size cap.
