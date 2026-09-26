@@ -67,7 +67,7 @@ int main(void) {
     layout.banks[0] = 1;
     assert(desk_view_pager(0, &layout, 0).w == 0);
 
-    struct font *font = font_open("br2-external/package/taq102-fonts/fonts/Inter-SemiBold.ttf", 15);
+    struct font *font = font_open("fonts/Inter-SemiBold.ttf", 15);
     assert(font);
     char fit[MAP_CAPTION_MAX + 4];
     const char *label = "Dirección y barridos de intensidad";

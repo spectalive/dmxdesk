@@ -43,7 +43,7 @@ int main(void) {
     desk_speed_set_link(&a->speed,1,0);
     desk_set_link(&a->model,DESK_LINK_READY);
     desk_setup_init(&a->setup);
-    assert(desk_fonts_open(&a->fonts,"br2-external/package/taq102-fonts/fonts")==0);
+    assert(desk_fonts_open(&a->fonts,"fonts")==0);
     a->canvas=(struct canvas){.px=calloc(AUDIT_PIXELS,4),.w=DESK_W,.h=DESK_H};assert(a->canvas.px);
     const char *out=getenv("TEST_OUT");
     char path[1024];snprintf(path,sizeof path,"%s/desk-geometry-report.txt",out?out:"/tmp");

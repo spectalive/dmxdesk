@@ -5,15 +5,16 @@ here=$(cd "$(dirname "$0")/.." && pwd)
 out=${TEST_OUT:-$here/output/dmx-desk-host}
 mkdir -p "$here/output" "$out/include/cjson" "$out/include/stb"
 STB_DIR=${STB_DIR:-$here/tools/vendor/stb}
-# The header lived under the audit directory before it was vendored; either will do.
-[ -f "$STB_DIR/stb_truetype.h" ] || STB_DIR=/tmp/taq102-audit/stb
-[ -f "$STB_DIR/stb_truetype.h" ] || { echo "stb_truetype.h not in $STB_DIR" >&2; exit 1; }
+[ -f "$STB_DIR/stb_truetype.h" ] || { echo "stb_truetype.h not in $STB_DIR; run tools/get-stb.sh first" >&2; exit 1; }
 ln -sf "$STB_DIR/stb_truetype.h" "$out/include/stb/stb_truetype.h"
 CC=${CC:-cc}
 out=$(cd "$out" && pwd)
 export TEST_OUT="$out"
-mkdir -p "$out/tmp"
-export TMPDIR="$out/tmp"
+# The Wi-Fi tests bind Unix sockets under TMPDIR, and sun_path holds 104 bytes
+# on macOS: a checkout at a deep path would truncate them, so keep it short.
+TMPDIR=$(mktemp -d /tmp/dmxdesk-test.XXXXXX)
+export TMPDIR
+trap 'rm -rf "$TMPDIR"' EXIT
 # cJSON comes from Buildroot on the device; the host compiles the same pinned
 # sources, fetched by tools/get-cjson.sh.
 CJSON_DIR=${CJSON_DIR:-$here/tools/vendor/cjson}

@@ -62,7 +62,7 @@ int main(void) {
     struct vc_doc console;
     assert(vc_parse(vc_text, vc_len, &console) == 0);
     struct desk_fonts fonts;
-    assert(desk_fonts_open(&fonts, "br2-external/package/taq102-fonts/fonts") == 0);
+    assert(desk_fonts_open(&fonts, "fonts") == 0);
     struct canvas canvas = { .px = calloc(DESK_W * DESK_H, 4), .w = DESK_W, .h = DESK_H };
     assert(canvas.px);
     for (int i = 0; i < DESK_W * DESK_H; i++)

@@ -133,7 +133,7 @@ int main(void) {
     desk_apply_master(&model, 200);
 
     struct desk_fonts fonts;
-    assert(desk_fonts_open(&fonts, "br2-external/package/taq102-fonts/fonts") == 0);
+    assert(desk_fonts_open(&fonts, "fonts") == 0);
     struct canvas canvas = { .px = calloc(DESK_W * DESK_H, 4), .w = DESK_W, .h = DESK_H };
     assert(canvas.px);
     desk_paint(&canvas, &model, &fonts);

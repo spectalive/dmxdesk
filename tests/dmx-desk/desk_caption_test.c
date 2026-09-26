@@ -10,8 +10,8 @@
 #include "showmap.h"
 
 int main(void) {
-    struct font *tile = font_open("br2-external/package/taq102-fonts/fonts/Inter-SemiBold.ttf", 22);
-    struct font *small = font_open("br2-external/package/taq102-fonts/fonts/Inter-Regular.ttf", 16);
+    struct font *tile = font_open("fonts/Inter-SemiBold.ttf", 22);
+    struct font *small = font_open("fonts/Inter-Regular.ttf", 16);
     assert(tile && small);
     struct desk_caption_lines l;
 

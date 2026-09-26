@@ -15,7 +15,7 @@
 
 int main(void) {
     struct desk_fonts loaded = {0};
-    assert(desk_fonts_open(&loaded, "br2-external/package/taq102-fonts/fonts") == 0);
+    assert(desk_fonts_open(&loaded, "fonts") == 0);
     assert(loaded.value);
     struct canvas c = { .px = calloc(DESK_W * DESK_H, sizeof(uint32_t)),
                         .w = DESK_W, .h = DESK_H };

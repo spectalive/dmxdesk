@@ -12,7 +12,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = Path(__file__).resolve().parent.parent
-FONTS = HERE / "br2-external/package/taq102-fonts/fonts"
+FONTS = HERE / "fonts"
 W, H, S = 1024, 600, 2  # panel, supersample
 
 # Palette: one dark ground, one tile, one raised tile, ink, muted, amber for
