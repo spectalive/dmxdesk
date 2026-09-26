@@ -54,6 +54,7 @@
 #include "desk_speed.h"
 #include "desk_speed_layout.h"
 #include "desk_speed_paint.h"
+#include "desk_toggle_queue.h"
 #include "desk_view.h"
 #include "display_power.h"
 #include "font.h"
@@ -227,15 +228,33 @@ static void send_tagged(struct qlc_session *session, const char *tag, const char
         desk_action_log_dropped(tag, frame, "link down");
 }
 
-// One gesture, one frame. Master-fader moves are continuous and are not logged.
-static void send_action(struct qlc_session *session, struct desk_action action, int64_t now) {
+// A toggle whose 200 ms slot has come: sent now, or dropped if the link went
+// down while it waited in the queue.
+static void toggle_drain(struct qlc_session *session, struct desk_toggle_queue *toggles, int64_t now) {
+    if (!desk_toggle_queue_slot_open(toggles, now))
+        return;
+    char frame[64];
+    if (!desk_toggle_queue_pop(toggles, frame, sizeof frame))
+        return;
+    desk_toggle_queue_mark_slot(toggles, now);
+    send_tagged(session, "toggle", frame, now);
+}
+
+// One gesture, one frame. A toggle is queued so two struck in the same engine
+// tick cannot both land before either one's effect is read back (2026-09-26:
+// AUTO plus a colour pick of the same solo frame left the pick's colour
+// stopped with RGB at 0 while AUTO ran); stop-all and the master go at once.
+static void send_action(struct qlc_session *session, struct desk_toggle_queue *toggles,
+                        struct desk_action action, int64_t now) {
     char frame[64];
     int n = -1;
     switch (action.kind) {
     case DESK_ACT_TOGGLE:
         n = qlc_encode_toggle(frame, sizeof frame, action.widget_id);
-        if (n > 0)
-            send_tagged(session, "toggle", frame, now);
+        if (n <= 0)
+            return;
+        if (desk_toggle_queue_push(toggles, frame) != 0)
+            desk_action_log_dropped("toggle", frame, "queue full");
         return;
     case DESK_ACT_MASTER:
         n = qlc_encode_grand_master(frame, sizeof frame, action.value);
@@ -555,6 +574,8 @@ int main(int argc, char **argv) {
     int bar_ready = 0;      // the bar's facts reach the model on the next status tick
     enum qlc_link last_link = QLC_DOWN;
     char last_reason[96] = "";
+    struct desk_toggle_queue toggles;
+    desk_toggle_queue_init(&toggles);
 
     while (!stop) {
         int64_t iteration_at = loop_trace(NULL, 0);
@@ -914,9 +935,13 @@ int main(int argc, char **argv) {
                     desk_touch_cancel(&model, events[i].slot);
                     break;
                 }
-                send_action(session, action, now);
+                send_action(session, &toggles, action, now);
             }
         }
+
+        // A toggle held in the spacing queue since an earlier iteration,
+        // whose slot has now come.
+        toggle_drain(session, &toggles, now);
 
         phase_at = loop_trace("touch-input", phase_at);
         // The supplicant's events: a scan's end fills the card; every line
