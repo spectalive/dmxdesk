@@ -33,6 +33,7 @@
 
 #include "action_worker.h"
 #include "canvas.h"
+#include "desk_action_log.h"
 #include "desk_conf.h"
 #include "desk_hold.h"
 #include "desk_build_holds.h"
@@ -217,22 +218,33 @@ static void release_holds(struct desk_hold *hold, struct desk_model *model, stru
     }
 }
 
-// One gesture, one frame. A frame refused because the link went down between
-// the touch and the send is dropped, never kept: a toggle sent late is a
-// second toggle.
-static void send_action(struct qlc_session *session, struct desk_action action) {
+// A frame refused because the link went down between the touch and the send
+// is dropped, never kept: a toggle sent late is a second toggle.
+static void send_tagged(struct qlc_session *session, const char *tag, const char *frame, int64_t now) {
+    if (qlc_session_send(session, frame) == 0)
+        desk_action_log_sent(tag, frame, now);
+    else
+        desk_action_log_dropped(tag, frame, "link down");
+}
+
+// One gesture, one frame. Master-fader moves are continuous and are not logged.
+static void send_action(struct qlc_session *session, struct desk_action action, int64_t now) {
     char frame[64];
     int n = -1;
     switch (action.kind) {
     case DESK_ACT_TOGGLE:
         n = qlc_encode_toggle(frame, sizeof frame, action.widget_id);
-        break;
+        if (n > 0)
+            send_tagged(session, "toggle", frame, now);
+        return;
     case DESK_ACT_MASTER:
         n = qlc_encode_grand_master(frame, sizeof frame, action.value);
         break;
     case DESK_ACT_STOP_ALL:
         n = qlc_encode_stop_all(frame, sizeof frame, action.widget_id);
-        break;
+        if (n > 0)
+            send_tagged(session, "stop", frame, now);
+        return;
     case DESK_ACT_NONE:
         return;
     }
@@ -902,7 +914,7 @@ int main(int argc, char **argv) {
                     desk_touch_cancel(&model, events[i].slot);
                     break;
                 }
-                send_action(session, action);
+                send_action(session, action, now);
             }
         }
 
