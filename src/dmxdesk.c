@@ -261,8 +261,14 @@ static void send_action(struct qlc_session *session, struct desk_toggle_queue *t
         break;
     case DESK_ACT_STOP_ALL:
         n = qlc_encode_stop_all(frame, sizeof frame, action.widget_id);
-        if (n > 0)
+        if (n > 0) {
+            // A toggle still waiting for its slot would land after the stop
+            // and start something again: stop-all empties the queue first.
+            char waiting[64];
+            while (desk_toggle_queue_pop(toggles, waiting, sizeof waiting))
+                desk_action_log_dropped("toggle", waiting, "stop-all");
             send_tagged(session, "stop", frame, now);
+        }
         return;
     case DESK_ACT_NONE:
         return;
