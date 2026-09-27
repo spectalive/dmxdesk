@@ -14,13 +14,17 @@ static const char MAP[] =
     "{\"schema\":2,\"qlcVersion\":\"5.2.2\",\"show\":{\"key\":\"t\",\"workspace\":\"t.qxw\",\"sha256\":\"\"},"
     "\"pages\":[{\"key\":\"live\",\"title\":\"LIVE\",\"sections\":["
     "{\"key\":\"room\",\"title\":\"SALA\",\"solo\":3,\"controls\":[\"auto\",\"charla\",\"fiesta\"]},"
-    "{\"key\":\"colour\",\"title\":\"COLOR\",\"solo\":62,\"controls\":[\"colores\",\"luz-charla\",\"rig-rojo\",\"rig-azul\"]}]}],"
+    "{\"key\":\"colour\",\"title\":\"COLOR\",\"solo\":62,\"controls\":[\"colores\",\"luz-charla\",\"mezcla\",\"rig-rojo\",\"rig-azul\"]}]}],"
     "\"controls\":{"
     "\"auto\":{\"widget\":4,\"action\":\"toggle\",\"caption\":\"AUTO\",\"role\":\"state\",\"solo\":3,\"enabled\":true},"
     "\"charla\":{\"widget\":5,\"action\":\"toggle\",\"caption\":\"CHARLA\",\"role\":\"state\",\"solo\":3,\"enabled\":true},"
     "\"fiesta\":{\"widget\":7,\"action\":\"toggle\",\"caption\":\"FIESTA\",\"role\":\"state\",\"solo\":3,\"enabled\":true},"
     "\"colores\":{\"widget\":64,\"action\":\"toggle\",\"caption\":\"COLORES\",\"role\":\"hook\",\"solo\":62,\"enabled\":true},"
     "\"luz-charla\":{\"widget\":69,\"action\":\"toggle\",\"caption\":\"LUZ\",\"role\":\"hook\",\"solo\":62,\"enabled\":true},"
+    // A desk hook that the show graph treats as a pick (Mezcla in Vibra)
+    // carries releaseTo too, and is released like any pick.
+    "\"mezcla\":{\"widget\":68,\"action\":\"toggle\",\"caption\":\"MEZCLA\",\"role\":\"hook\",\"solo\":62,\"enabled\":true,"
+    "\"releaseTo\":{\"4\":64}},"
     "\"rig-rojo\":{\"widget\":70,\"action\":\"toggle\",\"caption\":\"ROJO\",\"role\":\"pick\",\"solo\":62,\"enabled\":true,"
     "\"releaseTo\":{\"4\":64,\"5\":69}},"
     "\"rig-azul\":{\"widget\":80,\"action\":\"toggle\",\"caption\":\"AZUL\",\"role\":\"pick\",\"solo\":62,\"enabled\":true}"
@@ -120,6 +124,14 @@ int main(void) {
             model.control[i].pending = 0;
     desk_note_sent(&model, 64, 1000);
     assert(desk_release_hook(&model, &map, 70) == -1);
+
+    // A hook-role control with releaseTo presses its hook on release.
+    for (int i = 0; i < model.count; i++)
+        if (model.control[i].widget_id == 64 || model.control[i].widget_id == 70)
+            model.control[i].pending = 0;
+    set_state(&model, 70, DESK_OFF);
+    set_state(&model, 68, DESK_ON);
+    assert(desk_release_hook(&model, &map, 68) == 64);
 
     printf("desk release hook ok\n");
     return 0;
