@@ -86,7 +86,9 @@ int main(void) {
     assert(find(&map, "pick-c")->releases == 0);
     assert(find(&map, "pick-a")->releases == 1);
 
-    // The shipped map predates the field: every control loads with none.
+    // The shipped map (Vibra, qlctool v0.1.9): 99 picks carry 432 entries,
+    // and every one names a state and a hook of the pick's own frame, so the
+    // pruner keeps them all.
     FILE *f = fopen("show/vibra.desk.json", "rb");
     assert(f);
     char *vibra = malloc(512 * 1024);
@@ -96,8 +98,12 @@ int main(void) {
     static struct show_map shipped;
     assert(showmap_parse(vibra, len, &shipped) == 0);
     free(vibra);
-    for (int i = 0; i < shipped.count; i++)
-        assert(shipped.control[i].releases == 0);
+    int carrying = 0, entries = 0;
+    for (int i = 0; i < shipped.count; i++) {
+        carrying += shipped.control[i].releases > 0;
+        entries += shipped.control[i].releases;
+    }
+    assert(carrying == 99 && entries == 432);
 
     printf("showmap releaseTo ok\n");
     return 0;

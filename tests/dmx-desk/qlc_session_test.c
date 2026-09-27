@@ -218,7 +218,7 @@ int main(void) {
     if (drive_until(s, &k, &now, QLC_READY, 400, 5) != QLC_READY) { fprintf(stderr, "first: link %d reason [%s]\n", qlc_session_link(s), qlc_session_reason(s)); assert(0); }
     struct vc_doc doc;
     assert(qlc_session_take_snapshot(s, &doc) == 1);
-    assert(doc.count > 600);
+    assert(doc.count > 500); // the Vibra console captured with v0.1.9 has 583 widgets
     assert(qlc_session_take_snapshot(s, &doc) == 0);
     vc_free(&doc);
     // A push from the fake arrives as a frame.
