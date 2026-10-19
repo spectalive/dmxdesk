@@ -1,4 +1,4 @@
-// SOURCES: desk_caption.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c canvas.c canvas_blend.c font.c desk_layout_resolve.c desk_show_layout.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c
+// SOURCES: desk_caption.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c canvas.c canvas_blend.c font.c desk_layout_resolve.c desk_show_layout.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c
 // Captions measured against the bundled Inter: the show's own words on the
 // tiles that will carry them, with the cuts counted rather than assumed.
 #include <assert.h>
@@ -66,23 +66,25 @@ int main(void) {
     assert(cut < total / 4);
 
     // DIRECTO at the faces the desk draws it with: a state's name in
-    // SemiBold 12 and its detail in Regular 11 inside an 84 px state tile,
-    // a hold's name in SemiBold 14 and its foot in Regular 13 inside one of
-    // seven equal GOLPES tiles. Nothing the operator reads there is cut.
+    // SemiBold 12 and its detail in Regular 11 inside one of seven states
+    // under the hero, a hold's name in SemiBold 14 inside a pad three to a
+    // row, its MANTENER pill in SemiBold 12 and its length in Regular 13.
+    // Nothing the operator reads there is cut.
     struct font *state = font_open("fonts/Inter-SemiBold.ttf", 12);
     struct font *detail = font_open("fonts/Inter-Regular.ttf", 11);
     struct font *hold = font_open("fonts/Inter-SemiBold.ttf", 14);
     struct font *foot = font_open("fonts/Inter-Regular.ttf", 13);
     assert(state && detail && hold && foot);
-    int hold_w = (DESK_CONTENT_W - 2 * DESK_PANEL_PAD - 6 * DESK_GAP) / 7;
+    int state_w = (DESK_HERO_W - 6 * DESK_STATE_GAP) / 7;
+    int hold_w = (DESK_HITS_W - 2 * DESK_GAP) / 3;
     int states = 0, holds = 0;
     for (int i = 0; i < map.count; i++) {
         const struct map_control *c = &map.control[i];
         if (c->role == MAP_ROLE_STATE) {
             states++;
-            desk_caption_fit(state, DESK_STATE_W - 8, c->caption, &l);
+            desk_caption_fit(state, state_w - 8, c->caption, &l);
             assert(!l.cut);
-            desk_caption_fit(detail, DESK_STATE_W - 8, c->detail, &l);
+            desk_caption_fit(detail, state_w - 8, c->detail, &l);
             assert(!l.cut);
         } else if ((c->role == MAP_ROLE_BURST || c->role == MAP_ROLE_ACCENT) &&
                    strcmp(map.page[c->page].key, "live") == 0) {
@@ -92,8 +94,10 @@ int main(void) {
         }
     }
     assert(states == 7 && holds == 7);
-    // The longest foot a hold carries: "pulsa · máx 8 s".
-    assert(font_width(foot, "pulsa \xc2\xb7 m\xc3\xa1x 8 s") <= hold_w - 8);
+    // The pill and the longest length a pad carries, and the longest reason.
+    assert(font_width(state, "MANTENER") + 16 <= hold_w - 8);
+    assert(font_width(foot, "m\xc3\xa1x 8 s") <= hold_w - 8);
+    assert(font_width(foot, "solo en el Mac") <= hold_w - 8);
     // EFECTOS at the faces and widths its painters use (desk v3, 2026-10-19):
     // a hook's name beside its mark in SemiBold 14 on one line or two; a pick's name in SemiBold 14 under its square, mark or
     // figure; a number's caption in Regular 13. Nothing is cut.

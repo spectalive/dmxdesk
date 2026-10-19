@@ -1,4 +1,4 @@
-// SOURCES: desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c
+// SOURCES: desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_panel_holds.c
 // What changed is what gets painted: a push lights one tile's rectangle, a
 // view change everything, and a clip keeps a primitive inside its damage.
 #include <assert.h>
@@ -54,7 +54,8 @@ int main(void) {
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 1 && w < 0);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 0);
 
-    // A push lights AUTO: its rectangle on LIVE, nothing else.
+    // A push lights AUTO: its rectangle on LIVE, the hero that names it and
+    // the bar's word, and nothing below the states.
     desk_apply_function(&m, auto_function, 1);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
     int auto_ix = -1;
@@ -62,7 +63,8 @@ int main(void) {
         if (strcmp(m.control[i].label, "AUTO") == 0)
             auto_ix = i;
     const struct desk_placement *ap = desk_placement_of(&m, auto_ix);
-    assert(ap && x == ap->x && y == ap->y && w == ap->w && h == ap->h);
+    assert(ap && w > 0 && x <= ap->x && y == 0 && x + w >= ap->x + ap->w && y + h == ap->y + ap->h);
+    assert(x <= DESK_HERO_X && x + w >= DESK_HERO_X + DESK_HERO_W && x + w <= DESK_STATUS_END);
 
     // A push for a control on another page damages nothing on this view.
     int gobo_fn = -1;
@@ -73,11 +75,11 @@ int main(void) {
     desk_apply_function(&m, gobo_fn, 1);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 0);
 
-    // Two changes: the union.
+    // Two changes: the union, the same band.
     desk_apply_function(&m, auto_function, 0);
     desk_apply_function(&m, charla_function, 1);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
-    assert(x == ap->x && y == ap->y && w > ap->w && h == ap->h);
+    assert(x <= ap->x && y == 0 && w > ap->w && y + h == ap->y + ap->h);
 
     // A view change is everything; a status rectangle is itself.
     desk_set_view(&m, 1, 0);

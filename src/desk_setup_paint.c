@@ -62,12 +62,12 @@ static void button(struct canvas *c, struct font *f, int x, int y, int w, int h,
     if (style == BUTTON_PRIMARY) {
         // Raised with an ink ring, not a white slab: settings must not light
         // the operator's face in the dark.
-        canvas_round_rect(c, x, y, w, h, 12, DESK_INK);
-        canvas_round_rect(c, x + 2, y + 2, w - 4, h - 4, 10, DESK_RAISED);
+        canvas_blend_round_rect(c, x, y, w, h, 12, DESK_INK);
+        canvas_blend_round_rect(c, x + 2, y + 2, w - 4, h - 4, 10, DESK_RAISED);
         centred(c, f, x, y, w, h, s, DESK_INK);
     } else if (style == BUTTON_SECONDARY) {
-        canvas_round_rect(c, x, y, w, h, 12, DESK_MUTED);
-        canvas_round_rect(c, x + 2, y + 2, w - 4, h - 4, 10, DESK_GLASS);
+        canvas_blend_round_rect(c, x, y, w, h, 12, DESK_MUTED);
+        canvas_blend_round_rect(c, x + 2, y + 2, w - 4, h - 4, 10, DESK_GLASS);
         centred(c, f, x, y, w, h, s, DESK_INK);
     } else {
         centred(c, f, x, y, w, h, s, DESK_MUTED);
@@ -75,7 +75,7 @@ static void button(struct canvas *c, struct font *f, int x, int y, int w, int h,
 }
 
 static void card_frame(struct canvas *c, const struct desk_fonts *fonts, int x, const char *title, int pages, int page) {
-    canvas_round_rect(c, x, SETUP_CARD_Y, SETUP_CARD_W, SETUP_CARD_H, SETUP_CARD_RADIUS, DESK_TILE);
+    canvas_blend_round_rect(c, x, SETUP_CARD_Y, SETUP_CARD_W, SETUP_CARD_H, SETUP_CARD_RADIUS, DESK_TILE);
     text_at(c, fonts->label, x + 16, SETUP_CARD_Y + (SETUP_TITLE_H - text_h(fonts->label)) / 2 + 4,
             SETUP_CARD_W - 32 - 2 * SETUP_PAGE_W, title, DESK_MUTED);
     if (pages > 1) {
@@ -119,7 +119,7 @@ static void wifi_card(struct canvas *c, const struct desk_setup *s, const struct
         const struct wifi_network *w = &s->scan.network[s->scan_page * SETUP_ROWS + r];
         int ry = SETUP_ROWS_Y + r * SETUP_ROW_H;
         int joinable = wifi_scan_joinable(w->security);
-        canvas_round_rect(c, x + 8, ry + 4, SETUP_CARD_W - 16, SETUP_ROW_H - 8, 12, DESK_GLASS);
+        canvas_blend_round_rect(c, x + 8, ry + 4, SETUP_CARD_W - 16, SETUP_ROW_H - 8, 12, DESK_GLASS);
         signal_bars(c, x + 20, ry + 16, w->level_dbm);
         text_at(c, fonts->tile, x + 64, ry + (SETUP_ROW_H - text_h(fonts->tile)) / 2, SETUP_CARD_W - 150,
                 w->ssid, joinable ? DESK_INK : DESK_MUTED);
@@ -172,7 +172,7 @@ static void master_card(struct canvas *c, const struct desk_setup *s, const stru
         int ry = SETUP_ROWS_Y + r * SETUP_ROW_H;
         int current = s->master_configured && strcmp(host, s->master) == 0 && port == s->port;
         // The connected master carries a check, not a white row.
-        canvas_round_rect(c, x + 8, ry + 4, SETUP_CARD_W - 16, SETUP_ROW_H - 8, 12, current ? DESK_RAISED : DESK_GLASS);
+        canvas_blend_round_rect(c, x + 8, ry + 4, SETUP_CARD_W - 16, SETUP_ROW_H - 8, 12, current ? DESK_RAISED : DESK_GLASS);
         text_at(c, fonts->tile, x + 24, ry + (SETUP_ROW_H - text_h(fonts->tile)) / 2, SETUP_CARD_W - 88, line,
                 DESK_INK);
         if (current)
@@ -202,23 +202,23 @@ static void master_card(struct canvas *c, const struct desk_setup *s, const stru
 static void footer(struct canvas *c, const struct desk_setup *s, const struct desk_fonts *fonts) {
     // The brightness: a slim track inside a generous touch region, the
     // label above it, no backing needed.
-    canvas_round_rect(c, SETUP_FADER_X, SETUP_FADER_Y, SETUP_FADER_W, SETUP_FADER_H, 12, DESK_TILE);
+    canvas_blend_round_rect(c, SETUP_FADER_X, SETUP_FADER_Y, SETUP_FADER_W, SETUP_FADER_H, 12, DESK_TILE);
     struct desk_rect track = desk_brightness_track();
-    canvas_round_rect(c, track.x, track.y, track.w, track.h, 10, DESK_GLASS);
+    canvas_blend_round_rect(c, track.x, track.y, track.w, track.h, 10, DESK_GLASS);
     int range = s->brightness_max - 8;
     int level = s->brightness - 8;
     int track_fill = range > 0 ? track.w * level / range : 0;
     if (track_fill > 0)
-        canvas_round_rect(c, track.x, track.y, track_fill, track.h, 10, DESK_MUTED);
+        canvas_blend_round_rect(c, track.x, track.y, track_fill, track.h, 10, DESK_MUTED);
     char line[48];
     int pct = range > 0 ? 100 * level / range : 100;
     snprintf(line, sizeof line, "Brillo %d%%%s", pct, s->brightness_unsaved ? "  \xc2\xb7 aplicado, sin guardar" : "");
     text_at(c, fonts->tile_s, SETUP_FADER_X + 16, SETUP_FADER_Y + 12, SETUP_FADER_W - 32, line, DESK_INK);
     // The toggle: a pill with a knob, the row its target.
-    canvas_round_rect(c, SETUP_TOGGLE_X, SETUP_TOGGLE_Y, SETUP_TOGGLE_W, SETUP_TOGGLE_H, 12, DESK_TILE);
+    canvas_blend_round_rect(c, SETUP_TOGGLE_X, SETUP_TOGGLE_Y, SETUP_TOGGLE_W, SETUP_TOGGLE_H, 12, DESK_TILE);
     int px = SETUP_TOGGLE_X + SETUP_TOGGLE_W - 24 - 52, py = SETUP_TOGGLE_Y + SETUP_TOGGLE_H - 40;
-    canvas_round_rect(c, px, py, 52, 26, 13, s->power_aware ? DESK_INK : DESK_RAISED);
-    canvas_round_rect(c, s->power_aware ? px + 52 - 24 : px + 2, py + 2, 22, 22, 11,
+    canvas_blend_round_rect(c, px, py, 52, 26, 13, s->power_aware ? DESK_INK : DESK_RAISED);
+    canvas_blend_round_rect(c, s->power_aware ? px + 52 - 24 : px + 2, py + 2, 22, 22, 11,
                       s->power_aware ? DESK_GLASS : DESK_MUTED);
     uint32_t ink = DESK_INK;
     text_at(c, fonts->small, SETUP_TOGGLE_X + 20, SETUP_TOGGLE_Y + 16, SETUP_TOGGLE_W - 40, "Atenuar con bater\xc3\xad" "a", ink);
@@ -227,7 +227,7 @@ static void footer(struct canvas *c, const struct desk_setup *s, const struct de
 }
 
 static void confirm_sheet(struct canvas *c, const struct desk_setup *s, const struct desk_fonts *fonts) {
-    canvas_round_rect(c, SETUP_CONFIRM_X, SETUP_CONFIRM_Y, SETUP_CONFIRM_W, SETUP_CONFIRM_H, 20, DESK_TILE);
+    canvas_blend_round_rect(c, SETUP_CONFIRM_X, SETUP_CONFIRM_Y, SETUP_CONFIRM_W, SETUP_CONFIRM_H, 20, DESK_TILE);
     char line[WIFI_SSID_MAX + 24];
     snprintf(line, sizeof line, "\xc2\xbfUnirse a %s?", s->pending_ssid);
     text_at(c, fonts->tile, SETUP_CONFIRM_X + 24, SETUP_CONFIRM_Y + 28, SETUP_CONFIRM_W - 48, line, DESK_INK);

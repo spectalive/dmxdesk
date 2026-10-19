@@ -129,3 +129,13 @@ desk_paint_number.c
 desk_paint_trajectory.c
 desk_paint_tile_base.c
 icon_paint_large.c
+desk_show_holds.c
+desk_show_haze.c
+desk_show_rig.c
+desk_damage_running.c
+desk_paint_selected.c
+desk_paint_selected_mark.c
+desk_paint_hold.c
+desk_paint_room_picture.c
+icon_paint_mid.c
+icon_paint_hero.c

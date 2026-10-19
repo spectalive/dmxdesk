@@ -2,6 +2,8 @@
 
 #include "desk_layout.h"
 #include "desk_paint_keyline.h"
+#include "desk_paint_selected.h"
+#include "desk_paint_selected_mark.h"
 #include "desk_paint_text_centred.h"
 #include "desk_view_family.h"
 #include "icon.h"
@@ -17,9 +19,14 @@ void desk_paint_families(struct canvas *c, const struct desk_model *model,
     for (int i = 0; i < l->families; i++) {
         struct desk_rect r = desk_view_family(i, l->families);
         int current = l->family_page[i] == model->page;
-        uint32_t fill = current ? DESK_ACCENT : DESK_TILE;
         uint32_t ink = current ? DESK_ACCENT_INK : DESK_INK;
-        desk_paint_keyline(c, r.x, r.y, r.w, r.h, DESK_RADIUS, fill, current ? fill : DESK_LINE);
+        // The family on screen wears the selected look.
+        if (current) {
+            desk_paint_selected(c, r.x, r.y, r.w, r.h, DESK_RADIUS);
+            desk_paint_selected_mark(c, r.x, r.y, r.w, r.h);
+        } else {
+            desk_paint_keyline(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_TILE, DESK_LINE);
+        }
         int name_x = r.x + 8;
         if (l->family_icon[i] >= 0) {
             icon_paint(c, (enum icon_id)l->family_icon[i], r.x + MARK_X, r.y + (r.h - ICON_SIZE) / 2,

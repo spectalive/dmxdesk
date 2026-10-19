@@ -1,5 +1,7 @@
 #include "desk_gear_paint.h"
 
+#include "canvas_blend.h"
+
 void desk_gear_paint(struct canvas *c, int x, int y, int w, int h, uint32_t ink, uint32_t hole) {
     int size = w < h ? w : h;
     if (size > 28)
@@ -15,6 +17,6 @@ void desk_gear_paint(struct canvas *c, int x, int y, int w, int h, uint32_t ink,
         canvas_fill_rect(c, cx + d - tooth / 2, cy - d - tooth / 2, tooth, tooth, ink);
     }
     // The ring over the teeth, then the hole.
-    canvas_round_rect(c, cx - r, cy - r, 2 * r, 2 * r, r, ink);
-    canvas_round_rect(c, cx - r / 2, cy - r / 2, r, r, r / 2, hole);
+    canvas_blend_round_rect(c, cx - r, cy - r, 2 * r, 2 * r, r, ink);
+    canvas_blend_round_rect(c, cx - r / 2, cy - r / 2, r, r, r / 2, hole);
 }

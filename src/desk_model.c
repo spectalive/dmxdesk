@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "desk_damage_running.h"
 #include "desk_master_level_at.h"
 #include "desk_tab.h"
 
@@ -382,6 +383,7 @@ void desk_apply_function(struct desk_model *m, int function_id, int running) {
                 c->state = state;
                 c->pending = 0;
                 damage_control(m, i);
+                desk_damage_running(m, i);
             }
         }
     }

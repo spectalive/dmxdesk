@@ -1,4 +1,4 @@
-// SOURCES: desk_view_pager.c desk_pager_label.c desk_pager_caption.c desk_pager_bank_caption.c desk_view.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c font.c canvas.c canvas_blend.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c
+// SOURCES: desk_view_pager.c desk_pager_label.c desk_pager_caption.c desk_pager_bank_caption.c desk_view.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c font.c canvas.c canvas_blend.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c
 // Label budgets never steal content space, even with six long Spanish captions.
 #include <assert.h>
 #include <stdio.h>

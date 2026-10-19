@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_text_at.c desk_speed_target_rect.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_text_at.c desk_speed_target_rect.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_paint_hold.c desk_paint_selected.c desk_paint_selected_mark.c icon_paint_mid.c desk_paint_room_picture.c icon_paint_hero.c
 // The desk, built from the generated Vibra map against the real console
 // document, pressed once, and painted. Writes $TEST_OUT/desk.ppm so the screen can be
 // looked at on a laptop before it reaches the tablet, and one render per tab:
@@ -161,17 +161,21 @@ int main(void) {
     write_ppm(&canvas, path);
     printf("wrote %s\n", path);
 
-    // DIRECTO's tab is the accent pill; the link dot is green.
+    // DIRECTO's tab wears the selected look; the link dot is green.
     struct desk_rect directo = desk_view_tab(DESK_TAB_DIRECTO), efectos = desk_view_tab(DESK_TAB_EFECTOS);
-    assert(canvas.px[(directo.y + directo.h / 2) * canvas.w + directo.x + 6] == DESK_ACCENT);
+    assert(canvas.px[(directo.y + directo.h / 2) * canvas.w + directo.x + 6] == DESK_SELECTED_FILL);
+    assert(canvas.px[(directo.y + directo.h / 2) * canvas.w + directo.x] == DESK_SELECTED_LINE);
     assert(canvas.px[(efectos.y + efectos.h / 2) * canvas.w + efectos.x + 6] == DESK_TILE);
     assert(canvas.px[(DESK_BAR_H / 2) * canvas.w + DESK_LINK_DOT_X + DESK_LINK_DOT / 2] == DESK_OK);
 
-    // DIRECTO: the running state is solid accent; every other state, hold
-    // and segment sits on its panel; the rig colours carry no words, the
-    // running one ringed in accent with its colour whole inside.
+    // DIRECTO: the running state wears the selected look and the hero over
+    // the states fills with the hero indigo; the rig colours carry no words,
+    // the running one ringed in the selected line with its colour whole inside.
     const struct desk_placement *autop = desk_placement_of(&model, (int)(by_label(&model, "AUTO") - model.control));
-    assert(canvas.px[(autop->y + 4) * canvas.w + autop->x + 4] == DESK_ACCENT);
+    assert(canvas.px[(autop->y + autop->h / 2) * canvas.w + autop->x + 4] == DESK_SELECTED_FILL);
+    assert(canvas.px[(autop->y + autop->h / 2) * canvas.w + autop->x] == DESK_SELECTED_LINE);
+    assert(canvas.px[(DESK_HERO_Y + DESK_HERO_H / 2) * canvas.w + DESK_HERO_X + 8] == DESK_HERO_FILL);
+    assert(canvas.px[(DESK_HERO_Y + DESK_HERO_H / 2) * canvas.w + DESK_HERO_X] == DESK_ACCENT);
     for (int i = 0; i < layout.placements; i++) {
         const struct desk_placement *p = &layout.placement[i];
         if (p->page != 0 || p->tile != TILE_MINI)
@@ -182,7 +186,7 @@ int main(void) {
         for (int y = p->y + 12; y < p->y + p->h - 12; y++)
             assert(canvas.px[y * canvas.w + p->x + p->w / 2] == colour);
         int lit = ctl->state == DESK_ON;
-        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x] == (lit ? DESK_ACCENT : colour));
+        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x] == (lit ? DESK_SELECTED_LINE : colour));
         assert(lit == (strcmp(ctl->label, "Rig Rojo Fuego") == 0));
     }
     // The tempo panel: the TAP target where the hit test finds it.
@@ -201,9 +205,10 @@ int main(void) {
     desk_paint(&canvas, &model, &fonts);
     snprintf(path, sizeof path, "%s/desk-color.ppm", out ? out : "/tmp");
     write_ppm(&canvas, path);
-    assert(canvas.px[(efectos.y + efectos.h / 2) * canvas.w + efectos.x + 6] == DESK_ACCENT);
+    assert(canvas.px[(efectos.y + efectos.h / 2) * canvas.w + efectos.x + 6] == DESK_SELECTED_FILL);
     struct desk_rect color = desk_view_family(0, layout.families), pixels = desk_view_family(1, layout.families);
-    assert(canvas.px[(color.y + 4) * canvas.w + color.x + color.w / 2] == DESK_ACCENT);
+    assert(canvas.px[(color.y + 4) * canvas.w + color.x + color.w / 2] == DESK_SELECTED_FILL);
+    assert(canvas.px[color.y * canvas.w + color.x + color.w / 2] == DESK_SELECTED_TOP);
     assert(canvas.px[(pixels.y + 4) * canvas.w + pixels.x + pixels.w / 2] == DESK_TILE);
     assert(canvas.px[pixels.y * canvas.w + pixels.x + pixels.w / 2] == DESK_LINE);
     for (int i = 0; i < layout.headings; i++) {
@@ -212,7 +217,7 @@ int main(void) {
             assert(canvas.px[(h->y + h->h - 2) * canvas.w + h->x + h->w / 2] == DESK_PANEL);
     }
     // COLOR's picks: a colour square over the name; the running one ringed in
-    // accent with its square whole, the rest in their keyline.
+    // the selected line with its square whole, the rest in their keyline.
     int squares = 0;
     for (int i = 0; i < layout.placements; i++) {
         const struct desk_placement *p = &layout.placement[i];
@@ -222,15 +227,16 @@ int main(void) {
         assert(ctl->swatches == 1);
         int lit = ctl->state == DESK_ON;
         assert(lit == (strcmp(ctl->label, "Rig Rojo Fuego") == 0));
-        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x] == (lit ? DESK_ACCENT : DESK_LINE));
-        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x + 1] == (lit ? DESK_ACCENT : DESK_TILE));
+        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x] == (lit ? DESK_SELECTED_LINE : DESK_LINE));
+        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x + 1] == (lit ? DESK_SELECTED_LINE : DESK_TILE));
         // The square: 56 px or more, its colour whole across the middle.
         for (int dx = -26; dx <= 26; dx++)
             assert(canvas.px[(p->y + 36) * canvas.w + p->x + p->w / 2 + dx] == (ctl->swatch[0] | 0xFF000000u));
         squares++;
     }
     assert(squares == 10);
-    // Running, a number, a figure and a hook fill with the accent.
+    // Running, a number and a figure are ringed in the selected line round
+    // the frosted fill, and a hook wears the selected look.
     const char *running[] = { "Gobo 14", "Circulo Simultaneo", "AUTO lento" };
     for (int k = 0; k < 3; k++) {
         int index = (int)(by_label(&model, running[k]) - model.control);
@@ -242,8 +248,8 @@ int main(void) {
         assert(p);
         desk_set_view(&model, p->page, p->bank);
         desk_paint(&canvas, &model, &fonts);
-        assert(canvas.px[(p->y + 4) * canvas.w + p->x + p->w / 2] == DESK_ACCENT);
-        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x] == DESK_ACCENT);
+        assert(canvas.px[(p->y + 4) * canvas.w + p->x + p->w / 2] == DESK_SELECTED_FILL);
+        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x] == DESK_SELECTED_LINE);
     }
     // One render per EFECTOS family and bank: desk-<page key>-<bank>.ppm.
     for (int f = 0; f < layout.families; f++) {
@@ -265,7 +271,7 @@ int main(void) {
     snprintf(path, sizeof path, "%s/desk-ritmo.ppm", out ? out : "/tmp");
     write_ppm(&canvas, path);
     struct desk_rect ritmo = desk_view_tab(DESK_TAB_RITMO);
-    assert(canvas.px[(ritmo.y + ritmo.h / 2) * canvas.w + ritmo.x + 6] == DESK_ACCENT);
+    assert(canvas.px[(ritmo.y + ritmo.h / 2) * canvas.w + ritmo.x + 6] == DESK_SELECTED_FILL);
     // EFECTOS still remembers CABEZAS.
     assert(desk_tab_page(&model, DESK_TAB_EFECTOS) == 3);
     desk_set_view(&model, 0, 0);
@@ -278,6 +284,8 @@ int main(void) {
     desk_speed_paint_tempo(&canvas, &speed, 0, &fonts, tempo->x, tempo->y, tempo->w, tempo->h, 0);
     snprintf(path, sizeof path, "%s/desk-nolink.ppm", out ? out : "/tmp");
     write_ppm(&canvas, path);
+    // Without the master the hero is a plain panel: nothing it said holds.
+    assert(canvas.px[(DESK_HERO_Y + DESK_HERO_H / 2) * canvas.w + DESK_HERO_X + 8] == DESK_PANEL);
 
     // Six parts of one long section keep their distinguishing part numbers.
     // No label may spill into a gap, and the running dot keeps its old meaning.

@@ -65,25 +65,33 @@
 #define DESK_PICK_H 88
 #define DESK_HOLD_TILE_H 104
 #define DESK_COLS 6
-// DIRECTO: four flat panels down the content, 8 px apart. SALA AHORA
-// (128) carries the running state's name in a block at its left and the
-// seven states beside it; GOLPES (152) the holds in one row; HUMO AMBIENTE
-// (96) the segmented selector; the bottom row (128) COLOR DEL RIG with the
-// rig's ten colours and, at its right, the TEMPO SHOW panel.
-#define DESK_ROOM_Y 56
-#define DESK_ROOM_H 128
-#define DESK_ROOM_BLOCK_W 156
-#define DESK_STATE_W 84
-#define DESK_STATE_H 104
-#define DESK_HITS_Y 192
-#define DESK_HITS_H 152
-#define DESK_HAZE_Y 352
-#define DESK_HAZE_H 96
-#define DESK_SEGMENT_H 48
-#define DESK_RIG_Y 456
-#define DESK_RIG_H 128
-#define DESK_MINI_H 64
-#define DESK_TEMPO_W 232
+// DIRECTO, the hero layout (mockup 2026-10-19): at the left the SALA AHORA
+// hero says what runs, large, over the seven states in one row; at the right
+// EFECTOS · MIENTRAS PULSES, the holds in rows of three under a heading of
+// their own, a lone last one as a wide pad; across the bottom AMBIENTE (OFF
+// beside the rhythms two rows deep), COLOR DEL RIG (the ten colours) and
+// TEMPO SHOW. States keep a 6 px gap so seven fit 68 px or wider.
+#define DESK_HERO_X DESK_CONTENT_X
+#define DESK_HERO_Y DESK_CONTENT_Y
+#define DESK_HERO_W 516
+#define DESK_HERO_H 200
+#define DESK_STATE_Y 264
+#define DESK_STATE_H 128
+#define DESK_STATE_GAP 6
+#define DESK_HITS_X 540
+#define DESK_HITS_W (DESK_CONTENT_X + DESK_CONTENT_W - DESK_HITS_X)
+#define DESK_HITS_Y DESK_CONTENT_Y
+#define DESK_HITS_TOP 80
+#define DESK_HITS_END (DESK_STATE_Y + DESK_STATE_H)
+#define DESK_HOLD_WIDE_H 56
+#define DESK_LOWER_Y 400
+#define DESK_LOWER_H (DESK_CONTENT_END - DESK_LOWER_Y)
+#define DESK_HAZE_W 324
+#define DESK_HAZE_OFF_W 60
+#define DESK_RIG_W 272
+#define DESK_TEMPO_W 216
+// A rig colour is no narrower than this, or the ten go two rows deep.
+#define DESK_MINI_MIN_W 44
 // A panel's heading: 16 px tall, 8 px over the tiles under it.
 #define DESK_PANEL_TOP (DESK_PANEL_PAD + 16 + DESK_GAP)
 #define DESK_GRID_X DESK_CONTENT_X
@@ -97,10 +105,15 @@
 #define DESK_PAGER_H 56
 #define DESK_PAGER_Y (DESK_CONTENT_END - DESK_PAGER_H)
 
-// The palette, flat. Accent blue means the master says running (or, for
-// OFF, that nothing runs) and nothing else; the stop is the one red; a
-// hold-to-fire button has its own violet field. Tiles sit on panels, panels
-// on the ground, each a step lighter, a tile drawn with a 1 px keyline.
+// The palette, flat. What runs (or, for OFF, that nothing runs) and the tab
+// or family on screen wear the selected look: a frosted lighter fill inside
+// a brighter hairline, a lighter top edge, white words and a short accent
+// bar; a colour pick is ringed in the selected line instead, so its colour
+// stays whole. The accent is a calm indigo, the one hue besides the show's:
+// the selection bar, the hero's edge, a bank's running dot. The hero fills
+// with a deep indigo while a state runs (white on it 10:1). The stop is the
+// one red; a hold-to-fire button has its own violet field. Tiles sit on
+// panels, panels on the ground, each a step lighter, with a 1 px keyline.
 #define DESK_GLASS      0xFF0C0E12u   // the ground
 #define DESK_PANEL      0xFF14181Eu   // a section's panel
 #define DESK_TILE       0xFF1B1F27u
@@ -108,8 +121,13 @@
 #define DESK_LINE       0xFF39404Du   // keylines and rules
 #define DESK_INK        0xFFF5F7FAu
 #define DESK_MUTED      0xFFADB6C4u
-#define DESK_ACCENT     0xFF1A7CFFu   // running, and the tab or family on screen
-#define DESK_ACCENT_INK 0xFFFFFFFFu
+#define DESK_SELECTED_FILL 0xFF343A46u   // white ~12% over a tile
+#define DESK_SELECTED_LINE 0xFF636A78u   // white ~28%: the hairline, a pick's ring
+#define DESK_SELECTED_TOP  0xFF7A808Cu   // the glass's lit top edge
+#define DESK_ACCENT     0xFF7C86D9u   // calm indigo: the selection bar and small marks
+#define DESK_ACCENT_INK 0xFFFFFFFFu   // words on the selected look and on the hero
+#define DESK_HERO_FILL  0xFF2E3A7Eu   // SALA AHORA while a state runs
+#define DESK_HERO_SOFT  0xFFD6DAF8u   // the hero's quieter line (7:1 on its fill)
 #define DESK_OK         0xFF3EE0AAu   // the link dot when the master answers
 #define DESK_WARN       0xFFD42A2Au   // PARAR TODO and warnings
 #define DESK_WARN_INK   0xFFFFD2CCu   // the quieter line on the red

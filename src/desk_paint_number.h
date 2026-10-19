@@ -1,6 +1,6 @@
 // A numbered pick (desk_pick_numbered): its number large, its whole caption
 // small under it, "14" over "Gobo 14"; a caption that is the number alone
-// ("1 y 3") is drawn once, large. Running, the accent fill.
+// ("1 y 3") is drawn once, large. Running, the selected look.
 #ifndef DESK_PAINT_NUMBER_H
 #define DESK_PAINT_NUMBER_H
 

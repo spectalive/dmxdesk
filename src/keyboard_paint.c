@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "canvas_blend.h"
 #include "desk_layout.h"
 #include "keyboard_layout.h"
 
@@ -30,7 +31,7 @@ void keyboard_paint(struct canvas *c, const struct keyboard *kb, const struct de
         canvas_text(c, KB_FIELD_X, KB_TITLE_Y, kb->title, 3, DESK_MUTED);
 
     // The field, with what the model says to show and a caret after it.
-    canvas_round_rect(c, KB_FIELD_X, KB_FIELD_Y, KB_FIELD_W, KB_FIELD_H, KB_RADIUS, DESK_TILE);
+    canvas_blend_round_rect(c, KB_FIELD_X, KB_FIELD_Y, KB_FIELD_W, KB_FIELD_H, KB_RADIUS, DESK_TILE);
     char shown[KB_TEXT_MAX + 1];
     keyboard_display(kb, shown, sizeof shown);
     int text_x = KB_FIELD_X + 16;
@@ -62,12 +63,12 @@ void keyboard_paint(struct canvas *c, const struct keyboard *kb, const struct de
         int primary = (k->kind == KB_KEY_DONE && k->enabled) || (k->kind == KB_KEY_SHIFT && kb->layer == KB_UPPER);
         if (primary)
             fill = DESK_RAISED;
-        canvas_round_rect(c, k->x, k->y, k->w, k->h, KB_RADIUS, primary ? DESK_INK : fill);
+        canvas_blend_round_rect(c, k->x, k->y, k->w, k->h, KB_RADIUS, primary ? DESK_INK : fill);
         if (primary)
-            canvas_round_rect(c, k->x + 2, k->y + 2, k->w - 4, k->h - 4, KB_RADIUS - 2, fill);
+            canvas_blend_round_rect(c, k->x + 2, k->y + 2, k->w - 4, k->h - 4, KB_RADIUS - 2, fill);
         if (i == kb->pressed) {
-            canvas_round_rect(c, k->x, k->y, k->w, k->h, KB_RADIUS, DESK_INK);
-            canvas_round_rect(c, k->x + 3, k->y + 3, k->w - 6, k->h - 6, KB_RADIUS - 3, fill);
+            canvas_blend_round_rect(c, k->x, k->y, k->w, k->h, KB_RADIUS, DESK_INK);
+            canvas_blend_round_rect(c, k->x + 3, k->y + 3, k->w - 6, k->h - 6, KB_RADIUS - 3, fill);
         }
         uint32_t ink = k->enabled ? DESK_INK : DESK_MUTED;
         // The model's labels are the tests' names; the keys read in Spanish.

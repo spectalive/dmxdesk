@@ -1,8 +1,8 @@
 // A flowed tile's ground, one look for the picks that carry no colour: the
-// accent fill while the master says it runs, the 1 px keyline otherwise, the
-// glass while it cannot be chosen; an ink outline while a finger is on it,
-// and the pending dot while its frame is unanswered. Returns the ink its
-// words and mark take on that ground.
+// frosted fill in a 2 px selected-line ring while the master says it runs,
+// the 1 px keyline otherwise, the glass while it cannot be chosen; an ink
+// outline while a finger is on it, and the pending dot while its frame is
+// unanswered. Returns the ink its words and mark take on that ground.
 #ifndef DESK_PAINT_TILE_BASE_H
 #define DESK_PAINT_TILE_BASE_H
 

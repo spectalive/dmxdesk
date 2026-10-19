@@ -1,6 +1,6 @@
-// The bar's three tabs as pills: the one on screen in accent with white
-// words, the others dark. A tab with no page is not drawn; with the settings
-// open none reads as current, since none can be pressed.
+// The bar's three tabs as pills: the one on screen in the selected look with
+// white words, the others dark. A tab with no page is not drawn; with the
+// settings open none reads as current, since none can be pressed.
 #ifndef DESK_PAINT_TABS_H
 #define DESK_PAINT_TABS_H
 

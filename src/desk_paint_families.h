@@ -1,5 +1,5 @@
 // EFECTOS' sub-navigation: one target per family down the left, its mark and
-// its page's title in capitals, the family on screen in accent.
+// its page's title in capitals, the family on screen in the selected look.
 #ifndef DESK_PAINT_FAMILIES_H
 #define DESK_PAINT_FAMILIES_H
 

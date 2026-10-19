@@ -1,4 +1,4 @@
-// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c
+// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c
 // The resolver over the real map: every control placed, nothing overlapping,
 // nothing outside the content area, the banks as the arithmetic yields them,
 // three tabs, six EFECTOS families, and every flowed section on its panel.
@@ -10,6 +10,7 @@
 #include "desk_layout.h"
 #include "desk_layout_resolve.h"
 #include "desk_show_layout.h"
+#include "desk_show_slot.h"
 #include "desk_tab.h"
 #include "icon_data.h"
 #include "showmap.h"
@@ -83,75 +84,91 @@ int main(void) {
     // Every control has a placement on its own page.
     for (int i = 0; i < map.count; i++)
         assert(find(&l, i, map.control[i].page));
-    // DIRECTO: four panels down the content, every tile inside its own.
+    // DIRECTO, the hero layout: SALA AHORA's hero over the seven states at
+    // the left, EFECTOS · MIENTRAS PULSES at the right, and the bottom row of
+    // HUMO AMBIENTE, COLOR DEL RIG and TEMPO SHOW.
     const struct desk_heading *room = heading_named(&l, 0, "SALA AHORA");
-    const struct desk_heading *hits = heading_named(&l, 0, "GOLPES \xc2\xb7 MIENTRAS PULSES");
+    const struct desk_heading *hits = heading_named(&l, 0, "EFECTOS \xc2\xb7 MIENTRAS PULSES");
     const struct desk_heading *haze = heading_named(&l, 0, "HUMO AMBIENTE");
     const struct desk_heading *rig = heading_named(&l, 0, "COLOR DEL RIG");
     assert(room && hits && haze && rig);
     assert(room->kind == DESK_PANEL_ROOM && rig->kind == DESK_PANEL_NAMES_RUNNING);
     assert(hits->kind == DESK_PANEL_PLAIN && haze->kind == DESK_PANEL_PLAIN);
-    assert(room->y == DESK_CONTENT_Y && room->y + room->h + DESK_GAP == hits->y);
-    assert(hits->y + hits->h + DESK_GAP == haze->y && haze->y + haze->h + DESK_GAP == rig->y);
-    assert(rig->y + rig->h == DESK_CONTENT_END);
-    // SALA AHORA: the seven states in one row at the right, the room's block
-    // left of them, each an icon-and-name tile in map order.
+    // The hero: top-left, half the content wide and more, nothing laid on it.
+    assert(room->x == DESK_CONTENT_X && room->y == DESK_CONTENT_Y && room->w == DESK_HERO_W &&
+           room->h == DESK_HERO_H && in_panel(&l, room) == 0);
+    // Seven states in map order, one row of equal tiles under the hero and
+    // spanning it, each at least 68 wide, the running one's tile 128 tall.
     const char *states[] = { "AUTO", "CHARLA", "TRANQUILO", "FIESTA", "LOCURA", "BLANCO TOTAL", "TODO NEGRO" };
     const struct desk_placement *prev = NULL;
     for (int k = 0; k < 7; k++) {
         const struct desk_placement *st = find(&l, control_named(&map, states[k]), 0);
-        assert(st && st->tile == TILE_STATE && inside(st, room));
-        assert(!prev || (st->y == prev->y && st->x == prev->x + prev->w + DESK_GAP));
+        assert(st && st->tile == TILE_STATE && st->w >= 68 && st->h == DESK_STATE_H);
+        assert(st->y == room->y + room->h + DESK_GAP);
+        if (prev)
+            assert(st->y == prev->y && st->x == prev->x + prev->w + DESK_STATE_GAP && abs(st->w - prev->w) <= 1);
+        else
+            assert(st->x == room->x);
         prev = st;
     }
-    assert(prev->x + prev->w == room->x + room->w - DESK_PANEL_PAD);
-    assert(find(&l, control_named(&map, "AUTO"), 0)->x - room->x >= DESK_PANEL_PAD + DESK_ROOM_BLOCK_W);
-    assert(in_panel(&l, room) == 7);
-    // GOLPES: all seven accents in map order, one row of equal tiles that
-    // spans the panel; the fog ones keep their own tile.
-    const char *golpes[] = { "FLASH", "FLASH LENTO", "FLASH COLOR", "HUMO YA", "HUMO VERT", "STROBO", "STROBO SUAVE" };
-    prev = NULL;
-    for (int k = 0; k < 7; k++) {
-        const struct desk_placement *g = find(&l, control_named(&map, golpes[k]), 0);
-        assert(g && inside(g, hits) && g->h == DESK_HOLD_TILE_H);
-        assert(g->tile == (k == 3 || k == 4 ? TILE_FOG : TILE_HOLD));
-        if (prev)
-            assert(g->y == prev->y && g->x == prev->x + prev->w + DESK_GAP && abs(g->w - prev->w) <= 1);
-        else
-            assert(g->x == hits->x + DESK_PANEL_PAD);
-        prev = g;
+    assert(prev->x + prev->w == room->x + room->w);
+    // The holds: a heading line at the right of the hero, then six pads three
+    // to a row, the light ones in map order and HUMO YA last, and HUMO VERT
+    // as one wide pad under them that closes the column level with the states.
+    assert(hits->h == 0 && hits->x == room->x + room->w + DESK_GAP && hits->y == DESK_CONTENT_Y &&
+           hits->x + hits->w == DESK_CONTENT_X + DESK_CONTENT_W);
+    const char *pads[] = { "FLASH", "FLASH LENTO", "FLASH COLOR", "STROBO", "STROBO SUAVE", "HUMO YA" };
+    for (int k = 0; k < 6; k++) {
+        const struct desk_placement *g = find(&l, control_named(&map, pads[k]), 0);
+        assert(g && g->tile == (k == 5 ? TILE_FOG : TILE_HOLD) && g->h >= 112 && g->w >= 88);
+        assert(g->y == DESK_HITS_TOP + (k / 3) * (g->h + DESK_GAP));
+        int col = k % 3, w;
+        assert(g->x == desk_show_slot(hits->x, hits->w, 3, DESK_GAP, col, &w) && g->w == w);
     }
-    assert(prev->x + prev->w == hits->x + hits->w - DESK_PANEL_PAD);
-    assert(in_panel(&l, hits) == 7);
-    // HUMO AMBIENTE: OFF then the four rhythms, one row of equal segments.
+    const struct desk_placement *vert = find(&l, control_named(&map, "HUMO VERT"), 0);
+    assert(vert && vert->tile == TILE_FOG && vert->x == hits->x && vert->w == hits->w);
+    assert(vert->h == DESK_HOLD_WIDE_H && vert->y + vert->h == prev->y + prev->h);
+    // The bottom row: three panels side by side, flush with the content.
+    assert(haze->x == DESK_CONTENT_X && haze->y == DESK_LOWER_Y && haze->h == DESK_LOWER_H);
+    assert(rig->x == haze->x + haze->w + DESK_GAP && rig->y == haze->y && rig->h == haze->h);
+    assert(haze->y == prev->y + prev->h + DESK_GAP && haze->y + haze->h == DESK_CONTENT_END);
+    // HUMO AMBIENTE: OFF a full-height segment at the left, the four rhythms
+    // two rows deep beside it, in map order.
     const struct desk_placement *off = find(&l, map.count + 2, 0);
     const char *rhythms[] = { "cada 1 min", "cada 2 min", "cada 4 min", "cada 8 min" };
     assert(off && off->tile == TILE_SEGMENT && inside(off, haze) && off->x == haze->x + DESK_PANEL_PAD);
-    prev = off;
+    assert(off->y == haze->y + DESK_PANEL_TOP && off->y + off->h == haze->y + haze->h - DESK_PANEL_PAD);
     for (int k = 0; k < 4; k++) {
         const struct desk_placement *seg = find(&l, control_named(&map, rhythms[k]), 0);
-        assert(seg && seg->tile == TILE_SEGMENT && inside(seg, haze));
-        assert(seg->y == prev->y && seg->x == prev->x + prev->w + DESK_GAP && abs(seg->w - prev->w) <= 1);
-        prev = seg;
+        assert(seg && seg->tile == TILE_SEGMENT && inside(seg, haze) && seg->h >= 48 && seg->w >= 96);
+        assert(seg->x >= off->x + off->w + DESK_GAP);
+        assert(k % 2 == 0 ? seg->x == off->x + off->w + DESK_GAP
+                          : seg->x + seg->w == haze->x + haze->w - DESK_PANEL_PAD);
+        assert(k < 2 ? seg->y == off->y : seg->y + seg->h == off->y + off->h);
     }
-    assert(prev->x + prev->w == haze->x + haze->w - DESK_PANEL_PAD);
-    // COLOR DEL RIG: ten swatches in one row, and the tempo panel at its right.
+    // COLOR DEL RIG: all ten colours, two rows of five, each at least the
+    // 42x44 finger minimum, inside the panel.
     const struct desk_placement *mini = find(&l, control_named(&map, "Rig Rojo"), 0);
     assert(mini && mini->tile == TILE_MINI && inside(mini, rig) && mini->x == rig->x + DESK_PANEL_PAD);
-    int swatches = 0;
+    int swatches = 0, top_row = 0;
     for (int i = 0; i < l.placements; i++)
         if (l.placement[i].page == 0 && l.placement[i].tile == TILE_MINI) {
-            assert(inside(&l.placement[i], rig) && l.placement[i].y == mini->y);
+            const struct desk_placement *p = &l.placement[i];
+            assert(inside(p, rig) && p->w >= 42 && p->h >= 44);
+            assert(p->y == mini->y || p->y == mini->y + mini->h + DESK_GAP);
+            top_row += p->y == mini->y;
             swatches++;
         }
-    assert(swatches == 10 && in_panel(&l, rig) == 10);
+    assert(swatches == 10 && top_row == 5 && in_panel(&l, rig) == 10);
     const struct desk_placement *tempo = find(&l, map.count + 3, 0);
     assert(tempo && tempo->tile == TILE_TEMPO && tempo->x + tempo->w == DESK_CONTENT_X + DESK_CONTENT_W);
     assert(tempo->y == rig->y && tempo->h == rig->h && rig->x + rig->w + DESK_GAP == tempo->x);
-    // Every DIRECTO target is at least 48 px each way.
+    // Every DIRECTO target is at least 48 px each way, but for the rig's
+    // colours, ten in a third of the row, which keep the 42x44 finger minimum.
     for (int i = 0; i < l.placements; i++)
         if (l.placement[i].page == 0)
-            assert(l.placement[i].w >= 48 && l.placement[i].h >= 48);
+            assert(l.placement[i].w >= (l.placement[i].tile == TILE_MINI ? 42 : 48) &&
+                   l.placement[i].h >= 48);
     assert(strcmp(l.title[0], "SHOW") == 0 && l.banks[0] == 1);
     // color-beam vanished from LIVE. The new colores-completos hook on
     // COLOR retains the colour-toggle role, as a cue beside the other hooks.
@@ -185,8 +202,8 @@ int main(void) {
         }
     }
     {
-        // Turn one LIVE accent into a toggle: it stays in GOLPES' row, in
-        // its map place, as a cue, and the row still spans the panel.
+        // Turn one LIVE accent into a toggle: it stays among the pads, in
+        // its map place, as a cue, first in the column.
         int live = desk_show_live_page(&map);
         assert(live >= 0);
         const struct map_section *accents = NULL;
@@ -203,10 +220,10 @@ int main(void) {
         const struct desk_placement *cue = find(&show, accents->first, 0);
         const struct desk_placement *next = find(&show, accents->first + 1, 0);
         assert(cue && cue->tile == TILE_CUE && next && next->tile == TILE_HOLD);
-        assert(cue->y == next->y && cue->x < next->x && cue->x == DESK_CONTENT_X + DESK_PANEL_PAD);
-        // Without the tempo, COLOR DEL RIG takes the row.
+        assert(cue->y == next->y && cue->x < next->x && cue->x == DESK_HITS_X && cue->y == DESK_HITS_TOP);
+        // Without the tempo, COLOR DEL RIG takes the rest of the row.
         const struct desk_heading *wide = heading_named(&show, 0, "COLOR DEL RIG");
-        assert(wide && wide->w == DESK_CONTENT_W);
+        assert(wide && wide->x + wide->w == DESK_CONTENT_X + DESK_CONTENT_W);
     }
     // COLOR keeps its picks 128 wide, five to a row inside their panel right
     // of the families, 96 tall for their square, and its colour hits as holds.
@@ -263,11 +280,13 @@ int main(void) {
         }
     }
     // Panels: a family's never overlap and stay in its content; DIRECTO's
-    // are panels too, inside the content and clear of each other.
+    // are panels too, inside the content and clear of each other, but for the
+    // holds' heading, a line over its pads.
     for (int i = 0; i < l.headings; i++) {
         const struct desk_heading *a = &l.heading[i];
         if (l.tab[a->page] != DESK_TAB_EFECTOS) {
-            assert(a->h > 0 && a->x >= DESK_CONTENT_X && a->x + a->w <= DESK_CONTENT_X + DESK_CONTENT_W);
+            assert((a->h > 0 || a == hits) && a->x >= DESK_CONTENT_X &&
+                   a->x + a->w <= DESK_CONTENT_X + DESK_CONTENT_W);
             assert(a->y >= DESK_CONTENT_Y && a->y + a->h <= DESK_CONTENT_END);
             for (int j = i + 1; j < l.headings; j++) {
                 const struct desk_heading *b = &l.heading[j];

@@ -1,12 +1,12 @@
-// DIRECTO: the page for the night, a fixed composition of four flat panels
-// rather than a flow. SALA AHORA: the running state's name large at the
-// left and the room's states in one row beside it. GOLPES · MIENTRAS PULSES:
-// every LIVE accent in one row of equal tiles. HUMO AMBIENTE: OFF and the
-// rhythms as one row of equal segments. Then COLOR DEL RIG, the rig's single
-// colours as swatches without words, and the TEMPO SHOW panel at its right.
-// Every control comes from the map's LIVE page and COLOR's single-colour
-// picks; the OFF segment and the tempo panel are the model's own pseudo
-// controls, given by index.
+// DIRECTO: the page for the night, a fixed composition rather than a flow.
+// At the left SALA AHORA, a hero panel that says what runs, large, and the
+// room's states in one row under it. At the right EFECTOS · MIENTRAS PULSES,
+// every LIVE accent as a pad, three to a row, a lone last one a wide pad.
+// Across the bottom HUMO AMBIENTE (OFF beside the rhythms), COLOR DEL RIG,
+// the rig's single colours as swatches without words, and the TEMPO SHOW
+// panel. Every control comes from the map's LIVE page and COLOR's
+// single-colour picks; the OFF segment and the tempo panel are the model's
+// own pseudo controls, given by index.
 #ifndef DESK_SHOW_LAYOUT_H
 #define DESK_SHOW_LAYOUT_H
 

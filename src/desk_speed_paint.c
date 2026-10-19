@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "canvas_blend.h"
 #include "desk_layout.h"
 #include "desk_paint_keyline.h"
 #include "desk_speed_layout.h"
@@ -36,8 +37,8 @@ static void target(struct canvas *c, struct font *f, int x, int y, int w, int h,
         fill = dead;
     desk_paint_keyline(c, x, y, w, h, 12, fill, enabled ? DESK_LINE : DESK_RAISED);
     if (pressed && enabled) {
-        canvas_round_rect(c, x, y, w, h, 12, DESK_INK);
-        canvas_round_rect(c, x + 3, y + 3, w - 6, h - 6, 9, fill);
+        canvas_blend_round_rect(c, x, y, w, h, 12, DESK_INK);
+        canvas_blend_round_rect(c, x + 3, y + 3, w - 6, h - 6, 9, fill);
     }
     centred(c, f, x, y, w, h, label, enabled ? DESK_INK : DESK_MUTED);
 }
@@ -57,7 +58,7 @@ static const char *under_number(const struct desk_dial *d) {
 static void card(struct canvas *c, const struct desk_speed *s, int i, const struct desk_fonts *fonts) {
     const struct desk_dial *d = &s->dial[i];
     int x = SPEED_CARD_X(i), y = SPEED_CARD_Y;
-    canvas_round_rect(c, x, y, SPEED_CARD_W, SPEED_CARD_H, SPEED_RADIUS, DESK_PANEL);
+    canvas_blend_round_rect(c, x, y, SPEED_CARD_W, SPEED_CARD_H, SPEED_RADIUS, DESK_PANEL);
     // The caption in capitals, as the dial names itself.
     char cap[MAP_CAPTION_MAX];
     desk_text_upper(cap, sizeof cap, d->caption);
