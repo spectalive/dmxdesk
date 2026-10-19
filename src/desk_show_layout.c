@@ -95,10 +95,6 @@ int desk_show_compose(const struct show_map *map, int page, int haze_off, int te
                     section_index(map, live, accents)) != 0)
             return -1;
         out->heading[out->headings - 1].w = 5 * (DESK_SHOW_HOLD_W + DESK_GAP) - DESK_GAP;
-        if (heading(out, page, ROW_HITS_Y - HEADING_ABOVE, "Fijo", section_index(map, live, accents)) != 0)
-            return -1;
-        out->heading[out->headings - 1].x = DESK_CONTENT_X + 5 * (DESK_SHOW_HOLD_W + DESK_GAP);
-        out->heading[out->headings - 1].w = DESK_CONTENT_W - 5 * (DESK_SHOW_HOLD_W + DESK_GAP);
         for (int i = accents->first; i < accents->first + accents->count; i++) {
             const struct map_control *c = &map->control[i];
             if (is_hit(c) && is_fog(c)) {
@@ -125,6 +121,14 @@ int desk_show_compose(const struct show_map *map, int page, int haze_off, int te
                     return -1;
                 toggles_x += DESK_SHOW_HOLD_W + DESK_GAP;
             }
+        }
+        // Fijo names the toggles, so it is only drawn over one: a map
+        // without a fixed accent leaves no empty word beside the hits.
+        if (toggles_x > DESK_CONTENT_X + 5 * (DESK_SHOW_HOLD_W + DESK_GAP)) {
+            if (heading(out, page, ROW_HITS_Y - HEADING_ABOVE, "Fijo", section_index(map, live, accents)) != 0)
+                return -1;
+            out->heading[out->headings - 1].x = DESK_CONTENT_X + 5 * (DESK_SHOW_HOLD_W + DESK_GAP);
+            out->heading[out->headings - 1].w = DESK_CONTENT_W - 5 * (DESK_SHOW_HOLD_W + DESK_GAP);
         }
     }
     // Row three, right: the ambient selector, OFF first, under its own

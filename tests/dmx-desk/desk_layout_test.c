@@ -7,6 +7,7 @@
 
 #include "desk_layout.h"
 #include "desk_layout_resolve.h"
+#include "desk_show_layout.h"
 #include "showmap.h"
 
 static int overlap(const struct desk_placement *a, const struct desk_placement *b) {
@@ -18,6 +19,14 @@ static const struct desk_placement *find(const struct desk_layout *l, int contro
         if (l->placement[i].control == control && l->placement[i].page == page)
             return &l->placement[i];
     return NULL;
+}
+
+static int headings_named(const struct desk_layout *l, int page, const char *text) {
+    int n = 0;
+    for (int i = 0; i < l->headings; i++)
+        if (l->heading[i].page == page && strcmp(l->heading[i].text, text) == 0)
+            n++;
+    return n;
 }
 
 static int control_named(const struct show_map *map, const char *caption) {
@@ -67,6 +76,33 @@ int main(void) {
     const struct desk_placement *tempo = find(&l, map.count + 3, 0);
     assert(tempo && tempo->tile == TILE_TEMPO && tempo->x + tempo->w == DESK_CONTENT_X + DESK_CONTENT_W);
     assert(strcmp(l.title[0], "SHOW") == 0 && l.banks[0] == 1);
+    // Fijo names SHOW's fixed accent toggles; this map has none, so no empty
+    // heading sits beside the hits (2026-10-19, the host desk.ppm showed one).
+    assert(headings_named(&l, 0, "Golpes \xc2\xb7 mientras pulses") == 1);
+    assert(headings_named(&l, 0, "Fijo") == 0);
+    {
+        // Turn one LIVE accent into a toggle: it is placed as a cue and the
+        // heading comes back over it.
+        int live = desk_show_live_page(&map);
+        assert(live >= 0);
+        const struct map_section *accents = NULL;
+        for (int s = 0; s < map.page[live].sections; s++)
+            if (strcmp(map.page[live].section[s].key, "accents") == 0)
+                accents = &map.page[live].section[s];
+        assert(accents && accents->count > 0);
+        static struct show_map toggled;
+        static struct desk_layout show;
+        toggled = map;
+        toggled.control[accents->first].role = MAP_ROLE_TOGGLE;
+        memset(&show, 0, sizeof show);
+        assert(desk_show_compose(&toggled, 0, -1, -1, &show) == 0);
+        assert(headings_named(&show, 0, "Fijo") == 1);
+        const struct desk_placement *cue = find(&show, accents->first, 0);
+        assert(cue && cue->tile == TILE_CUE);
+        for (int i = 0; i < show.headings; i++)
+            if (strcmp(show.heading[i].text, "Fijo") == 0)
+                assert(show.heading[i].x == cue->x && show.heading[i].y < cue->y);
+    }
     // COLOR keeps its picks 128x88 six to a row and its colour hits as holds.
     const struct desk_placement *rojo = find(&l, control_named(&map, "Rig Rojo"), 1);
     assert(rojo && rojo->tile == TILE_SWATCH && rojo->w == 128 && rojo->h == 88);
