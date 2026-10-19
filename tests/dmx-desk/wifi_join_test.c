@@ -1,4 +1,4 @@
-// SOURCES: wifi_join_network_id.c wifi_join_init.c wifi_join_finish.c wifi_join_advance.c wifi_join_restore.c wifi_join_fail.c wifi_join_start.c wifi_join_start_renewal.c wifi_join_event_matches.c wifi_join.c wifi_join_free.c wpa_ctrl_dial.c wpa_ctrl_transact.c wpa_ctrl.c wpa_ctrl_begin.c wpa_ctrl_request_fd.c wpa_ctrl_reply.c wpa_ctrl_abandon.c wpa_ctrl_request.c wpa_ctrl_event_fd.c wpa_ctrl_event.c wpa_ctrl_close.c wifi_conf.c action_worker.c
+// SOURCES: wifi_join_network_id.c wifi_join_init.c wifi_join_finish.c wifi_join_advance.c wifi_join_restore.c wifi_join_fail.c wifi_join_start.c wifi_join_start_renewal.c wifi_join_event_matches.c wifi_join.c wifi_join_free.c wpa_ctrl_dial.c wpa_ctrl_redial.c wpa_ctrl_transact.c wpa_ctrl.c wpa_ctrl_begin.c wpa_ctrl_request_fd.c wpa_ctrl_reply.c wpa_ctrl_abandon.c wpa_ctrl_request.c wpa_ctrl_event_fd.c wpa_ctrl_event.c wpa_ctrl_close.c wifi_conf.c action_worker.c
 // A fake supplicant that keeps a network list, answers RECONFIGURE,
 // LIST_NETWORKS and SELECT_NETWORK, and after a select pushes CONNECTED or
 // a wrong-key disable, by mode. Joins advance only through step, with bounded

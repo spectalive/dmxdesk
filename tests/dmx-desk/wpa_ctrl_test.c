@@ -1,4 +1,4 @@
-// SOURCES: desk_wifi_request.c wpa_ctrl_dial.c wpa_ctrl_transact.c wpa_ctrl.c wpa_ctrl_begin.c wpa_ctrl_request_fd.c wpa_ctrl_reply.c wpa_ctrl_abandon.c wpa_ctrl_request.c wpa_ctrl_event_fd.c wpa_ctrl_event.c wpa_ctrl_close.c
+// SOURCES: desk_wifi_request.c wpa_ctrl_dial.c wpa_ctrl_redial.c wpa_ctrl_transact.c wpa_ctrl.c wpa_ctrl_begin.c wpa_ctrl_request_fd.c wpa_ctrl_reply.c wpa_ctrl_abandon.c wpa_ctrl_request.c wpa_ctrl_event_fd.c wpa_ctrl_event.c wpa_ctrl_close.c
 // A fake wpa_supplicant on a unix datagram socket, serviced in the same
 // process helper: it answers PING and STATUS, acknowledges ATTACH, and after SCAN
 // pushes the scan-results event to whoever attached. No call may block
@@ -223,6 +223,34 @@ int main(void) {
     assert(poll(&request, 1, 300) == 1);
     assert(desk_wifi_request_step(&card, c, 4620, 0, 1, buf, sizeof buf) == DESK_WIFI_SCAN);
     assert(card.result == 1 && strcmp(buf, "OK\n") == 0);
+    // The daemon restarting (2026-10-19): an abandon while it is gone cannot
+    // redial, and the next request dials again instead of finding the
+    // channel dead for the rest of the run. While it is still gone, a
+    // request makes one attempt and fails at once rather than waiting.
+    kill(helper, 9);
+    waitpid(helper, NULL, 0);
+    close(k.fd);
+    unlink(k.path);
+    wpa_ctrl_abandon(c);
+    assert(wpa_ctrl_request_fd(c) < 0);
+    t0 = now_ms();
+    assert(wpa_ctrl_begin(c, "PING") == -1);
+    assert(wpa_ctrl_request(c, "PING", buf, sizeof buf, 300) == -1);
+    assert(wpa_ctrl_request_fd(c) < 0 && now_ms() - t0 < 100);
+    fake_open(&k);
+    helper = fork();
+    assert(helper >= 0);
+    if (helper == 0) {
+        alarm(30);
+        for (;;)
+            fake_service(&k, NULL);
+        _exit(0);
+    }
+    assert(wpa_ctrl_begin(c, "PING") == 0);
+    request.fd = wpa_ctrl_request_fd(c);
+    assert(request.fd >= 0 && poll(&request, 1, 300) == 1);
+    assert(wpa_ctrl_reply(c, buf, sizeof buf) == 1 && strcmp(buf, "PONG\n") == 0);
+    assert(ask(c, "PING", buf, sizeof buf) == 5 && strcmp(buf, "PONG\n") == 0);
     wpa_ctrl_close(c);
     kill(helper, 9);
     waitpid(helper, NULL, 0);

@@ -62,6 +62,7 @@ settings.c
 settings_store.c
 power_policy.c
 wpa_ctrl_dial.c
+wpa_ctrl_redial.c
 wpa_ctrl_transact.c
 wpa_ctrl.c
 wpa_ctrl_begin.c
