@@ -16,6 +16,16 @@ the tablet. Items here are about this repository on its own.
 
 Nothing open.
 
+## Design
+
+- [ ] **Pulse at the show tempo (new, from the v3 mockups):** the RITMO cards
+  and the SALA AHORA panel could blink with the BPM the desk already knows,
+  so the room's beat is visible at a glance (`docs/design/v3/ritmo.png`,
+  "nuevo" dot; rejected for v3 in `docs/design/v3/gaps.md`). The desk has no
+  clock locked to QLC+'s tempo, so a free-running blink drifts from the show.
+  Next: read whether QLC+'s web socket reports a beat or a tempo phase; if it
+  does, paint a dot on its tick, otherwise drop it.
+
 ## Wi-Fi
 
 - [ ] **Event socket after a supplicant restart:** `wpa_ctrl_open` ATTACHes
