@@ -1,179 +1,90 @@
 #include "desk_show_layout.h"
 
-#include <stdio.h>
-#include <string.h>
-
 #include "desk_layout.h"
+#include "desk_show_accent_tile.h"
+#include "desk_show_is_rig.h"
+#include "desk_show_panel.h"
+#include "desk_show_place.h"
+#include "desk_show_section.h"
+#include "desk_show_slot.h"
 
-// The rows, from the top of the content.
-#define ROW_STATES_Y 76
-#define ROW_HITS_Y 200
-#define ROW_FOG_Y 340
-#define ROW_COLOUR_Y 464
-#define HEADING_ABOVE 20
-
-static int add(struct desk_layout *out, int control, int page, int x, int y, int w, int h,
-               enum desk_tile tile) {
-    if (out->placements >= DESK_MAX_PLACEMENTS)
-        return -1;
-    struct desk_placement *p = &out->placement[out->placements++];
-    *p = (struct desk_placement){ control, page, 0, x, y, w, h, tile };
-    return 0;
-}
-
-static int heading(struct desk_layout *out, int page, int y, const char *text, int section) {
-    if (out->headings >= DESK_MAX_HEADINGS)
-        return -1;
-    struct desk_heading *h = &out->heading[out->headings++];
-    h->page = page;
-    h->bank = 0;
-    h->x = DESK_CONTENT_X;
-    h->y = y;
-    h->w = DESK_CONTENT_W;
-    snprintf(h->text, sizeof h->text, "%s", text);
-    h->section = section;
-    h->part = h->parts = 1;
-    return 0;
-}
-
-int desk_show_live_page(const struct show_map *map) {
-    for (int i = 0; i < map->pages; i++)
-        if (strcmp(map->page[i].key, "live") == 0)
-            return i;
-    return -1;
-}
-
-static const struct map_section *section_of(const struct show_map *map, int page, const char *key) {
-    if (page < 0)
-        return NULL;
-    for (int s = 0; s < map->page[page].sections; s++)
-        if (strcmp(map->page[page].section[s].key, key) == 0)
-            return &map->page[page].section[s];
-    return NULL;
-}
-
-static int section_index(const struct show_map *map, int page, const struct map_section *sec) {
-    return (int)(sec - map->page[page].section);
-}
-
-static int is_hit(const struct map_control *c) {
-    return c->role == MAP_ROLE_ACCENT || c->role == MAP_ROLE_BURST;
-}
-
-static int is_fog(const struct map_control *c) {
-    const char *key = c->role == MAP_ROLE_BURST && c->source[0] ? c->source : c->key;
-    return strncmp(key, "humo", 4) == 0;
-}
+// The panels span the content; their tiles sit inside the 12 px padding.
+#define PANEL_X DESK_CONTENT_X
+#define PANEL_W DESK_CONTENT_W
+#define INNER_X (PANEL_X + DESK_PANEL_PAD)
+#define INNER_W (PANEL_W - 2 * DESK_PANEL_PAD)
 
 int desk_show_compose(const struct show_map *map, int page, int haze_off, int tempo,
                       struct desk_layout *out) {
     int live = desk_show_live_page(map);
     if (live < 0)
         return -1;
-    const struct map_section *states = section_of(map, live, "state");
-    const struct map_section *haze = section_of(map, live, "haze");
-    const struct map_section *accents = section_of(map, live, "accents");
+    const struct map_section *states = desk_show_section(map, live, "state");
+    const struct map_section *haze = desk_show_section(map, live, "haze");
+    const struct map_section *accents = desk_show_section(map, live, "accents");
 
-    // Row one: the states, seven across.
+    // SALA AHORA: the states right-aligned in the panel, the room block in
+    // what is left at their left; a state that would eat the block is not laid.
     if (states) {
-        if (heading(out, page, ROW_STATES_Y - HEADING_ABOVE, states->title, section_index(map, live, states)) != 0)
+        if (desk_show_panel(out, page, PANEL_X, DESK_ROOM_Y, PANEL_W, DESK_ROOM_H, "SALA AHORA",
+                            (int)(states - map->page[live].section), DESK_PANEL_ROOM) != 0)
             return -1;
-        int x = DESK_CONTENT_X;
-        for (int i = states->first; i < states->first + states->count; i++) {
-            if (x + DESK_STATE_W > DESK_CONTENT_X + DESK_CONTENT_W)
-                break;
-            if (add(out, i, page, x, ROW_STATES_Y, DESK_STATE_W, DESK_STATE_H, TILE_STATE) != 0)
+        int fit = (INNER_W - DESK_ROOM_BLOCK_W) / (DESK_STATE_W + DESK_GAP);
+        int n = states->count < fit ? states->count : fit;
+        int x = INNER_X + INNER_W - n * DESK_STATE_W - (n - 1) * DESK_GAP;
+        for (int k = 0; k < n; k++)
+            if (desk_show_place(out, states->first + k, page, x + k * (DESK_STATE_W + DESK_GAP),
+                                DESK_ROOM_Y + DESK_PANEL_PAD, DESK_STATE_W, DESK_STATE_H,
+                                TILE_STATE) != 0)
                 return -1;
-            x += DESK_STATE_W + DESK_GAP;
+    }
+    // GOLPES: every accent in map order, one row of equal tiles.
+    if (accents && accents->count > 0) {
+        if (desk_show_panel(out, page, PANEL_X, DESK_HITS_Y, PANEL_W, DESK_HITS_H,
+                            "GOLPES \xc2\xb7 MIENTRAS PULSES",
+                            (int)(accents - map->page[live].section), DESK_PANEL_PLAIN) != 0)
+            return -1;
+        for (int k = 0; k < accents->count; k++) {
+            const struct map_control *c = &map->control[accents->first + k];
+            int w, x = desk_show_slot(INNER_X, INNER_W, accents->count, DESK_GAP, k, &w);
+            if (desk_show_place(out, accents->first + k, page, x, DESK_HITS_Y + DESK_PANEL_TOP, w,
+                                DESK_HOLD_TILE_H, desk_show_accent_tile(c)) != 0)
+                return -1;
         }
     }
-    // Row two: the hits that fire while held, then any toggle among them.
-    // Row three: the fog holds. Both from the accents section.
-    int hits_x = DESK_CONTENT_X, fog_x = DESK_CONTENT_X, toggles_x = -1;
-    if (accents) {
-        if (heading(out, page, ROW_HITS_Y - HEADING_ABOVE, "Golpes \xc2\xb7 mientras pulses",
-                    section_index(map, live, accents)) != 0)
-            return -1;
-        out->heading[out->headings - 1].w = 5 * (DESK_SHOW_HOLD_W + DESK_GAP) - DESK_GAP;
-        for (int i = accents->first; i < accents->first + accents->count; i++) {
-            const struct map_control *c = &map->control[i];
-            if (is_hit(c) && is_fog(c)) {
-                if (fog_x + DESK_FOG_W > DESK_CONTENT_X + 336)
-                    continue;
-                if (add(out, i, page, fog_x, ROW_FOG_Y, DESK_FOG_W, DESK_FOG_H, TILE_FOG) != 0)
-                    return -1;
-                fog_x += DESK_FOG_W + DESK_GAP;
-            } else if (is_hit(c)) {
-                if (hits_x + DESK_SHOW_HOLD_W > DESK_CONTENT_X + 5 * (DESK_SHOW_HOLD_W + DESK_GAP))
-                    continue;
-                if (add(out, i, page, hits_x, ROW_HITS_Y, DESK_SHOW_HOLD_W, DESK_HOLD_TILE_H, TILE_HOLD) != 0)
-                    return -1;
-                hits_x += DESK_SHOW_HOLD_W + DESK_GAP;
-            }
-        }
-        toggles_x = DESK_CONTENT_X + 5 * (DESK_SHOW_HOLD_W + DESK_GAP);
-        for (int i = accents->first; i < accents->first + accents->count; i++) {
-            const struct map_control *c = &map->control[i];
-            if (!is_hit(c)) {
-                if (toggles_x + DESK_SHOW_HOLD_W > DESK_CONTENT_X + DESK_CONTENT_W)
-                    break;
-                if (add(out, i, page, toggles_x, ROW_HITS_Y, DESK_SHOW_HOLD_W, DESK_HOLD_TILE_H, TILE_CUE) != 0)
-                    return -1;
-                toggles_x += DESK_SHOW_HOLD_W + DESK_GAP;
-            }
-        }
-        // Fijo names the toggles, so it is only drawn over one: a map
-        // without a fixed accent leaves no empty word beside the hits.
-        if (toggles_x > DESK_CONTENT_X + 5 * (DESK_SHOW_HOLD_W + DESK_GAP)) {
-            if (heading(out, page, ROW_HITS_Y - HEADING_ABOVE, "Fijo", section_index(map, live, accents)) != 0)
-                return -1;
-            out->heading[out->headings - 1].x = DESK_CONTENT_X + 5 * (DESK_SHOW_HOLD_W + DESK_GAP);
-            out->heading[out->headings - 1].w = DESK_CONTENT_W - 5 * (DESK_SHOW_HOLD_W + DESK_GAP);
-        }
-    }
-    // Row three, right: the ambient selector, OFF first, under its own
-    // words: choosing a rhythm fires at once, OFF stops the cycle.
-    if (heading(out, page, ROW_FOG_Y - HEADING_ABOVE, "Humo a mano", accents ? section_index(map, live, accents) : 0) != 0)
-        return -1;
-    out->heading[out->headings - 1].w = 320;
+    // HUMO AMBIENTE: OFF first, then the rhythms, one row of equal segments.
+    // Choosing a rhythm fires at once; OFF stops the cycle.
     if (haze) {
-        if (heading(out, page, ROW_FOG_Y - HEADING_ABOVE, "Ambiente \xc2\xb7 dispara al elegir \xc2\xb7 OFF lo para",
-                    (int)(haze - map->page[live].section)) != 0)
+        if (desk_show_panel(out, page, PANEL_X, DESK_HAZE_Y, PANEL_W, DESK_HAZE_H, haze->title,
+                            (int)(haze - map->page[live].section), DESK_PANEL_PLAIN) != 0)
             return -1;
-        out->heading[out->headings - 1].x = DESK_CONTENT_X + 336;
-        out->heading[out->headings - 1].w = DESK_CONTENT_W - 336;
-        int x = DESK_CONTENT_X + 336;
-        int y = ROW_FOG_Y;
-        if (haze_off >= 0) {
-            if (add(out, haze_off, page, x, y, DESK_SEGMENT_W, DESK_SEGMENT_H, TILE_SEGMENT) != 0)
+        int n = haze->count + (haze_off >= 0);
+        for (int k = 0; k < n; k++) {
+            int control = haze_off >= 0 ? (k == 0 ? haze_off : haze->first + k - 1) : haze->first + k;
+            int w, x = desk_show_slot(INNER_X, INNER_W, n, DESK_GAP, k, &w);
+            if (desk_show_place(out, control, page, x, DESK_HAZE_Y + DESK_PANEL_TOP, w,
+                                DESK_SEGMENT_H, TILE_SEGMENT) != 0)
                 return -1;
-            x += DESK_SEGMENT_W + DESK_SEGMENT_GAP;
-        }
-        for (int i = haze->first; i < haze->first + haze->count; i++) {
-            if (x + DESK_SEGMENT_W > DESK_CONTENT_X + DESK_CONTENT_W)
-                break;
-            if (add(out, i, page, x, y, DESK_SEGMENT_W, DESK_SEGMENT_H, TILE_SEGMENT) != 0)
-                return -1;
-            x += DESK_SEGMENT_W + DESK_SEGMENT_GAP;
         }
     }
-    // Row four: the rig's single colours from COLOR, and the tempo card.
-    if (heading(out, page, ROW_COLOUR_Y - HEADING_ABOVE, "Color del rig", 0) != 0)
+    // The bottom row: the rig's colours, ten slots, and the tempo panel.
+    int rig_w = tempo >= 0 ? PANEL_W - DESK_TEMPO_W - DESK_GAP : PANEL_W;
+    if (desk_show_panel(out, page, PANEL_X, DESK_RIG_Y, rig_w, DESK_RIG_H, "COLOR DEL RIG", -1,
+                        DESK_PANEL_NAMES_RUNNING) != 0)
         return -1;
-    int x = DESK_CONTENT_X;
-    for (int i = 0; i < map->count; i++) {
-        const struct map_control *c = &map->control[i];
-        if (c->role != MAP_ROLE_PICK || strncmp(c->key, "rig-", 4) != 0 || c->swatches != 1)
+    int laid = 0;
+    for (int i = 0; i < map->count && laid < DESK_RIG_SLOTS; i++) {
+        if (!desk_show_is_rig(&map->control[i]))
             continue;
-        if (x + DESK_MINI_W > DESK_CONTENT_X + 10 * (DESK_MINI_W + DESK_GAP))
-            break;
-        if (add(out, i, page, x, ROW_COLOUR_Y, DESK_MINI_W, DESK_MINI_H, TILE_MINI) != 0)
+        int w, x = desk_show_slot(INNER_X, rig_w - 2 * DESK_PANEL_PAD, DESK_RIG_SLOTS, DESK_GAP,
+                                  laid++, &w);
+        if (desk_show_place(out, i, page, x, DESK_RIG_Y + DESK_PANEL_TOP + 4, w, DESK_MINI_H,
+                            TILE_MINI) != 0)
             return -1;
-        x += DESK_MINI_W + DESK_GAP;
     }
     if (tempo >= 0 &&
-        add(out, tempo, page, DESK_CONTENT_X + DESK_CONTENT_W - DESK_TEMPO_W, ROW_COLOUR_Y,
-            DESK_TEMPO_W, DESK_TEMPO_H, TILE_TEMPO) != 0)
+        desk_show_place(out, tempo, page, PANEL_X + PANEL_W - DESK_TEMPO_W, DESK_RIG_Y,
+                        DESK_TEMPO_W, DESK_RIG_H, TILE_TEMPO) != 0)
         return -1;
     return 0;
 }

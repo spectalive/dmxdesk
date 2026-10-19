@@ -11,16 +11,18 @@ int desk_fonts_open(struct desk_fonts *f, const char *dir) {
     f->tile_s = font_open(sb, 14);
     f->value = font_open(sb, 30);
     f->big = font_open(sb, 44);
+    f->huge = font_open(sb, 72);
     f->tab = font_open(sb, 15);
     f->section = font_open(sb, 12);
     f->label = font_open(rg, 15);
     f->small = font_open(rg, 13);
+    f->tiny = font_open(rg, 11);
     return f->tile && f->label ? 0 : -1;
 }
 
 void desk_fonts_close(struct desk_fonts *f) {
-    struct font **faces[] = { &f->tile, &f->tile_s, &f->value, &f->big, &f->tab, &f->section,
-                              &f->label, &f->small };
+    struct font **faces[] = { &f->tile, &f->tile_s, &f->value, &f->big, &f->huge, &f->tab,
+                              &f->section, &f->label, &f->small, &f->tiny };
     for (size_t i = 0; i < sizeof faces / sizeof faces[0]; i++) {
         font_close(*faces[i]);
         *faces[i] = NULL;

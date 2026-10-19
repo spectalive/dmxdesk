@@ -1,9 +1,10 @@
-// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_family_icon.c icon_glyph.c
+// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c
 // The resolver over the real map: every control placed, nothing overlapping,
 // nothing outside the content area, the banks as the arithmetic yields them,
 // three tabs, six EFECTOS families, and every flowed section on its panel.
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "desk_layout.h"
@@ -24,10 +25,24 @@ static const struct desk_placement *find(const struct desk_layout *l, int contro
     return NULL;
 }
 
-static int headings_named(const struct desk_layout *l, int page, const char *text) {
-    int n = 0;
+static const struct desk_heading *heading_named(const struct desk_layout *l, int page, const char *text) {
     for (int i = 0; i < l->headings; i++)
         if (l->heading[i].page == page && strcmp(l->heading[i].text, text) == 0)
+            return &l->heading[i];
+    return NULL;
+}
+
+// Inside the panel's padding, under its heading.
+static int inside(const struct desk_placement *p, const struct desk_heading *h) {
+    return p->x >= h->x + DESK_PANEL_PAD && p->x + p->w <= h->x + h->w - DESK_PANEL_PAD &&
+           p->y >= h->y + DESK_PANEL_PAD && p->y + p->h <= h->y + h->h - DESK_PANEL_PAD;
+}
+
+static int in_panel(const struct desk_layout *l, const struct desk_heading *h) {
+    int n = 0;
+    for (int i = 0; i < l->placements; i++)
+        if (l->placement[i].page == h->page && l->placement[i].bank == h->bank &&
+            inside(&l->placement[i], h))
             n++;
     return n;
 }
@@ -68,21 +83,76 @@ int main(void) {
     // Every control has a placement on its own page.
     for (int i = 0; i < map.count; i++)
         assert(find(&l, i, map.control[i].page));
-    // SHOW: the states 111x88 seven across, the hits 128x104 holds, the fog
-    // 160x88, the rhythms as segments, the rig colours as minis, the tempo.
-    const struct desk_placement *a = find(&l, control_named(&map, "AUTO"), 0);
-    assert(a->tile == TILE_STATE && a->w == 111 && a->h == 88 && a->x == DESK_CONTENT_X);
-    const struct desk_placement *ch = find(&l, control_named(&map, "CHARLA"), 0);
-    assert(ch->y == a->y && ch->x == a->x + 111 + 8);
-    const struct desk_placement *h1 = find(&l, control_named(&map, "cada 1 min"), 0);
-    const struct desk_placement *h4 = find(&l, control_named(&map, "cada 8 min"), 0);
-    assert(h1 && h4 && h1->tile == TILE_SEGMENT && h1->y == h4->y && h4->x + h4->w <= DESK_MASTER_X);
+    // DIRECTO: four panels down the content, every tile inside its own.
+    const struct desk_heading *room = heading_named(&l, 0, "SALA AHORA");
+    const struct desk_heading *hits = heading_named(&l, 0, "GOLPES \xc2\xb7 MIENTRAS PULSES");
+    const struct desk_heading *haze = heading_named(&l, 0, "HUMO AMBIENTE");
+    const struct desk_heading *rig = heading_named(&l, 0, "COLOR DEL RIG");
+    assert(room && hits && haze && rig);
+    assert(room->kind == DESK_PANEL_ROOM && rig->kind == DESK_PANEL_NAMES_RUNNING);
+    assert(hits->kind == DESK_PANEL_PLAIN && haze->kind == DESK_PANEL_PLAIN);
+    assert(room->y == DESK_CONTENT_Y && room->y + room->h + DESK_GAP == hits->y);
+    assert(hits->y + hits->h + DESK_GAP == haze->y && haze->y + haze->h + DESK_GAP == rig->y);
+    assert(rig->y + rig->h == DESK_CONTENT_END);
+    // SALA AHORA: the seven states in one row at the right, the room's block
+    // left of them, each an icon-and-name tile in map order.
+    const char *states[] = { "AUTO", "CHARLA", "TRANQUILO", "FIESTA", "LOCURA", "BLANCO TOTAL", "TODO NEGRO" };
+    const struct desk_placement *prev = NULL;
+    for (int k = 0; k < 7; k++) {
+        const struct desk_placement *st = find(&l, control_named(&map, states[k]), 0);
+        assert(st && st->tile == TILE_STATE && inside(st, room));
+        assert(!prev || (st->y == prev->y && st->x == prev->x + prev->w + DESK_GAP));
+        prev = st;
+    }
+    assert(prev->x + prev->w == room->x + room->w - DESK_PANEL_PAD);
+    assert(find(&l, control_named(&map, "AUTO"), 0)->x - room->x >= DESK_PANEL_PAD + DESK_ROOM_BLOCK_W);
+    assert(in_panel(&l, room) == 7);
+    // GOLPES: all seven accents in map order, one row of equal tiles that
+    // spans the panel; the fog ones keep their own tile.
+    const char *golpes[] = { "FLASH", "FLASH LENTO", "FLASH COLOR", "HUMO YA", "HUMO VERT", "STROBO", "STROBO SUAVE" };
+    prev = NULL;
+    for (int k = 0; k < 7; k++) {
+        const struct desk_placement *g = find(&l, control_named(&map, golpes[k]), 0);
+        assert(g && inside(g, hits) && g->h == DESK_HOLD_TILE_H);
+        assert(g->tile == (k == 3 || k == 4 ? TILE_FOG : TILE_HOLD));
+        if (prev)
+            assert(g->y == prev->y && g->x == prev->x + prev->w + DESK_GAP && abs(g->w - prev->w) <= 1);
+        else
+            assert(g->x == hits->x + DESK_PANEL_PAD);
+        prev = g;
+    }
+    assert(prev->x + prev->w == hits->x + hits->w - DESK_PANEL_PAD);
+    assert(in_panel(&l, hits) == 7);
+    // HUMO AMBIENTE: OFF then the four rhythms, one row of equal segments.
     const struct desk_placement *off = find(&l, map.count + 2, 0);
-    assert(off && off->tile == TILE_SEGMENT && off->x < h1->x);
-    const struct desk_placement *flash = find(&l, control_named(&map, "FLASH"), 0);
-    assert(flash && flash->tile == TILE_HOLD && flash->h == 104 && flash->w == 128);
-    const struct desk_placement *fog = find(&l, control_named(&map, "HUMO YA"), 0);
-    assert(fog && fog->tile == TILE_FOG && fog->w == 160);
+    const char *rhythms[] = { "cada 1 min", "cada 2 min", "cada 4 min", "cada 8 min" };
+    assert(off && off->tile == TILE_SEGMENT && inside(off, haze) && off->x == haze->x + DESK_PANEL_PAD);
+    prev = off;
+    for (int k = 0; k < 4; k++) {
+        const struct desk_placement *seg = find(&l, control_named(&map, rhythms[k]), 0);
+        assert(seg && seg->tile == TILE_SEGMENT && inside(seg, haze));
+        assert(seg->y == prev->y && seg->x == prev->x + prev->w + DESK_GAP && abs(seg->w - prev->w) <= 1);
+        prev = seg;
+    }
+    assert(prev->x + prev->w == haze->x + haze->w - DESK_PANEL_PAD);
+    // COLOR DEL RIG: ten swatches in one row, and the tempo panel at its right.
+    const struct desk_placement *mini = find(&l, control_named(&map, "Rig Rojo"), 0);
+    assert(mini && mini->tile == TILE_MINI && inside(mini, rig) && mini->x == rig->x + DESK_PANEL_PAD);
+    int swatches = 0;
+    for (int i = 0; i < l.placements; i++)
+        if (l.placement[i].page == 0 && l.placement[i].tile == TILE_MINI) {
+            assert(inside(&l.placement[i], rig) && l.placement[i].y == mini->y);
+            swatches++;
+        }
+    assert(swatches == 10 && in_panel(&l, rig) == 10);
+    const struct desk_placement *tempo = find(&l, map.count + 3, 0);
+    assert(tempo && tempo->tile == TILE_TEMPO && tempo->x + tempo->w == DESK_CONTENT_X + DESK_CONTENT_W);
+    assert(tempo->y == rig->y && tempo->h == rig->h && rig->x + rig->w + DESK_GAP == tempo->x);
+    // Every DIRECTO target is at least 48 px each way.
+    for (int i = 0; i < l.placements; i++)
+        if (l.placement[i].page == 0)
+            assert(l.placement[i].w >= 48 && l.placement[i].h >= 48);
+    assert(strcmp(l.title[0], "SHOW") == 0 && l.banks[0] == 1);
     // color-beam vanished from LIVE. The new colores-completos hook on
     // COLOR retains the colour-toggle role, as a cue beside the other hooks.
     int colours = -1;
@@ -92,18 +162,9 @@ int main(void) {
     assert(colours >= 0);
     const struct desk_placement *hook = find(&l, colours, map.control[colours].page);
     assert(hook && hook->tile == TILE_CUE && hook->w == 200 && hook->h == 64);
-    const struct desk_placement *mini = find(&l, control_named(&map, "Rig Rojo"), 0);
-    assert(mini && mini->tile == TILE_MINI && mini->w == 52);
-    const struct desk_placement *tempo = find(&l, map.count + 3, 0);
-    assert(tempo && tempo->tile == TILE_TEMPO && tempo->x + tempo->w == DESK_CONTENT_X + DESK_CONTENT_W);
-    assert(strcmp(l.title[0], "SHOW") == 0 && l.banks[0] == 1);
-    // Fijo names SHOW's fixed accent toggles; this map has none, so no empty
-    // heading sits beside the hits (2026-10-19, the host desk.ppm showed one).
-    assert(headings_named(&l, 0, "Golpes \xc2\xb7 mientras pulses") == 1);
-    assert(headings_named(&l, 0, "Fijo") == 0);
     {
-        // Turn one LIVE accent into a toggle: it is placed as a cue and the
-        // heading comes back over it.
+        // Turn one LIVE accent into a toggle: it stays in GOLPES' row, in
+        // its map place, as a cue, and the row still spans the panel.
         int live = desk_show_live_page(&map);
         assert(live >= 0);
         const struct map_section *accents = NULL;
@@ -117,12 +178,13 @@ int main(void) {
         toggled.control[accents->first].role = MAP_ROLE_TOGGLE;
         memset(&show, 0, sizeof show);
         assert(desk_show_compose(&toggled, 0, -1, -1, &show) == 0);
-        assert(headings_named(&show, 0, "Fijo") == 1);
         const struct desk_placement *cue = find(&show, accents->first, 0);
-        assert(cue && cue->tile == TILE_CUE);
-        for (int i = 0; i < show.headings; i++)
-            if (strcmp(show.heading[i].text, "Fijo") == 0)
-                assert(show.heading[i].x == cue->x && show.heading[i].y < cue->y);
+        const struct desk_placement *next = find(&show, accents->first + 1, 0);
+        assert(cue && cue->tile == TILE_CUE && next && next->tile == TILE_HOLD);
+        assert(cue->y == next->y && cue->x < next->x && cue->x == DESK_CONTENT_X + DESK_PANEL_PAD);
+        // Without the tempo, COLOR DEL RIG takes the row.
+        const struct desk_heading *wide = heading_named(&show, 0, "COLOR DEL RIG");
+        assert(wide && wide->w == DESK_CONTENT_W);
     }
     // COLOR keeps its picks 128x88, five to a row inside their panel right of
     // the families, and its colour hits as holds.
@@ -178,12 +240,19 @@ int main(void) {
             assert(masters == 1 && panics == 1);
         }
     }
-    // Panels: a family's never overlap and stay in its content; SHOW's
-    // composed headings are bare, with no panel.
+    // Panels: a family's never overlap and stay in its content; DIRECTO's
+    // are panels too, inside the content and clear of each other.
     for (int i = 0; i < l.headings; i++) {
         const struct desk_heading *a = &l.heading[i];
         if (l.tab[a->page] != DESK_TAB_EFECTOS) {
-            assert(a->h == 0);
+            assert(a->h > 0 && a->x >= DESK_CONTENT_X && a->x + a->w <= DESK_CONTENT_X + DESK_CONTENT_W);
+            assert(a->y >= DESK_CONTENT_Y && a->y + a->h <= DESK_CONTENT_END);
+            for (int j = i + 1; j < l.headings; j++) {
+                const struct desk_heading *b = &l.heading[j];
+                if (b->page == a->page)
+                    assert(a->x + a->w + DESK_GAP <= b->x || b->x + b->w + DESK_GAP <= a->x ||
+                           a->y + a->h + DESK_GAP <= b->y || b->y + b->h + DESK_GAP <= a->y);
+            }
             continue;
         }
         int end = l.banks[a->page] > 1 ? DESK_PAGER_Y - DESK_GAP : DESK_CONTENT_END;

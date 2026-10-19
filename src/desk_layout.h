@@ -65,20 +65,27 @@
 #define DESK_PICK_H 88
 #define DESK_HOLD_TILE_H 104
 #define DESK_COLS 6
-// SHOW's own sizes: seven states across, five hits and a toggle, two fog
-// holds and five ambient segments, ten rig colours and the tempo card.
-#define DESK_STATE_W 111
-#define DESK_STATE_H 88
-#define DESK_SHOW_HOLD_W 128
-#define DESK_FOG_W 160
-#define DESK_FOG_H 88
-#define DESK_SEGMENT_W 95
-#define DESK_SEGMENT_H 68
-#define DESK_SEGMENT_GAP 4
-#define DESK_MINI_W 52
-#define DESK_MINI_H 80
-#define DESK_TEMPO_W 224
-#define DESK_TEMPO_H 104
+// DIRECTO: four flat panels down the content, 8 px apart. SALA AHORA
+// (128) carries the running state's name in a block at its left and the
+// seven states beside it; GOLPES (152) the holds in one row; HUMO AMBIENTE
+// (96) the segmented selector; the bottom row (128) COLOR DEL RIG with the
+// rig's ten colours and, at its right, the TEMPO SHOW panel.
+#define DESK_ROOM_Y 56
+#define DESK_ROOM_H 128
+#define DESK_ROOM_BLOCK_W 156
+#define DESK_STATE_W 84
+#define DESK_STATE_H 104
+#define DESK_HITS_Y 192
+#define DESK_HITS_H 152
+#define DESK_HAZE_Y 352
+#define DESK_HAZE_H 96
+#define DESK_SEGMENT_H 48
+#define DESK_RIG_Y 456
+#define DESK_RIG_H 128
+#define DESK_MINI_H 64
+#define DESK_TEMPO_W 232
+// A panel's heading: 16 px tall, 8 px over the tiles under it.
+#define DESK_PANEL_TOP (DESK_PANEL_PAD + 16 + DESK_GAP)
 #define DESK_GRID_X DESK_CONTENT_X
 #define DESK_GRID_Y DESK_CONTENT_Y
 #define DESK_TILE_W DESK_HOOK_W
@@ -108,6 +115,9 @@
 #define DESK_WARN_INK   0xFFFFD2CCu   // the quieter line on the red
 #define DESK_HOLD_FILL  0xFF1F1B2Bu
 #define DESK_HOLD_LINE  0xFF7860C8u
+// Fog holds keep a teal field of their own, so smoke never reads as light.
+#define DESK_FOG_FILL   0xFF14231Fu
+#define DESK_FOG_LINE   0xFF3FA88Au
 // The ground at 69% over what a modal dialog covers.
 #define DESK_SCRIM      (0xB0000000u | (DESK_GLASS & 0xFFFFFFu))
 

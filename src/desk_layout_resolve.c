@@ -113,6 +113,7 @@ static void heading(struct cursor *cur, const char *text, int part, int parts, i
     h->section = section;
     h->part = part;
     h->parts = parts;
+    h->kind = DESK_PANEL_PLAIN;
     cur->y += PANEL_TOP;
 }
 

@@ -2,6 +2,7 @@
 #include "desk_pager_hit.h"
 #include "desk_speed_layout.h"
 #include "desk_speed_paint.h"
+#include "desk_speed_target_rect.h"
 #include "desk_setup_layout.h"
 #include "desk_tab.h"
 #include "desk_tab_page.h"
@@ -51,24 +52,22 @@ void audit_inventory(struct audit_context *a) {
         audit_add(a,A_BANK,i,0,1,label,r,hit,hit);
     }
     if(m->page==m->layout.speed_page) {
-        for(int i=0;i<a->speed.dials;i++)for(int t=SPEED_T_TAP;t<=SPEED_T_DOUBLE;t++) {
-            int cy=SPEED_CARD_Y(i), row=0,col=0;
+        for(int i=0;i<a->speed.dials && i<2;i++)for(int t=SPEED_T_TAP;t<=SPEED_T_DOUBLE;t++) {
             const char *label="Tap";
             switch(t) {
             case SPEED_T_BPM_DOWN:label="-1 BPM";break;
-            case SPEED_T_BPM_UP:label="+1 BPM";col=1;break;
-            case SPEED_T_FACTOR_ONE:label="Time x1";col=2;break;
-            case SPEED_T_HALF:label="Slower x2";row=1;break;
-            case SPEED_T_DOUBLE:label="Faster x2";row=1;col=1;break;
+            case SPEED_T_BPM_UP:label="+1 BPM";break;
+            case SPEED_T_FACTOR_ONE:label="Time x1";break;
+            case SPEED_T_HALF:label="Slower x2";break;
+            case SPEED_T_DOUBLE:label="Faster x2";break;
             default:break;
             }
-            r=t==SPEED_T_TAP ? (struct desk_rect){SPEED_CARD_X+SPEED_TAP_X,cy+SPEED_TAP_Y,SPEED_TAP_W,SPEED_TAP_H}
-                :(struct desk_rect){SPEED_CARD_X+SPEED_CELL_X(col),cy+SPEED_CELL_Y(row),SPEED_CELL_W,SPEED_CELL_H};
+            r=desk_speed_target_rect(i,(enum speed_target)t);
             char name[128];snprintf(name,sizeof name,"%s / %s",a->speed.dial[i].caption,label);
             audit_add(a,A_SPEED,t,i,desk_speed_target_enabled(&a->speed,i,t),name,r,r,r);
         }
         if(a->speed.dials>=2) {
-            r=(struct desk_rect){SPEED_CARD_X,SPEED_BOTH_Y,SPEED_CARD_W,SPEED_BOTH_H};
+            r=desk_speed_target_rect(-1,SPEED_T_BOTH);
             audit_add(a,A_SPEED,SPEED_T_BOTH,-1,desk_speed_target_enabled(&a->speed,0,SPEED_T_BOTH),"Tap both",r,r,r);
         }
     }

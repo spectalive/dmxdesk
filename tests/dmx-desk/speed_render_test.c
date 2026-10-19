@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_speed_target_rect.c desk_text_upper.c
 // The SPEED page's cards painted: both dials known from the console, one
 // change waiting, one noted; then the page before anything is known.
 #include <assert.h>
@@ -10,6 +10,7 @@
 #include "desk_speed.h"
 #include "desk_speed_layout.h"
 #include "desk_speed_paint.h"
+#include "desk_speed_target_rect.h"
 #include "desk_fonts.h"
 #include "font.h"
 
@@ -76,15 +77,31 @@ int main(void) {
     desk_speed_validate(&s, &console);
     assert(s.dial[0].known && s.dial[0].widget_id == tempo_widget);
     desk_speed_apply(&s, movement_widget, 400, 7, 1000);          // "State updated" on the second
-    desk_speed_touch_down(&s, SPEED_CARD_X + SPEED_CELL_X(1) + 10, SPEED_CARD_Y(0) + SPEED_CELL_Y(0) + 10, 1000, 1000);
-    desk_speed_touch_up(&s, SPEED_CARD_X + SPEED_CELL_X(1) + 10, SPEED_CARD_Y(0) + SPEED_CELL_Y(0) + 10, 1000);
+    struct desk_rect up = desk_speed_target_rect(0, SPEED_T_BPM_UP);
+    desk_speed_touch_down(&s, up.x + 10, up.y + 10, 1000, 1000);
+    desk_speed_touch_up(&s, up.x + 10, up.y + 10, 1000);
     assert(s.dial[0].pending);
     desk_speed_paint(&canvas, &s, &fonts);
     save(&canvas, "speed.ppm");
-    // The cards sit in the content only.
-    assert(canvas.px[(SPEED_CARD_Y(0) + 40) * DESK_W + SPEED_CARD_X + 40] == DESK_PANEL);
-    assert(canvas.px[SPEED_CARD_Y(0) * DESK_W + 900] == DESK_GLASS);
+    // The cards sit side by side in the content only, the ground between
+    // them and right of the second.
+    for (int i = 0; i < 2; i++)
+        assert(canvas.px[(SPEED_CARD_Y + 40) * DESK_W + SPEED_CARD_X(i) + 8] == DESK_PANEL);
+    assert(canvas.px[(SPEED_CARD_Y + 200) * DESK_W + SPEED_CARD_X(0) + SPEED_CARD_W + 4] == DESK_GLASS);
+    assert(canvas.px[(SPEED_CARD_Y + 40) * DESK_W + 900] == DESK_GLASS);
     assert(canvas.px[20 * DESK_W + 400] == DESK_GLASS);
+    // Each target is drawn where it is hit: a live one a tile inside its
+    // keyline on the card, a dead one the card inside a dimmer keyline.
+    int live = 0;
+    for (int i = 0; i < 2; i++)
+        for (int t = SPEED_T_TAP; t <= SPEED_T_DOUBLE; t++) {
+            struct desk_rect r = desk_speed_target_rect(i, (enum speed_target)t);
+            int on = desk_speed_target_enabled(&s, i, (enum speed_target)t);
+            live += on;
+            assert(canvas.px[(r.y + 4) * DESK_W + r.x + r.w / 2] == (on ? DESK_TILE : DESK_PANEL));
+            assert(canvas.px[r.y * DESK_W + r.x + r.w / 2] == (on ? DESK_LINE : DESK_RAISED));
+        }
+    assert(live > 0);
     printf("speed_render ok\n");
     free(canvas.px);
     vc_free(&console);

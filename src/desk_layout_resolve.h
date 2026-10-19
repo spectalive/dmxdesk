@@ -8,6 +8,7 @@
 #ifndef DESK_LAYOUT_RESOLVE_H
 #define DESK_LAYOUT_RESOLVE_H
 
+#include "desk_panel.h"
 #include "desk_placement.h"
 #include "showmap.h"
 
@@ -22,6 +23,7 @@ struct desk_heading {
     char text[MAP_CAPTION_MAX];
     int part, parts;    // 1/1 when the section was not split
     int section;        // the map section, so a painter can name what runs on another part
+    enum desk_panel kind;   // DESK_PANEL_PLAIN for every flowed section
 };
 
 struct desk_layout {

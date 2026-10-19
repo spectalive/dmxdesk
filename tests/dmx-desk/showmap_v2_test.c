@@ -1,4 +1,4 @@
-// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c vcjson.c desk_family_icon.c icon_glyph.c
+// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c
 // The generated map (schema 2) parsed with its bounds, and built against the
 // console the master really serves: the room's states pressable, the held
 // hits carried disabled, the panic button live, and a console that is not
@@ -181,7 +181,9 @@ int main(void) {
     assert(a && a->enabled && a->widget_id == auto_ctl->widget_id && a->function_id == auto_ctl->function_id);
     int auto_ix = (int)(a - model.control);
     const struct desk_placement *ap = desk_placement_of(&model, auto_ix);
-    assert(ap && ap->w == 111 && ap->x == DESK_CONTENT_X && ap->y == 76);
+    // AUTO opens SALA AHORA's row of states, right of the room's block.
+    assert(ap && ap->tile == TILE_STATE && ap->w == DESK_STATE_W && ap->y == DESK_ROOM_Y + DESK_PANEL_PAD);
+    assert(ap->x >= DESK_CONTENT_X + DESK_PANEL_PAD + DESK_ROOM_BLOCK_W);
     // Every hit is a burst the master bounds, fog included.
     const struct desk_control *flash = by_label(&model, "FLASH");
     assert(flash && flash->enabled && flash->kind == DESK_BURST && flash->burst_ms == 8000);

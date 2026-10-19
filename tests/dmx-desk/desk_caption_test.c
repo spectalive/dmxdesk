@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "desk_caption.h"
+#include "desk_layout.h"
 #include "font.h"
 #include "showmap.h"
 
@@ -57,6 +58,40 @@ int main(void) {
     }
     printf("picks: %d, cut: %d\n", total, cut);
     assert(cut < total / 4);
+
+    // DIRECTO at the faces the desk draws it with: a state's name in
+    // SemiBold 12 and its detail in Regular 11 inside an 84 px state tile,
+    // a hold's name in SemiBold 14 and its foot in Regular 13 inside one of
+    // seven equal GOLPES tiles. Nothing the operator reads there is cut.
+    struct font *state = font_open("fonts/Inter-SemiBold.ttf", 12);
+    struct font *detail = font_open("fonts/Inter-Regular.ttf", 11);
+    struct font *hold = font_open("fonts/Inter-SemiBold.ttf", 14);
+    struct font *foot = font_open("fonts/Inter-Regular.ttf", 13);
+    assert(state && detail && hold && foot);
+    int hold_w = (DESK_CONTENT_W - 2 * DESK_PANEL_PAD - 6 * DESK_GAP) / 7;
+    int states = 0, holds = 0;
+    for (int i = 0; i < map.count; i++) {
+        const struct map_control *c = &map.control[i];
+        if (c->role == MAP_ROLE_STATE) {
+            states++;
+            desk_caption_fit(state, DESK_STATE_W - 8, c->caption, &l);
+            assert(!l.cut);
+            desk_caption_fit(detail, DESK_STATE_W - 8, c->detail, &l);
+            assert(!l.cut);
+        } else if ((c->role == MAP_ROLE_BURST || c->role == MAP_ROLE_ACCENT) &&
+                   strcmp(map.page[c->page].key, "live") == 0) {
+            holds++;
+            desk_caption_fit(hold, hold_w - 16, c->caption, &l);
+            assert(!l.cut);
+        }
+    }
+    assert(states == 7 && holds == 7);
+    // The longest foot a hold carries: "pulsa · máx 8 s".
+    assert(font_width(foot, "pulsa \xc2\xb7 m\xc3\xa1x 8 s") <= hold_w - 8);
+    font_close(state);
+    font_close(detail);
+    font_close(hold);
+    font_close(foot);
     font_close(tile);
     font_close(small);
     printf("desk_caption ok\n");

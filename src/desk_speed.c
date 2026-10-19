@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "desk_speed_layout.h"
+#include "desk_speed_target_rect.h"
 #include "speed_factor.h"
 
 static struct speed_action none(void) {
@@ -126,23 +127,18 @@ int desk_speed_target_enabled(const struct desk_speed *s, int dial, enum speed_t
 
 enum speed_target desk_speed_hit(const struct desk_speed *s, int x, int y, int *dial) {
     *dial = -1;
-    if (s->dials >= 2 && inside(x, y, SPEED_CARD_X, SPEED_BOTH_Y, SPEED_CARD_W, SPEED_BOTH_H))
+    struct desk_rect both = desk_speed_target_rect(-1, SPEED_T_BOTH);
+    if (s->dials >= 2 && inside(x, y, both.x, both.y, both.w, both.h))
         return SPEED_T_BOTH;
     for (int i = 0; i < s->dials && i < 2; i++) {
-        int cx = SPEED_CARD_X, cy = SPEED_CARD_Y(i);
-        if (!inside(x, y, cx, cy, SPEED_CARD_W, SPEED_CARD_H))
+        if (!inside(x, y, SPEED_CARD_X(i), SPEED_CARD_Y, SPEED_CARD_W, SPEED_CARD_H))
             continue;
         *dial = i;
-        if (inside(x, y, cx + SPEED_TAP_X, cy + SPEED_TAP_Y, SPEED_TAP_W, SPEED_TAP_H))
-            return SPEED_T_TAP;
-        static const enum speed_target grid[2][3] = {
-            { SPEED_T_BPM_DOWN, SPEED_T_BPM_UP, SPEED_T_FACTOR_ONE },
-            { SPEED_T_HALF, SPEED_T_DOUBLE, SPEED_T_NONE },
-        };
-        for (int r = 0; r < 2; r++)
-            for (int c = 0; c < 3; c++)
-                if (inside(x, y, cx + SPEED_CELL_X(c), cy + SPEED_CELL_Y(r), SPEED_CELL_W, SPEED_CELL_H))
-                    return grid[r][c];
+        for (int t = SPEED_T_TAP; t <= SPEED_T_DOUBLE; t++) {
+            struct desk_rect r = desk_speed_target_rect(i, (enum speed_target)t);
+            if (inside(x, y, r.x, r.y, r.w, r.h))
+                return (enum speed_target)t;
+        }
         return SPEED_T_NONE;
     }
     return SPEED_T_NONE;

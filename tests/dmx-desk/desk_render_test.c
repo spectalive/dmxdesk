@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_text_at.c desk_speed_target_rect.c
 // The desk, built from the generated Vibra map against the real console
 // document, pressed once, and painted. Writes $TEST_OUT/desk.ppm so the screen can be
 // looked at on a laptop before it reaches the tablet, and one render per tab:
@@ -137,13 +137,23 @@ int main(void) {
 
     desk_set_link(&model, DESK_LINK_READY);
     desk_apply_function(&model, auto_function, 1);
+    desk_apply_function(&model, 775, 1);       // Rig Rojo Fuego
     desk_apply_master(&model, 200);
 
     struct desk_fonts fonts;
     assert(desk_fonts_open(&fonts, "fonts") == 0);
     struct canvas canvas = { .px = calloc(DESK_W * DESK_H, 4), .w = DESK_W, .h = DESK_H };
     assert(canvas.px);
+    // The speed model as the console has it; DIRECTO's TEMPO SHOW panel
+    // shows its numbers over the panel the desk paints, as dmxdesk.c does.
+    struct desk_speed speed;
+    desk_speed_init(&speed, &map);
+    desk_speed_validate(&speed, &console);
+    desk_speed_set_link(&speed, 1, 0);
+    const struct desk_placement *tempo = desk_placement_of(&model, map.count + 3);
+    assert(tempo && tempo->tile == TILE_TEMPO);
     desk_paint(&canvas, &model, &fonts);
+    desk_speed_paint_tempo(&canvas, &speed, 0, &fonts, tempo->x, tempo->y, tempo->w, tempo->h, 0);
 
     const char *out = getenv("TEST_OUT");
     char path[512];
@@ -156,6 +166,31 @@ int main(void) {
     assert(canvas.px[(directo.y + directo.h / 2) * canvas.w + directo.x + 6] == DESK_ACCENT);
     assert(canvas.px[(efectos.y + efectos.h / 2) * canvas.w + efectos.x + 6] == DESK_TILE);
     assert(canvas.px[(DESK_BAR_H / 2) * canvas.w + DESK_LINK_DOT_X + DESK_LINK_DOT / 2] == DESK_OK);
+
+    // DIRECTO: the running state is solid accent; every other state, hold
+    // and segment sits on its panel; the rig colours carry no words, the
+    // running one ringed in accent with its colour whole inside.
+    const struct desk_placement *autop = desk_placement_of(&model, (int)(by_label(&model, "AUTO") - model.control));
+    assert(canvas.px[(autop->y + 4) * canvas.w + autop->x + 4] == DESK_ACCENT);
+    for (int i = 0; i < layout.placements; i++) {
+        const struct desk_placement *p = &layout.placement[i];
+        if (p->page != 0 || p->tile != TILE_MINI)
+            continue;
+        const struct desk_control *ctl = &model.control[p->control];
+        uint32_t colour = ctl->swatch[0] | 0xFF000000u;
+        // No words: the whole middle band is the colour.
+        for (int y = p->y + 12; y < p->y + p->h - 12; y++)
+            assert(canvas.px[y * canvas.w + p->x + p->w / 2] == colour);
+        int lit = ctl->state == DESK_ON;
+        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x] == (lit ? DESK_ACCENT : colour));
+        assert(lit == (strcmp(ctl->label, "Rig Rojo Fuego") == 0));
+    }
+    // The tempo panel: the TAP target where the hit test finds it.
+    int ttx, tty, ttw, tth;
+    desk_speed_tempo_tap_rect(tempo->x, tempo->y, tempo->w, tempo->h, &ttx, &tty, &ttw, &tth);
+    assert(ttw >= 48 && tth >= 48 && ttx + ttw <= tempo->x + tempo->w && tty + tth <= tempo->y + tempo->h);
+    assert(canvas.px[(tty + 4) * canvas.w + ttx + ttw / 2] == DESK_RAISED);
+    assert(canvas.px[(tempo->y + 4) * canvas.w + tempo->x + tempo->w / 2] == DESK_PANEL);
 
     // The COLOR page with the pick lit, the gobos' second bank, CABEZAS: the
     // EFECTOS tab lit, the family on screen lit in the column at the left,
@@ -186,10 +221,6 @@ int main(void) {
     write_ppm(&canvas, path);
 
     // RITMO: the SPEED page's chrome and the speed model's cards over it.
-    struct desk_speed speed;
-    desk_speed_init(&speed, &map);
-    desk_speed_validate(&speed, &console);
-    desk_speed_set_link(&speed, 1, 0);
     desk_set_view(&model, desk_tab_page(&model, DESK_TAB_RITMO), 0);
     assert(model.page == layout.speed_page);
     desk_paint(&canvas, &model, &fonts);
@@ -205,7 +236,9 @@ int main(void) {
     // And the same screen with the link down, which is what a gig sees when
     // the Wi-Fi goes.
     desk_set_link(&model, DESK_LINK_DOWN);
+    desk_speed_set_link(&speed, 0, 0);
     desk_paint(&canvas, &model, &fonts);
+    desk_speed_paint_tempo(&canvas, &speed, 0, &fonts, tempo->x, tempo->y, tempo->w, tempo->h, 0);
     snprintf(path, sizeof path, "%s/desk-nolink.ppm", out ? out : "/tmp");
     write_ppm(&canvas, path);
 

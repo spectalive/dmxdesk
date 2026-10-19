@@ -1134,8 +1134,9 @@ int main(int argc, char **argv) {
             }
         }
         if (speed.dirty && layout.speed_page >= 0 && model.page == layout.speed_page) {
-            desk_damage_rect(&model, SPEED_CARD_X, SPEED_CARD_Y(0), SPEED_CARD_W,
-                             SPEED_BOTH_Y + SPEED_BOTH_H - SPEED_CARD_Y(0));
+            desk_damage_rect(&model, SPEED_CARD_X(0), SPEED_CARD_Y,
+                             SPEED_BOTH_X + SPEED_BOTH_W - SPEED_CARD_X(0),
+                             SPEED_BOTH_Y + SPEED_BOTH_H - SPEED_CARD_Y);
         }
         speed.dirty = 0;
         desk_set_locked(&model, lock.state != DESK_UNLOCKED);

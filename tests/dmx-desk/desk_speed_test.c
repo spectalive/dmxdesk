@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c
+// SOURCES: desk_speed.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c desk_speed_target_rect.c
 // The cards against the Vibra map and console: unknown until the snapshot,
 // then 120 BPM on both; +1 sends 496 and waits; an echo of 496 is silent, an
 // unexpected one is "State updated"; x2 sends factor 7; a same-value tap
@@ -11,6 +11,7 @@
 
 #include "desk_speed.h"
 #include "desk_speed_layout.h"
+#include "desk_speed_target_rect.h"
 #include "showmap.h"
 #include "vcjson.h"
 
@@ -34,9 +35,9 @@ static struct speed_action tap(struct desk_speed *s, int x, int y, int64_t now) 
     return down.kind != SPEED_ACT_NONE ? down : up;
 }
 
-// A point inside a card's target.
-static int tx(int col) { return SPEED_CARD_X + SPEED_CELL_X(col) + 10; }
-static int ty(int dial, int row) { return SPEED_CARD_Y(dial) + SPEED_CELL_Y(row) + 10; }
+// A point inside a card's target, where the painter draws it.
+static int tx(int dial, enum speed_target t) { return desk_speed_target_rect(dial, t).x + 10; }
+static int ty(int dial, enum speed_target t) { return desk_speed_target_rect(dial, t).y + 10; }
 
 int main(void) {
     size_t map_len, vc_len;
@@ -63,7 +64,7 @@ int main(void) {
     int64_t now = 100000;
     // Nothing is known: every target is dead, Tap both included.
     assert(!desk_speed_target_enabled(&s, 0, SPEED_T_TAP));
-    assert(tap(&s, tx(1), ty(0, 0), now).kind == SPEED_ACT_NONE);
+    assert(tap(&s, tx(0, SPEED_T_BPM_UP), ty(0, SPEED_T_BPM_UP), now).kind == SPEED_ACT_NONE);
 
     desk_speed_validate(&s, &console);
     assert(s.dial[0].known && s.dial[0].base_ms == 500 && s.dial[0].factor == 6);
@@ -71,10 +72,10 @@ int main(void) {
     assert(desk_speed_bpm(&s.dial[0]) == 120);
 
     // +1 BPM: 121 -> 496 ms, one frame, pending until the echo.
-    struct speed_action a = tap(&s, tx(1), ty(0, 0), now);
+    struct speed_action a = tap(&s, tx(0, SPEED_T_BPM_UP), ty(0, SPEED_T_BPM_UP), now);
     assert(a.kind == SPEED_ACT_TIME && a.widget_id == tempo_widget && a.ms == 496);
     assert(s.dial[0].pending && !desk_speed_target_enabled(&s, 0, SPEED_T_BPM_UP));
-    assert(tap(&s, tx(1), ty(0, 0), now).kind == SPEED_ACT_NONE);
+    assert(tap(&s, tx(0, SPEED_T_BPM_UP), ty(0, SPEED_T_BPM_UP), now).kind == SPEED_ACT_NONE);
     desk_speed_apply(&s, tempo_widget, 496, 6, now);
     assert(!s.dial[0].pending && s.dial[0].base_ms == 496 && s.dial[0].note[0] == '\0');
     assert(desk_speed_bpm(&s.dial[0]) == 121);
@@ -85,14 +86,14 @@ int main(void) {
     assert(s.dial[0].note[0] == '\0');
 
     // x2: factor 7; x1/2 from 2 is dead; x1 is dead at 1 already.
-    a = tap(&s, tx(1), ty(0, 1), now);
+    a = tap(&s, tx(0, SPEED_T_DOUBLE), ty(0, SPEED_T_DOUBLE), now);
     assert(a.kind == SPEED_ACT_FACTOR && a.widget_id == tempo_widget && a.factor == 7);
     desk_speed_apply(&s, tempo_widget, 400, 7, now);
     assert(!s.dial[0].pending);
     desk_speed_apply(&s, tempo_widget, 400, 2, now);
     assert(!desk_speed_target_enabled(&s, 0, SPEED_T_HALF) && desk_speed_target_enabled(&s, 0, SPEED_T_DOUBLE));
     assert(desk_speed_target_enabled(&s, 0, SPEED_T_FACTOR_ONE));
-    a = tap(&s, tx(2), ty(0, 0), now);
+    a = tap(&s, tx(0, SPEED_T_FACTOR_ONE), ty(0, SPEED_T_FACTOR_ONE), now);
     assert(a.kind == SPEED_ACT_FACTOR && a.factor == 6);
     desk_speed_apply(&s, tempo_widget, 400, 6, now);
     // A dial factor of None multiplies by zero in the engine: steps off, x1 is the way back.
@@ -109,7 +110,7 @@ int main(void) {
     // Tap on dial 0: the first seeds, 500 ms later commits 500, which is the
     // master's value already, so nothing is sent; 400 ms commits 400 on the
     // down edge and waits for the echo.
-    int tapx = SPEED_CARD_X + SPEED_TAP_X + 10, tapy0 = SPEED_CARD_Y(0) + SPEED_TAP_Y + 10;
+    int tapx = tx(0, SPEED_T_TAP), tapy0 = ty(0, SPEED_T_TAP);
     int64_t t = 200000;
     desk_speed_tick(&s, t);     // the earlier notes have expired
     assert(desk_speed_touch_down(&s, tapx, tapy0, t, t).kind == SPEED_ACT_NONE);
@@ -125,7 +126,7 @@ int main(void) {
 
     // Tap both: up to two frames from one tap, none for a dial already there,
     // and dead while either dial waits.
-    int bx = SPEED_CARD_X + 10, by = SPEED_BOTH_Y + 10;
+    int bx = tx(-1, SPEED_T_BOTH), by = ty(-1, SPEED_T_BOTH);
     desk_speed_reset_taps(&s);
     t = 300000;
     assert(desk_speed_touch_down(&s, bx, by, t, t).kind == SPEED_ACT_NONE);
@@ -167,7 +168,7 @@ int main(void) {
 
     // A change the master never echoes: the dial goes unconfirmed, the desk
     // asks for a snapshot, and the snapshot brings it back.
-    a = tap(&s, tx(1), ty(0, 0), t);
+    a = tap(&s, tx(0, SPEED_T_BPM_UP), ty(0, SPEED_T_BPM_UP), t);
     assert(a.kind == SPEED_ACT_TIME && s.dial[0].pending);
     desk_speed_tick(&s, t + SPEED_PENDING_MS + 1);
     assert(!s.dial[0].pending && !s.dial[0].known && s.refresh_wanted);
@@ -194,6 +195,38 @@ int main(void) {
     desk_speed_validate(&o, &console);
     assert(o.dial[0].enabled && !o.dial[1].enabled && strcmp(o.dial[1].reason, "not in this show") == 0);
     assert(!desk_speed_target_enabled(&o, 0, SPEED_T_BOTH));
+
+    // RITMO's geometry: two equal cards side by side across the content, Tap
+    // both under both; every target at least 48 px each way, inside its own
+    // card, clear of every other, and the hit test finds each at its centre.
+    assert(SPEED_CARD_X(0) == 16 && SPEED_CARD_X(1) == SPEED_CARD_X(0) + SPEED_CARD_W + 8);
+    assert(SPEED_CARD_X(1) + SPEED_CARD_W == 844);
+    struct desk_rect both = desk_speed_target_rect(-1, SPEED_T_BOTH);
+    assert(both.x == SPEED_CARD_X(0) && both.x + both.w == SPEED_CARD_X(1) + SPEED_CARD_W);
+    assert(both.y >= SPEED_CARD_Y + SPEED_CARD_H + 8 && both.y + both.h <= 584 && both.h >= 48);
+    struct desk_rect all[2 * 6];
+    int n = 0;
+    for (int dial = 0; dial < 2; dial++)
+        for (int t = SPEED_T_TAP; t <= SPEED_T_DOUBLE; t++) {
+            struct desk_rect r = desk_speed_target_rect(dial, (enum speed_target)t);
+            assert(r.w >= 48 && r.h >= 48);
+            assert(r.x >= SPEED_CARD_X(dial) && r.x + r.w <= SPEED_CARD_X(dial) + SPEED_CARD_W);
+            assert(r.y >= SPEED_CARD_Y && r.y + r.h <= SPEED_CARD_Y + SPEED_CARD_H);
+            for (int k = 0; k < n; k++)
+                assert(!(r.x < all[k].x + all[k].w && all[k].x < r.x + r.w &&
+                         r.y < all[k].y + all[k].h && all[k].y < r.y + r.h));
+            all[n++] = r;
+            int at = -1;
+            assert(desk_speed_hit(&s, r.x + r.w / 2, r.y + r.h / 2, &at) == (enum speed_target)t && at == dial);
+        }
+    // Tap is the widest target on a card; the steps pair up under it.
+    struct desk_rect tap_r = desk_speed_target_rect(0, SPEED_T_TAP);
+    struct desk_rect down = desk_speed_target_rect(0, SPEED_T_BPM_DOWN), up = desk_speed_target_rect(0, SPEED_T_BPM_UP);
+    struct desk_rect half = desk_speed_target_rect(0, SPEED_T_HALF), dbl = desk_speed_target_rect(0, SPEED_T_DOUBLE);
+    assert(down.y == up.y && half.y == dbl.y && tap_r.y < down.y && down.y < half.y);
+    assert(down.x == tap_r.x && up.x + up.w == tap_r.x + tap_r.w && half.x == down.x && dbl.x == up.x);
+    int at = -1;
+    assert(desk_speed_hit(&s, both.x + both.w / 2, both.y + both.h / 2, &at) == SPEED_T_BOTH);
 
     vc_free(&console);
     free(map_text);

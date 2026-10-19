@@ -6,6 +6,8 @@
 #include "desk_layout.h"
 #include "desk_paint_keyline.h"
 #include "desk_speed_layout.h"
+#include "desk_speed_target_rect.h"
+#include "desk_text_upper.h"
 #include "speed_factor.h"
 
 static int text_h(struct font *f) { return f ? font_height(f) : 15; }
@@ -40,64 +42,68 @@ static void target(struct canvas *c, struct font *f, int x, int y, int w, int h,
     centred(c, f, x, y, w, h, label, enabled ? DESK_INK : DESK_MUTED);
 }
 
-static void card(struct canvas *c, const struct desk_speed *s, int i, const struct desk_fonts *fonts) {
-    const struct desk_dial *d = &s->dial[i];
-    int cx = SPEED_CARD_X, cy = SPEED_CARD_Y(i);
-    canvas_round_rect(c, cx, cy, SPEED_CARD_W, SPEED_CARD_H, SPEED_RADIUS, DESK_PANEL);
-    int rx = cx + SPEED_READOUT_X;
-    // The readout: the caption, the BPM large, the time and factor beneath.
-    // The show's dial says "Vel. Movimiento"; the card says the thing.
-    const char *cap = strncmp(d->caption, "Vel. ", 5) == 0 ? d->caption + 5 : d->caption;
-    text_at(c, fonts->small, rx, cy + 12, SPEED_READOUT_W, cap, DESK_MUTED);
-    char big[16], line[48], scope[32];
-    if (!d->enabled || !d->known) {
-        snprintf(big, sizeof big, "--");
-        snprintf(line, sizeof line, "%s", d->reason);
-    } else if (d->base_ms == 0) {
-        snprintf(big, sizeof big, "--");
-        snprintf(line, sizeof line, "No base time");
-    } else {
-        snprintf(big, sizeof big, "%d", desk_speed_bpm(d));
-        const char *factor = d->factor == SPEED_FACTOR_NONE ? "none"
-                           : d->factor == SPEED_FACTOR_ZERO ? "zero" : speed_factor_name(d->factor);
-        snprintf(line, sizeof line, "%d ms  tiempo x%s", d->base_ms, factor);
-    }
-    text_at(c, fonts->big, rx, cy + 26, SPEED_READOUT_W, big, d->known ? DESK_INK : DESK_MUTED);
-    int big_w = fonts->big ? font_width(fonts->big, big) : canvas_text_width(big, 3);
-    if (d->known && d->base_ms > 0)
-        text_at(c, fonts->small, rx + big_w + 8, cy + 26 + text_h(fonts->big) - text_h(fonts->small) - 10,
-                80, "BPM base", DESK_MUTED);
-    text_at(c, fonts->small, rx, cy + SPEED_CARD_H - 52, SPEED_READOUT_W, line, d->known ? DESK_INK : DESK_MUTED);
+// The words under a dial's number: the note that matters most, then the
+// change on its way, then what the number is, or why there is none.
+static const char *under_number(const struct desk_dial *d) {
     if (d->note[0])
-        snprintf(scope, sizeof scope, "%s", d->note);
-    else if (d->pending)
-        snprintf(scope, sizeof scope, "enviado, esperando");
-    else
-        snprintf(scope, sizeof scope, "%d funciones", d->members);
-    text_at(c, fonts->small, rx, cy + SPEED_CARD_H - 30, SPEED_READOUT_W, scope,
-            d->note[0] ? DESK_INK : DESK_MUTED);
-
-    int pressed_here = s->capture_dial == i;
-    // Live targets are tiles on the card's panel; dead ones show the panel.
-    target(c, fonts->tile, cx + SPEED_TAP_X, cy + SPEED_TAP_Y, SPEED_TAP_W, SPEED_TAP_H, "Tap",
-           desk_speed_target_enabled(s, i, SPEED_T_TAP), pressed_here && s->capture == SPEED_T_TAP,
-           DESK_TILE, DESK_PANEL);
-    static const struct { enum speed_target t; int row, col; const char *label; } cells[] = {
-        { SPEED_T_BPM_DOWN, 0, 0, "-1 BPM" }, { SPEED_T_BPM_UP, 0, 1, "+1 BPM" },
-        { SPEED_T_FACTOR_ONE, 0, 2, "Tiempo x1" }, { SPEED_T_HALF, 1, 0, "M\xc3\xa1s lento x2" }, { SPEED_T_DOUBLE, 1, 1, "M\xc3\xa1s r\xc3\xa1pido x2" },
-    };
-    for (size_t k = 0; k < sizeof cells / sizeof cells[0]; k++)
-        target(c, fonts->small, cx + SPEED_CELL_X(cells[k].col), cy + SPEED_CELL_Y(cells[k].row),
-               SPEED_CELL_W, SPEED_CELL_H, cells[k].label,
-               desk_speed_target_enabled(s, i, cells[k].t), pressed_here && s->capture == cells[k].t,
-               DESK_TILE, DESK_PANEL);
+        return d->note;
+    if (d->pending)
+        return "enviado";
+    if (d->known && d->base_ms > 0)
+        return "BPM base";
+    return d->enabled && d->known ? "No base time" : d->reason;
 }
 
+static void card(struct canvas *c, const struct desk_speed *s, int i, const struct desk_fonts *fonts) {
+    const struct desk_dial *d = &s->dial[i];
+    int x = SPEED_CARD_X(i), y = SPEED_CARD_Y;
+    canvas_round_rect(c, x, y, SPEED_CARD_W, SPEED_CARD_H, SPEED_RADIUS, DESK_PANEL);
+    // The caption in capitals, as the dial names itself.
+    char cap[MAP_CAPTION_MAX];
+    desk_text_upper(cap, sizeof cap, d->caption);
+    text_at(c, fonts->tab, x + SPEED_PAD, y + SPEED_PAD, SPEED_CARD_W - 2 * SPEED_PAD, cap, DESK_MUTED);
+    // The number large, its meaning under it, centred left of the multiplier.
+    char big[16];
+    int live = d->enabled && d->known && d->base_ms > 0;
+    if (live)
+        snprintf(big, sizeof big, "%d", desk_speed_bpm(d));
+    else
+        snprintf(big, sizeof big, "--");
+    struct desk_rect factor = desk_speed_target_rect(i, SPEED_T_FACTOR_ONE);
+    int rx = x + SPEED_PAD, rw = factor.x - 8 - rx;
+    int top = y + 36;
+    centred(c, fonts->huge, rx, top, rw, text_h(fonts->huge), big, live ? DESK_INK : DESK_MUTED);
+    centred(c, fonts->label, rx, top + text_h(fonts->huge), rw, text_h(fonts->label) + 4,
+            under_number(d), d->note[0] ? DESK_INK : DESK_MUTED);
+
+    int pressed_here = s->capture_dial == i;
+    // The multiplier reads the dial's factor and, away from x1, takes it back.
+    char times[32];
+    if (live && speed_factor_valid(d->factor) && d->factor >= SPEED_FACTOR_MIN)
+        snprintf(times, sizeof times, "Tiempo x%s", speed_factor_name(d->factor));
+    else
+        snprintf(times, sizeof times, "Tiempo --");
+    static const struct { enum speed_target t; const char *label; } cells[] = {
+        { SPEED_T_TAP, "Tap" }, { SPEED_T_FACTOR_ONE, NULL },
+        { SPEED_T_BPM_DOWN, "-1 BPM" }, { SPEED_T_BPM_UP, "+1 BPM" },
+        { SPEED_T_HALF, "M\xc3\xa1s lento x2" }, { SPEED_T_DOUBLE, "M\xc3\xa1s r\xc3\xa1pido x2" },
+    };
+    // Live targets are tiles on the card's panel; dead ones show the panel.
+    for (size_t k = 0; k < sizeof cells / sizeof cells[0]; k++) {
+        struct desk_rect r = desk_speed_target_rect(i, cells[k].t);
+        target(c, cells[k].t == SPEED_T_FACTOR_ONE ? fonts->label : fonts->tile, r.x, r.y, r.w, r.h,
+               cells[k].label ? cells[k].label : times, desk_speed_target_enabled(s, i, cells[k].t),
+               pressed_here && s->capture == cells[k].t, DESK_TILE, DESK_PANEL);
+    }
+}
+
+// TEMPO SHOW on DIRECTO: a 88 px TAP at the panel's right under its
+// heading, a rule between it and the number.
 void desk_speed_tempo_tap_rect(int x, int y, int w, int h, int *tx, int *ty, int *tw, int *th) {
-    *tw = 96;
-    *th = h - 16;
-    *tx = x + w - 8 - *tw;
-    *ty = y + 8;
+    *tw = 88;
+    *th = h - 48;
+    *tx = x + w - 12 - *tw;
+    *ty = y + 24;
 }
 
 void desk_speed_paint_tempo(struct canvas *c, const struct desk_speed *s, int i,
@@ -105,37 +111,31 @@ void desk_speed_paint_tempo(struct canvas *c, const struct desk_speed *s, int i,
     if (i < 0 || i >= s->dials)
         return;
     const struct desk_dial *d = &s->dial[i];
-    char big[16], line[48];
-    if (!d->enabled || !d->known)
-        snprintf(big, sizeof big, "--");
-    else if (d->base_ms == 0)
-        snprintf(big, sizeof big, "--");
-    else
+    char big[16];
+    int live = d->enabled && d->known && d->base_ms > 0;
+    if (live)
         snprintf(big, sizeof big, "%d", desk_speed_bpm(d));
-    // The number, then one line under it: base BPM, the time and factor,
-    // or the note that matters more.
-    text_at(c, fonts->big, x + 16, y + 26, w - 128, big, d->known ? DESK_INK : DESK_MUTED);
-    if (d->note[0])
-        snprintf(line, sizeof line, "%s", d->note);
-    else if (d->pending)
-        snprintf(line, sizeof line, "enviado");
-    else if (d->known && d->base_ms > 0)
-        snprintf(line, sizeof line, "BPM base");
     else
-        snprintf(line, sizeof line, "%s", d->reason);
-    text_at(c, fonts->small, x + 16, y + h - 22, w - 128, line, DESK_MUTED);
+        snprintf(big, sizeof big, "--");
     int tx, ty, tw, th;
     desk_speed_tempo_tap_rect(x, y, w, h, &tx, &ty, &tw, &th);
-    int live = desk_speed_target_enabled(s, i, SPEED_T_TAP);
-    target(c, fonts->tile, tx, ty, tw, th, "TAP", live, pressed, DESK_RAISED, DESK_TILE);
+    // The number under the panel's heading, then one line: base BPM, or
+    // the note that matters more.
+    int nw = tx - 24 - (x + 12);
+    text_at(c, fonts->big, x + 12, y + 34, nw, big, live ? DESK_INK : DESK_MUTED);
+    text_at(c, fonts->small, x + 12, y + h - 12 - text_h(fonts->small), nw, under_number(d), DESK_MUTED);
+    canvas_fill_rect(c, tx - 12, ty, 1, th, DESK_LINE);
+    int enabled = desk_speed_target_enabled(s, i, SPEED_T_TAP);
+    target(c, fonts->tile, tx, ty, tw, th, "TAP", enabled, pressed, DESK_RAISED, DESK_PANEL);
 }
 
 void desk_speed_paint(struct canvas *c, const struct desk_speed *s, const struct desk_fonts *fonts) {
     for (int i = 0; i < s->dials && i < 2; i++)
         card(c, s, i, fonts);
     if (s->dials >= 2) {
+        struct desk_rect r = desk_speed_target_rect(-1, SPEED_T_BOTH);
         int enabled = desk_speed_target_enabled(s, 0, SPEED_T_BOTH);
-        target(c, fonts->tile, SPEED_CARD_X, SPEED_BOTH_Y, SPEED_CARD_W, SPEED_BOTH_H,
-               "TAP ambos", enabled, s->capture == SPEED_T_BOTH, DESK_TILE, DESK_GLASS);
+        target(c, fonts->tile, r.x, r.y, r.w, r.h, "TAP ambos", enabled, s->capture == SPEED_T_BOTH,
+               DESK_TILE, DESK_GLASS);
     }
 }
