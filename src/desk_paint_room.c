@@ -56,7 +56,10 @@ void desk_paint_room(struct canvas *c, const struct desk_model *m, const struct 
     int x = h->x + INSET, w = right - x;
     if (w <= 0)
         return;
-    const char *name = on ? on->label : unknown ? "?" : "\xe2\x80\x94";
+    // A bare dash left the largest panel on the desk looking broken
+    // (2026-10-19), so an idle room says so and where to choose one.
+    int idle = !on && !unknown;
+    const char *name = on ? on->label : unknown ? "?" : "Sin estado";
     // The largest face the name keeps to one line in, then the tempo's, then
     // the readout face on two lines, then the tile face.
     struct desk_caption_lines lines = { .lines = 1 };
@@ -76,7 +79,7 @@ void desk_paint_room(struct canvas *c, const struct desk_model *m, const struct 
     if (lines.lines == 1)
         snprintf(lines.line[0], sizeof lines.line[0], "%s", name);
     // The detail in the readout face while it fits, else the tile face.
-    const char *detail = on ? on->detail : "";
+    const char *detail = on ? on->detail : idle ? "elige uno abajo" : "";
     struct font *quiet = width_of(fonts->value, detail) <= w ? fonts->value : fonts->tile;
     int top = hy + height_of(fonts->section) + 8, bottom = h->y + h->h - INSET;
     int pitch = lines.lines > 1 ? height_of(face) - 6 : height_of(face);
