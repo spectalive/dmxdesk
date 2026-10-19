@@ -9,13 +9,15 @@ void audit_ranges(struct audit_context *a) {
         int brightness=e->kind==A_SETUP&&e->index==T_FADER;
         if(!e->enabled||(!master&&!brightness))continue;
         // Observe the first inset track actually drawn by the real painter.
-        // Full tile backgrounds and readout text cannot qualify as a track.
+        // Full tile backgrounds and readout text cannot qualify as a track;
+        // nor can a keyline's fill, the background 1 px inside its line.
         struct desk_rect track={0};
         for(int j=0;j<a->draws;j++) {
             const struct audit_draw *d=&a->draw[j];
             struct desk_rect r=d->rect;
             if(d->text||r.x<=e->drawn.x||r.x+r.w>=e->drawn.x+e->drawn.w||
                 r.y<=e->drawn.y||r.y+r.h>=e->drawn.y+e->drawn.h)continue;
+            if(r.x==e->drawn.x+1&&r.y==e->drawn.y+1&&r.w==e->drawn.w-2&&r.h==e->drawn.h-2)continue;
             if((master&&r.h>e->drawn.h/2)||(brightness&&r.w>e->drawn.w/2&&r.h<e->drawn.h/2)) {track=r;break;}
         }
         if(!track.w) {audit_note(a,0,"range","%s: no drawn track found",e->label);continue;}

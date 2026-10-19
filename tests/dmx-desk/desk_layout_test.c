@@ -1,6 +1,7 @@
-// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c
+// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_family_icon.c icon_glyph.c
 // The resolver over the real map: every control placed, nothing overlapping,
-// nothing outside the content area, the banks as the arithmetic yields them.
+// nothing outside the content area, the banks as the arithmetic yields them,
+// three tabs, six EFECTOS families, and every flowed section on its panel.
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +9,8 @@
 #include "desk_layout.h"
 #include "desk_layout_resolve.h"
 #include "desk_show_layout.h"
+#include "desk_tab.h"
+#include "icon_data.h"
 #include "showmap.h"
 
 static int overlap(const struct desk_placement *a, const struct desk_placement *b) {
@@ -43,6 +46,24 @@ int main(void) {
     struct desk_layout l;
     assert(desk_layout_resolve(&map, master, panic, map.count + 2, map.count + 3, &l) == 0);
     assert(l.pages == 8 && l.speed_page == 7 && strcmp(l.title[7], "SPEED") == 0);
+    // Three tabs: the live page is DIRECTO, SPEED is RITMO, and the six
+    // families, in map order, titled by the map and marked by their keys.
+    int per_tab[DESK_TABS] = {0};
+    for (int page = 0; page < l.pages; page++)
+        per_tab[l.tab[page]]++;
+    assert(l.tab[0] == DESK_TAB_DIRECTO && l.tab[7] == DESK_TAB_RITMO);
+    assert(per_tab[DESK_TAB_DIRECTO] == 1 && per_tab[DESK_TAB_RITMO] == 1 &&
+           per_tab[DESK_TAB_EFECTOS] == 6);
+    const char *families[] = { "COLOR", "PIXELES", "CABEZAS", "GOBOS", "PRISMA", "CONTROL" };
+    const int marks[] = { ICON_PALETTE, ICON_GRID, ICON_MOVING_HEAD, ICON_GOBO, ICON_PRISM,
+                          ICON_SLIDERS };
+    assert(l.families == 6);
+    for (int i = 0; i < 6; i++) {
+        assert(l.family_page[i] == i + 1 && l.tab[i + 1] == DESK_TAB_EFECTOS);
+        assert(strcmp(l.title[l.family_page[i]], families[i]) == 0);
+        assert(strcmp(map.page[l.family_page[i]].title, families[i]) == 0);
+        assert(l.family_icon[i] == marks[i]);
+    }
 
     // Every control has a placement on its own page.
     for (int i = 0; i < map.count; i++)
@@ -103,9 +124,17 @@ int main(void) {
             if (strcmp(show.heading[i].text, "Fijo") == 0)
                 assert(show.heading[i].x == cue->x && show.heading[i].y < cue->y);
     }
-    // COLOR keeps its picks 128x88 six to a row and its colour hits as holds.
+    // COLOR keeps its picks 128x88, five to a row inside their panel right of
+    // the families, and its colour hits as holds.
     const struct desk_placement *rojo = find(&l, control_named(&map, "Rig Rojo"), 1);
     assert(rojo && rojo->tile == TILE_SWATCH && rojo->w == 128 && rojo->h == 88);
+    assert(rojo->x == DESK_EFFECTS_X + DESK_PANEL_PAD);
+    int in_row = 0;
+    for (int i = 0; i < l.placements; i++)
+        if (l.placement[i].page == 1 && l.placement[i].bank == rojo->bank &&
+            l.placement[i].y == rojo->y && l.placement[i].tile == TILE_SWATCH)
+            in_row++;
+    assert(in_row == 5);
     const struct desk_placement *hit = find(&l, control_named(&map, "ROJO"), 1);
     assert(hit && hit->tile == TILE_HOLD && hit->h == 104);
 
@@ -124,6 +153,21 @@ int main(void) {
                 if (p->tile == TILE_PANIC) { panics++; continue; }
                 assert(p->x >= DESK_GRID_X && p->x + p->w <= DESK_MASTER_X);
                 assert(p->y >= DESK_GRID_Y && p->y + p->h <= end);
+                // A family's tiles keep clear of the families' column, inside
+                // a panel of their own section on the same bank.
+                if (l.tab[page] == DESK_TAB_EFECTOS) {
+                    assert(p->x >= DESK_EFFECTS_X + DESK_PANEL_PAD);
+                    int panels = 0;
+                    for (int h = 0; h < l.headings; h++) {
+                        const struct desk_heading *hd = &l.heading[h];
+                        if (hd->page == page && hd->bank == bank &&
+                            hd->section == map.control[p->control].section &&
+                            p->x >= hd->x + DESK_PANEL_PAD && p->x + p->w <= hd->x + hd->w - DESK_PANEL_PAD &&
+                            p->y >= hd->y + DESK_PANEL_PAD + 16 && p->y + p->h <= hd->y + hd->h - DESK_PANEL_PAD)
+                            panels++;
+                    }
+                    assert(panels == 1);
+                }
                 for (int j = i + 1; j < l.placements; j++) {
                     const struct desk_placement *q = &l.placement[j];
                     if (q->page == page && q->bank == bank && q->tile != TILE_MASTER &&
@@ -132,6 +176,23 @@ int main(void) {
                 }
             }
             assert(masters == 1 && panics == 1);
+        }
+    }
+    // Panels: a family's never overlap and stay in its content; SHOW's
+    // composed headings are bare, with no panel.
+    for (int i = 0; i < l.headings; i++) {
+        const struct desk_heading *a = &l.heading[i];
+        if (l.tab[a->page] != DESK_TAB_EFECTOS) {
+            assert(a->h == 0);
+            continue;
+        }
+        int end = l.banks[a->page] > 1 ? DESK_PAGER_Y - DESK_GAP : DESK_CONTENT_END;
+        assert(a->h > 0 && a->x == DESK_EFFECTS_X && a->x + a->w == DESK_MASTER_X - 16);
+        assert(a->y >= DESK_CONTENT_Y && a->y + a->h <= end);
+        for (int j = i + 1; j < l.headings; j++) {
+            const struct desk_heading *b = &l.heading[j];
+            if (b->page == a->page && b->bank == a->bank)
+                assert(a->y + a->h + DESK_GAP <= b->y || b->y + b->h + DESK_GAP <= a->y);
         }
     }
     // Headings: the gobo picks are split across banks with part/parts.

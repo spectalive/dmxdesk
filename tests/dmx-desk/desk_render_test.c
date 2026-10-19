@@ -1,7 +1,8 @@
-// SOURCES: desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c
 // The desk, built from the generated Vibra map against the real console
 // document, pressed once, and painted. Writes $TEST_OUT/desk.ppm so the screen can be
-// looked at on a laptop before it reaches the tablet.
+// looked at on a laptop before it reaches the tablet, and one render per tab:
+// EFECTOS' COLOR, CABEZAS and GOBOS, and RITMO with its speed cards.
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +13,13 @@
 #include "desk_layout_resolve.h"
 #include "desk_model.h"
 #include "desk_paint.h"
+#include "desk_speed.h"
+#include "desk_speed_paint.h"
+#include "desk_tab.h"
+#include "desk_tab_page.h"
 #include "desk_view.h"
+#include "desk_view_family.h"
+#include "icon_data.h"
 #include "showmap.h"
 #include "showmap_validate.h"
 #include "vcjson.h"
@@ -144,16 +151,55 @@ int main(void) {
     write_ppm(&canvas, path);
     printf("wrote %s\n", path);
 
-    // The COLOR page with the pick lit, and the gobos' second bank.
-    desk_set_view(&model, 1, 0);
+    // DIRECTO's tab is the accent pill; the link dot is green.
+    struct desk_rect directo = desk_view_tab(DESK_TAB_DIRECTO), efectos = desk_view_tab(DESK_TAB_EFECTOS);
+    assert(canvas.px[(directo.y + directo.h / 2) * canvas.w + directo.x + 6] == DESK_ACCENT);
+    assert(canvas.px[(efectos.y + efectos.h / 2) * canvas.w + efectos.x + 6] == DESK_TILE);
+    assert(canvas.px[(DESK_BAR_H / 2) * canvas.w + DESK_LINK_DOT_X + DESK_LINK_DOT / 2] == DESK_OK);
+
+    // The COLOR page with the pick lit, the gobos' second bank, CABEZAS: the
+    // EFECTOS tab lit, the family on screen lit in the column at the left,
+    // the sections on their panels.
+    desk_set_view(&model, desk_tab_page(&model, DESK_TAB_EFECTOS), 0);
+    assert(model.page == 1);
     desk_apply_function(&model, 727, 1);
     desk_paint(&canvas, &model, &fonts);
     snprintf(path, sizeof path, "%s/desk-color.ppm", out ? out : "/tmp");
     write_ppm(&canvas, path);
+    assert(canvas.px[(efectos.y + efectos.h / 2) * canvas.w + efectos.x + 6] == DESK_ACCENT);
+    struct desk_rect color = desk_view_family(0, layout.families), pixels = desk_view_family(1, layout.families);
+    assert(canvas.px[(color.y + 4) * canvas.w + color.x + color.w / 2] == DESK_ACCENT);
+    assert(canvas.px[(pixels.y + 4) * canvas.w + pixels.x + pixels.w / 2] == DESK_TILE);
+    assert(canvas.px[pixels.y * canvas.w + pixels.x + pixels.w / 2] == DESK_LINE);
+    for (int i = 0; i < layout.headings; i++) {
+        const struct desk_heading *h = &layout.heading[i];
+        if (h->page == 1 && h->bank == 0)
+            assert(canvas.px[(h->y + h->h - 2) * canvas.w + h->x + h->w / 2] == DESK_PANEL);
+    }
     desk_set_view(&model, 4, 1);
     desk_paint(&canvas, &model, &fonts);
     snprintf(path, sizeof path, "%s/desk-gobos.ppm", out ? out : "/tmp");
     write_ppm(&canvas, path);
+    desk_set_view(&model, 3, 0);
+    desk_paint(&canvas, &model, &fonts);
+    snprintf(path, sizeof path, "%s/desk-heads.ppm", out ? out : "/tmp");
+    write_ppm(&canvas, path);
+
+    // RITMO: the SPEED page's chrome and the speed model's cards over it.
+    struct desk_speed speed;
+    desk_speed_init(&speed, &map);
+    desk_speed_validate(&speed, &console);
+    desk_speed_set_link(&speed, 1, 0);
+    desk_set_view(&model, desk_tab_page(&model, DESK_TAB_RITMO), 0);
+    assert(model.page == layout.speed_page);
+    desk_paint(&canvas, &model, &fonts);
+    desk_speed_paint(&canvas, &speed, &fonts);
+    snprintf(path, sizeof path, "%s/desk-ritmo.ppm", out ? out : "/tmp");
+    write_ppm(&canvas, path);
+    struct desk_rect ritmo = desk_view_tab(DESK_TAB_RITMO);
+    assert(canvas.px[(ritmo.y + ritmo.h / 2) * canvas.w + ritmo.x + 6] == DESK_ACCENT);
+    // EFECTOS still remembers CABEZAS.
+    assert(desk_tab_page(&model, DESK_TAB_EFECTOS) == 3);
     desk_set_view(&model, 0, 0);
 
     // And the same screen with the link down, which is what a gig sees when
@@ -165,8 +211,13 @@ int main(void) {
 
     // Six parts of one long section keep their distinguishing part numbers.
     // No label may spill into a gap, and the running dot keeps its old meaning.
+    // The page is an EFECTOS family, so the pager runs right of the families.
     memset(&layout, 0, sizeof layout);
     layout.pages = 1;
+    layout.tab[0] = DESK_TAB_EFECTOS;
+    layout.families = 1;
+    layout.family_page[0] = 0;
+    layout.family_icon[0] = ICON_PALETTE;
     layout.banks[0] = DESK_MAX_BANKS;
     layout.headings = DESK_MAX_BANKS;
     strcpy(layout.title[0], "COLOR");
@@ -174,14 +225,15 @@ int main(void) {
         layout.heading[i].bank = i;
         layout.heading[i].part = i + 1;
         layout.heading[i].parts = DESK_MAX_BANKS;
-        layout.heading[i].x = DESK_CONTENT_X;
+        layout.heading[i].x = DESK_EFFECTS_X;
         layout.heading[i].y = DESK_CONTENT_Y;
-        layout.heading[i].w = DESK_CONTENT_W;
+        layout.heading[i].w = DESK_EFFECTS_W;
+        layout.heading[i].h = 136;
         strcpy(layout.heading[i].text, "Dirección y barridos de intensidad");
     }
     layout.placements = 1;
     layout.placement[0] = (struct desk_placement){ .control = 0, .page = 0, .bank = 5,
-        .x = 16, .y = 88, .w = 128, .h = 88, .tile = TILE_CUE };
+        .x = DESK_EFFECTS_X + DESK_PANEL_PAD, .y = 92, .w = 128, .h = 88, .tile = TILE_CUE };
     desk_set_layout(&model, &layout);
     desk_set_link(&model, DESK_LINK_READY);
     model.control[0].state = DESK_ON;
@@ -198,7 +250,7 @@ int main(void) {
                         assert(canvas.px[y * canvas.w + x] == DESK_GLASS);
         }
         struct desk_rect last = desk_view_pager(5, &layout, 0);
-        assert(canvas.px[(last.y + 8) * canvas.w + last.x + last.w - 8] == DESK_AMBER);
+        assert(canvas.px[(last.y + 8) * canvas.w + last.x + last.w - 8] == DESK_ACCENT);
         if (!fallback) {
             snprintf(path, sizeof path, "%s/desk-six-banks.ppm", out ? out : "/tmp");
             write_ppm(&canvas, path);

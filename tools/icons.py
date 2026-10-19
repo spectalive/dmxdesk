@@ -374,6 +374,44 @@ def grid(size=24):
     return im
 
 
+# EFECTOS' families that have no map glyph of their own: a moving head, the
+# prism, and the faders of CONTROL.
+
+def moving_head(size=24):
+    """A moving head: the lens on its yoke over a base."""
+    im, d = canvas(size, size)
+    cx, top = size / 2, size / 2 - OPTICAL_SIZE / 2
+    bottom = size / 2 + OPTICAL_SIZE / 2
+    d.rounded_rectangle([(cx - 5) * S, (top + 1) * S, (cx + 5) * S, (top + 12) * S],
+                        radius=4 * S, outline=255, width=STROKE * S)
+    stroke(d, [(cx - 8, top + 5), (cx - 8, bottom - 3), (cx + 8, bottom - 3),
+               (cx + 8, top + 5)])
+    stroke(d, [(cx - 6, bottom - 1), (cx + 6, bottom - 1)])
+    return im
+
+
+def prism(size=24):
+    """A triangle outline, the prism's own shape."""
+    im, d = canvas(size, size)
+    cx, cy, r = size / 2, size / 2, OPTICAL_SIZE / 2
+    pts = [(cx, cy - r + 0.5), (cx + r - 0.5, cy + r - 2), (cx - r + 0.5, cy + r - 2)]
+    d.polygon([(x * S, y * S) for x, y in pts], outline=255, width=STROKE * S)
+    return im
+
+
+def sliders(size=24):
+    """Three faders, each with its knob at another height."""
+    im, d = canvas(size, size)
+    lo = size / 2 - OPTICAL_SIZE / 2 + 1
+    hi = size / 2 + OPTICAL_SIZE / 2 - 1
+    for k, at in enumerate((0.3, 0.7, 0.45)):
+        y = lo + 2 + k * (hi - lo - 4) / 2
+        stroke(d, [(lo, y), (hi, y)])
+        x = lo + at * (hi - lo)
+        disc(d, x, y, 2.6)
+    return im
+
+
 ICONS = [
     ("ICON_GEAR", gear()),
     ("ICON_LOCK", lock()),
@@ -408,6 +446,9 @@ ICONS = [
     ("ICON_HALF_BOTTOM", half(start=0)),
     ("ICON_HALF_TOP", half(start=180)),
     ("ICON_GRID", grid()),
+    ("ICON_MOVING_HEAD", moving_head()),
+    ("ICON_PRISM", prism()),
+    ("ICON_SLIDERS", sliders()),
 ]
 
 # The map's glyph for each mark, as UTF-8. The bolt the hits already wear

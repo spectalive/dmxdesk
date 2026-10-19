@@ -7,8 +7,12 @@ void desk_inert_mask(const struct desk_model *m, const struct desk_setup *s, con
     // The audit rejects any exemption covering an action or enabled drawing.
     desk_region_mark(mask, (struct desk_rect){0, 0, DESK_W, DESK_H}, 1);
     if (!s->open) {
-        for (int i = 0; i < m->layout.pages; i++)
-            desk_region_mark(mask, desk_view_tab(i), 0);
+        for (int i = 0; i < DESK_TABS; i++)
+            if (desk_tab_page(m, i) >= 0)
+                desk_region_mark(mask, desk_view_tab(i), 0);
+        if (m->layout.tab[m->page] == DESK_TAB_EFECTOS)
+            for (int i = 0; i < m->layout.families; i++)
+                desk_region_mark(mask, desk_view_family(i, m->layout.families), 0);
         if (m->layout.banks[m->page] > 1)
             for (int i = 0; i < m->layout.banks[m->page]; i++) {
                 struct desk_rect pager = desk_view_pager(i, &m->layout, m->page);

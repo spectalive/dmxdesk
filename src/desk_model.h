@@ -69,6 +69,7 @@ struct desk_model {
     struct desk_layout layout;
     int page, bank;         // the view on screen
     int page_bank[MAP_MAX_PAGES]; // each page resumes at its last bank
+    int effects_page;       // the EFECTOS family last on screen, which its tab reopens
     enum desk_link link;
     int locked;             // the surface accepts nothing; painted as such
     int mismatch;           // the console is another show: every control off, said once
@@ -106,11 +107,13 @@ void desk_init(struct desk_model *m);
 // Returns the index of the control added, or -1 when there is no room.
 int desk_add(struct desk_model *m, const struct desk_control *control);
 
-// A new layout, copied in; the view and every remembered bank reset to zero.
+// A new layout, copied in; the view and every remembered bank reset to zero,
+// the remembered family to the first.
 void desk_set_layout(struct desk_model *m, const struct desk_layout *layout);
 // Changes the view. A capture in flight is cancelled: a finger that came down
 // on one page fires nothing on another. Bank -1 recalls that page's last
-// bank; other out-of-range values are clamped.
+// bank; other out-of-range values are clamped. An EFECTOS family shown is
+// remembered as the one its tab reopens.
 void desk_set_view(struct desk_model *m, int page, int bank);
 
 // The placement a control has on the current view, or NULL.
@@ -153,7 +156,7 @@ int desk_take_damage(struct desk_model *m, int *x, int *y, int *w, int *h);
 
 // The frame for `widget_id` went out: the control shows a neutral pending
 // mark and refuses a second tap until the master answers (any push for its
-// function) or DESK_PENDING_MS pass. Never painted amber, never retried.
+// function) or DESK_PENDING_MS pass. Never painted accent, never retried.
 void desk_note_sent(struct desk_model *m, int widget_id, int64_t now_ms);
 void desk_tick(struct desk_model *m, int64_t now_ms);
 

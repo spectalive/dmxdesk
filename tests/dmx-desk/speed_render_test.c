@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c
 // The SPEED page's cards painted: both dials known from the console, one
 // change waiting, one noted; then the page before anything is known.
 #include <assert.h>
@@ -82,7 +82,7 @@ int main(void) {
     desk_speed_paint(&canvas, &s, &fonts);
     save(&canvas, "speed.ppm");
     // The cards sit in the content only.
-    assert(canvas.px[(SPEED_CARD_Y(0) + 40) * DESK_W + SPEED_CARD_X + 40] == DESK_TILE);
+    assert(canvas.px[(SPEED_CARD_Y(0) + 40) * DESK_W + SPEED_CARD_X + 40] == DESK_PANEL);
     assert(canvas.px[SPEED_CARD_Y(0) * DESK_W + 900] == DESK_GLASS);
     assert(canvas.px[20 * DESK_W + 400] == DESK_GLASS);
     printf("speed_render ok\n");

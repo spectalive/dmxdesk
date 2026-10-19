@@ -54,6 +54,7 @@
 #include "desk_speed.h"
 #include "desk_speed_layout.h"
 #include "desk_speed_paint.h"
+#include "desk_tab_page.h"
 #include "desk_toggle_queue.h"
 #include "desk_release_hook.h"
 #include "desk_view.h"
@@ -912,8 +913,13 @@ int main(int argc, char **argv) {
                 if (!desk_lock_allows(&lock))
                     continue;
                 if (target == TARGET_RAIL) {
-                    if (index >= 0)
-                        desk_set_view(&model, index, -1);
+                    if (index >= 0 && desk_tab_page(&model, index) >= 0)
+                        desk_set_view(&model, desk_tab_page(&model, index), -1);
+                    continue;
+                }
+                if (target == TARGET_FAMILY) {
+                    if (index >= 0 && index < model.layout.families)
+                        desk_set_view(&model, model.layout.family_page[index], -1);
                     continue;
                 }
                 if (target == TARGET_BANK) {

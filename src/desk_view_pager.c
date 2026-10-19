@@ -3,18 +3,20 @@
 #include "desk_layout.h"
 #include "desk_layout_resolve.h"
 #include "desk_pager_label.h"
+#include "desk_tab.h"
 
 // The minimum width has to leave the widest case some spare, or the division
 // by `total` below is a division by zero rather than a squeeze: six segments
-// and their gaps must fit the content with room left over.
+// and their gaps must fit the narrower EFECTOS content with room left over.
 _Static_assert(DESK_MAX_BANKS * DESK_PAGER_MIN_W + (DESK_MAX_BANKS - 1) * DESK_GAP
-                   < DESK_CONTENT_W,
+                   < DESK_EFFECTS_W,
                "the pager's minimum width leaves no spare at DESK_MAX_BANKS");
 
 // Spend the whole strip on targets. Labels get a preferred ten pixels per
 // UTF-8 character plus room for the number and padding; actual glyphs are
 // measured and ellipsized by the painter. This keeps hit geometry independent
-// of font loading. Every segment keeps 128 px even when six labels are long.
+// of font loading. Every segment keeps 104 px even when six labels are long.
+// An EFECTOS family's pager runs under its own content, right of the families.
 struct desk_rect desk_view_pager(int index, const struct desk_layout *layout, int page) {
     struct desk_rect none = {0};
     if (page < 0 || page >= layout->pages)
@@ -33,7 +35,10 @@ struct desk_rect desk_view_pager(int index, const struct desk_layout *layout, in
         extra[i] = wanted > DESK_PAGER_MIN_W ? wanted - DESK_PAGER_MIN_W : 0;
         total += extra[i];
     }
-    int available = DESK_CONTENT_W - (banks - 1) * DESK_GAP;
+    int efectos = layout->tab[page] == DESK_TAB_EFECTOS;
+    int content_x = efectos ? DESK_EFFECTS_X : DESK_CONTENT_X;
+    int content_w = efectos ? DESK_EFFECTS_W : DESK_CONTENT_W;
+    int available = content_w - (banks - 1) * DESK_GAP;
     int spare = available - banks * DESK_PAGER_MIN_W;
     int before = 0;
     for (int i = 0; i < index; i++)
@@ -48,7 +53,7 @@ struct desk_rect desk_view_pager(int index, const struct desk_layout *layout, in
         left = before + index * (spare - total) / banks;
         right = before + extra[index] + (index + 1) * (spare - total) / banks;
     }
-    struct desk_rect r = { DESK_CONTENT_X + index * (DESK_PAGER_MIN_W + DESK_GAP) + left,
+    struct desk_rect r = { content_x + index * (DESK_PAGER_MIN_W + DESK_GAP) + left,
                            DESK_PAGER_Y, DESK_PAGER_MIN_W + right - left, DESK_PAGER_H };
     return r;
 }

@@ -99,3 +99,11 @@ speed_factor.c
 desk_tap.c
 desk_speed.c
 desk_speed_paint.c
+desk_tab_title.c
+desk_tab_page.c
+desk_view_family.c
+desk_family_icon.c
+desk_paint_keyline.c
+desk_paint_text_centred.c
+desk_paint_tabs.c
+desk_paint_families.c

@@ -1,8 +1,10 @@
 // Turns the map's pages and sections into placements, bank by bank. Pure
-// arithmetic over the fixed chrome: sections flow top to bottom with a
-// heading each, a section that does not fit the room left moves to the next
-// bank, and a section taller than a bank is split with its heading repeated
-// as "2/3"; the master and the panic button sit on every bank.
+// arithmetic over the fixed chrome: sections flow top to bottom, each on its
+// own panel with its heading inside, a section that does not fit the room
+// left moves to the next bank, and a section taller than a bank is split with
+// its heading repeated as "2/3"; the master and the panic button sit on every
+// bank. Every page also gets its tab: the live page DIRECTO, SPEED RITMO,
+// the rest EFECTOS families, which flow right of the families' column.
 #ifndef DESK_LAYOUT_RESOLVE_H
 #define DESK_LAYOUT_RESOLVE_H
 
@@ -16,6 +18,7 @@
 struct desk_heading {
     int page, bank;
     int x, y, w;
+    int h;              // the panel's height, the heading inside it; 0 for a bare heading
     char text[MAP_CAPTION_MAX];
     int part, parts;    // 1/1 when the section was not split
     int section;        // the map section, so a painter can name what runs on another part
@@ -30,6 +33,10 @@ struct desk_layout {
     char title[MAP_MAX_PAGES][MAP_CAPTION_MAX];
     int pages;
     int speed_page;     // the SPEED page's index after the map's pages, or -1
+    int tab[MAP_MAX_PAGES];     // each page's enum desk_tab
+    int family_page[MAP_MAX_PAGES]; // EFECTOS' families in map order
+    int family_icon[MAP_MAX_PAGES]; // each family's enum icon_id, or -1
+    int families;
 };
 
 // `master` and `panic` are the model indices of the two chrome controls.

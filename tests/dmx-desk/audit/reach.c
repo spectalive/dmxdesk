@@ -50,6 +50,7 @@ int audit_reach(struct audit_context *a,int x,int y,int *value) {
             enum desk_target t=desk_input_target(m,x,y,&at);
             if(t==TARGET_LOCK)kind=A_LOCK,index=0;
             else if(t==TARGET_RAIL)kind=A_TAB,index=at;
+            else if(t==TARGET_FAMILY)kind=A_FAMILY,index=at;
             else if(t==TARGET_BANK) {
                 // Detector mutation: reproduce the historical 16 px strip
                 // while retaining the declared pager obligation to the edge.

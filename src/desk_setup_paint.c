@@ -52,7 +52,7 @@ static void centred(struct canvas *c, struct font *f, int x, int y, int w, int h
     text_at(c, f, x + (w - width) / 2, y + (h - text_h(f)) / 2, w, s, col);
 }
 
-// Buttons in the desk's neutral palette: amber is the show's, never a
+// Buttons in the desk's neutral palette: the accent is the show's, never a
 // button's. A primary action is ink on glass; a secondary one is ink on the
 // sheet's own glass with a muted ring; a dead one is muted text alone.
 enum button_style { BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_DEAD };
@@ -297,7 +297,7 @@ void desk_setup_paint(struct canvas *c, const struct desk_setup *s, const struct
         pressed_outline_ring(c, s);
     if (s->confirm_open) {
         // A uniform scrim over the cards, so the question stands alone.
-        canvas_blend_rect(c, SETUP_SHEET_X, SETUP_SHEET_Y, SETUP_SHEET_W, SETUP_SHEET_H, 0xB0000000u | (DESK_GLASS & 0xFFFFFF));
+        canvas_blend_rect(c, SETUP_SHEET_X, SETUP_SHEET_Y, SETUP_SHEET_W, SETUP_SHEET_H, DESK_SCRIM);
         confirm_sheet(c, s, fonts);
     }
 }

@@ -1,10 +1,12 @@
 // SOURCES: desk_rebuild_model.c desk_model.c desk_master_level_at.c showmap_validate.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c
-// Tabs and console refreshes keep every page's bank, including hidden pages.
+// Tabs and console refreshes keep every page's bank, including hidden pages,
+// and the EFECTOS family its tab reopens.
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "desk_rebuild_model.h"
+#include "desk_tab.h"
 
 int main(void) {
     struct desk_model m;
@@ -56,6 +58,26 @@ int main(void) {
         assert(m.page_bank[i] == 0);
     desk_set_view(&m, 1, -1);
     assert(m.bank == 0);
+
+    // EFECTOS remembers its family across DIRECTO and a console refresh; a
+    // new layout starts it at the first family again.
+    struct desk_layout tabs = { .pages = 4, .banks = {1, 1, 1, 1},
+        .tab = { DESK_TAB_DIRECTO, DESK_TAB_EFECTOS, DESK_TAB_EFECTOS, DESK_TAB_RITMO },
+        .family_page = {1, 2}, .families = 2 };
+    desk_set_layout(&m, &tabs);
+    assert(m.effects_page == 1);
+    desk_set_view(&m, 2, 0);
+    desk_set_view(&m, 1, 0);
+    desk_set_view(&m, 3, 0);
+    desk_set_view(&m, 0, 0);
+    assert(m.effects_page == 1);
+    // The refresh walks every page, the last family included; it must not
+    // leave that one remembered instead.
+    desk_rebuild_model(&m, &map, &console, &tabs);
+    assert(m.page == 0 && m.effects_page == 1);
+    desk_set_view(&m, 2, 0);
+    desk_set_layout(&m, &tabs);
+    assert(m.effects_page == 1);
     puts("desk_bank_memory ok");
     return 0;
 }

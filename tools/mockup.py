@@ -15,18 +15,23 @@ HERE = Path(__file__).resolve().parent.parent
 FONTS = HERE / "fonts"
 W, H, S = 1024, 600, 2  # panel, supersample
 
-# Palette: one dark ground, one tile, one raised tile, ink, muted, amber for
-# "the master says running", red for the stop, and the show's own colours.
-BG = (14, 14, 16)
-TILE = (30, 30, 34)
-RAISED = (42, 42, 48)
-LINE = (52, 52, 58)
-INK = (245, 245, 247)
-MUTED = (140, 140, 150)
-AMBER = (224, 138, 0)
-AMBER_INK = (20, 20, 20)
-RED = (192, 48, 32)
-HOLD = (36, 32, 44)      # a momentary button is its own kind of dark
+# Palette, as src/desk_layout.h has it: one dark ground, the panels and
+# tiles a step lighter each, a keyline, ink, muted, accent blue for "the
+# master says running", green for a live link, red for the stop, and the
+# show's own colours.
+BG = (12, 14, 18)
+PANEL = (20, 24, 30)
+TILE = (27, 31, 39)
+RAISED = (38, 44, 54)
+LINE = (57, 64, 77)
+INK = (245, 247, 250)
+MUTED = (173, 182, 196)
+ACCENT = (26, 124, 255)
+ACCENT_INK = (255, 255, 255)
+OK = (62, 224, 170)
+RED = (212, 42, 42)
+RED_INK = (255, 210, 204)
+HOLD = (31, 27, 43)      # a momentary button is its own kind of dark
 HOLD_LINE = (120, 96, 200)
 
 
@@ -166,10 +171,10 @@ def chrome(c, active, linked=True, master=100):
     # Master column: fader with the readout on a backing, the stop below.
     c.rect(MASTER_X, 56, 148, 372, TILE, r=14)
     fill_h = int(372 * master / 100)
-    c.rect(MASTER_X, 56 + 372 - fill_h, 148, fill_h, AMBER, r=14)
+    c.rect(MASTER_X, 56 + 372 - fill_h, 148, fill_h, ACCENT, r=14)
     c.rect(MASTER_X + 16, 216, 116, 52, (0, 0, 0), r=10)
     c.centred(MASTER_X + 16, 216, 116, 52, f"{master}%", F_BIG.font_variant(size=30 * S), INK)
-    c.text(MASTER_X + 74, 72, "MASTER", F_SECTION, AMBER_INK if master > 90 else MUTED, anchor="mm")
+    c.text(MASTER_X + 74, 72, "MASTER", F_SECTION, ACCENT_INK if master > 90 else MUTED, anchor="mm")
     c.rect(MASTER_X, 440, 148, 144, RED, r=14)
     c.centred(MASTER_X, 440, 148, 144, "PARAR", F_TILE, INK, dy=-22)
     c.centred(MASTER_X, 440, 148, 144, "TODO", F_TILE, INK, dy=0)
@@ -183,13 +188,13 @@ def section(c, x, y, title, w=828):
 
 
 def state_tile(c, x, y, w, h, name, sub, on=False, big=False):
-    c.rect(x, y, w, h, AMBER if on else TILE, r=12)
+    c.rect(x, y, w, h, ACCENT if on else TILE, r=12)
     f = F_TILE if big or len(name) <= 8 else F_TILE_S
     if sub:
-        c.two_lines(x, y - 8, w, h, name, f, AMBER_INK if on else INK)
-        c.centred(x, y + 14, w, h, sub, F_SMALL, AMBER_INK if on else MUTED)
+        c.two_lines(x, y - 8, w, h, name, f, ACCENT_INK if on else INK)
+        c.centred(x, y + 14, w, h, sub, F_SMALL, ACCENT_INK if on else MUTED)
     else:
-        c.two_lines(x, y, w, h, name, f, AMBER_INK if on else INK, gap=17)
+        c.two_lines(x, y, w, h, name, f, ACCENT_INK if on else INK, gap=17)
 
 
 def hold_tile(c, x, y, w, h, name, pressed=False, cap="3 s"):
@@ -207,7 +212,7 @@ def swatch(c, cx, cy, r, colours, on=False, label=None):
         d.pieslice([(cx - r) * S, (cy - r) * S, (cx + r) * S, (cy + r) * S],
                    -90 + 360 * i / n, -90 + 360 * (i + 1) / n, fill=col)
     if on:
-        c.circle(cx, cy, r + 5, None, outline=AMBER, width=3)
+        c.circle(cx, cy, r + 5, None, outline=ACCENT, width=3)
     else:
         c.circle(cx, cy, r * 0.55, TILE)
     if label:
@@ -244,8 +249,8 @@ def page_show(path):
     sw_ = (828 - 344 - 4 * 4) // 5
     for i, o in enumerate(opts):
         on = i == 2
-        c.rect(seg_x + i * (sw_ + 4), 360, sw_, 68, AMBER if on else TILE, r=10)
-        c.centred(seg_x + i * (sw_ + 4), 360, sw_, 68, o, F_TILE_S, AMBER_INK if on else INK)
+        c.rect(seg_x + i * (sw_ + 4), 360, sw_, 68, ACCENT if on else TILE, r=10)
+        c.centred(seg_x + i * (sw_ + 4), 360, sw_, 68, o, F_TILE_S, ACCENT_INK if on else INK)
     # Row 4: the twelve rig colours, a tempo readout and tap.
     section(c, x0, 444, "Color del rig")
     cols = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (150, 0, 255), (255, 255, 0), (0, 255, 255),
@@ -288,11 +293,11 @@ def page_color(path):
         col, row = i % 6, i // 6
         x, y = x0 + col * (tw + 8), 176 + row * 96
         on = i == 2
-        c.rect(x, y, tw, 88, AMBER if on else TILE, r=12)
+        c.rect(x, y, tw, 88, ACCENT if on else TILE, r=12)
         if cols:
             swatch(c, x + 30, y + 44, 16, cols, on=False)
-            c.rect(x + 22, y + 36, 16, 16, AMBER if on else TILE, r=8)
-        c.two_lines(x + 52, y, tw - 60, 88, n, F_TILE_S, AMBER_INK if on else INK, gap=17)
+            c.rect(x + 22, y + 36, 16, 16, ACCENT if on else TILE, r=8)
+        c.two_lines(x + 52, y, tw - 60, 88, n, F_TILE_S, ACCENT_INK if on else INK, gap=17)
     section(c, x0, 468, "Elegir · cabezas")
     heads = [("Rojo", [(255, 0, 0)]), ("Azul", [(0, 0, 255)]), ("Magenta", [(255, 0, 255)]),
              ("Amarillo", [(255, 255, 0)]), ("Blanco", [(255, 255, 255)])]

@@ -10,6 +10,10 @@
 #include "desk_master_metrics.h"
 #include "desk_view.h"
 #include "desk_pager_bank_caption.h"
+#include "desk_paint_families.h"
+#include "desk_paint_keyline.h"
+#include "desk_paint_tabs.h"
+#include "desk_tab.h"
 #include "icon.h"
 #include "icon_glyph.h"
 
@@ -64,10 +68,22 @@ static void caption(struct canvas *c, struct font *f, int x, int w, int mid_y, c
         centred(c, f, x, top + i * pitch, w, pitch, lines.line[i], col);
 }
 
+// Capitals for ASCII and for the Latin-1 letters Spanish writes (U+00E0..
+// U+00FE but the division sign, two bytes in UTF-8): "Dirección" reads
+// "DIRECCIÓN", never "DIRECCIóN". A character cut by `cap` is not split.
 static void upper(char *dst, size_t cap, const char *src) {
     size_t i = 0;
-    for (; src[i] && i + 1 < cap; i++)
-        dst[i] = (src[i] >= 'a' && src[i] <= 'z') ? (char)(src[i] - 32) : src[i];
+    for (; src[i] && i + 1 < cap; i++) {
+        unsigned char b = (unsigned char)src[i], next = (unsigned char)src[i + 1];
+        if (b == 0xC3 && next >= 0xA0 && next <= 0xBE && next != 0xB7) {
+            if (i + 2 >= cap)
+                break;
+            dst[i] = (char)b;
+            dst[++i] = (char)(next - 0x20);
+            continue;
+        }
+        dst[i] = (b >= 'a' && b <= 'z') ? (char)(b - 32) : (char)b;
+    }
     dst[i] = '\0';
 }
 
@@ -87,7 +103,7 @@ void desk_paint_section(struct canvas *c, const struct desk_fonts *fonts, int x,
 
 // A pressed tile gets an ink outline and nothing else. The fill is the
 // show's to give: the tile lights when the master says the function runs,
-// and a finger must not paint amber, since amber means on.
+// and a finger must not paint the accent, since the accent means on.
 static void press_outline(struct canvas *c, struct rect r, uint32_t fill) {
     canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_INK);
     canvas_round_rect(c, r.x + BORDER, r.y + BORDER, r.w - 2 * BORDER, r.h - 2 * BORDER,
@@ -113,7 +129,15 @@ static const char *state_line(const struct desk_control *ctl, enum desk_link lin
 static uint32_t tile_fill(const struct desk_control *ctl) {
     if (!ctl->enabled)
         return DESK_GLASS;
-    return ctl->state == DESK_ON ? DESK_AMBER : DESK_TILE;
+    return ctl->state == DESK_ON ? DESK_ACCENT : DESK_TILE;
+}
+
+// A tile is its fill inside a 1 px keyline: dimmer when it is disabled, none
+// when it runs, since the accent fill is the whole of that state.
+static void tile_frame(struct canvas *c, struct rect r, int radius, const struct desk_control *ctl,
+                       uint32_t fill) {
+    uint32_t line = fill == DESK_ACCENT ? fill : ctl->enabled ? DESK_LINE : DESK_RAISED;
+    desk_paint_keyline(c, r.x, r.y, r.w, r.h, radius, fill, line);
 }
 
 // The tile's mark: the map's glyph drawn as the desk's own vector icon, in
@@ -135,11 +159,8 @@ static void paint_cue(struct canvas *c, const struct desk_control *ctl,
     struct rect r = of(p);
     uint32_t fill = tile_fill(ctl);
     int on = ctl->state == DESK_ON && ctl->enabled;
-    uint32_t ink = on ? DESK_AMBER_INK : DESK_INK;
-    canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, fill);
-    if (!ctl->enabled)
-        canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_LINE),
-        canvas_round_rect(c, r.x + 1, r.y + 1, r.w - 2, r.h - 2, DESK_RADIUS - 1, DESK_GLASS);
+    uint32_t ink = on ? DESK_ACCENT_INK : DESK_INK;
+    tile_frame(c, r, DESK_RADIUS, ctl, fill);
     if (ctl->pressed)
         press_outline(c, r, fill);
     if (!ctl->enabled || link != DESK_LINK_READY)
@@ -160,7 +181,7 @@ static void paint_cue(struct canvas *c, const struct desk_control *ctl,
         const char *name = lines.lines <= 1 ? ctl->label : lines.line[0];
         centred(c, fonts->tile, tx, r.y + 10, tw, text_h(fonts->tile) + 4, name, ink);
         centred(c, fonts->small, tx, r.y + r.h - 12 - text_h(fonts->small) - 2, tw,
-                text_h(fonts->small) + 4, under, on ? DESK_AMBER_INK : DESK_MUTED);
+                text_h(fonts->small) + 4, under, on ? DESK_ACCENT_INK : DESK_MUTED);
     } else {
         caption(c, fonts->tile, tx, tw, r.y + r.h / 2, ctl->label, ink);
     }
@@ -169,24 +190,27 @@ static void paint_cue(struct canvas *c, const struct desk_control *ctl,
 
 // A pick: its colours as a disc (segments for a mix) over its name, the
 // whole tile the target. A pick with no colour wears its family's mark in
-// the disc's place, or, without one, has its name alone, larger.
+// the disc's place, or, without one, has its name alone, larger; running,
+// it fills with the accent like any other tile.
 static void paint_swatch(struct canvas *c, const struct desk_control *ctl,
                          const struct desk_placement *p, const struct desk_fonts *fonts,
                          enum desk_link link) {
     struct rect r = of(p);
     int on = ctl->state == DESK_ON && ctl->enabled;
+    int ringed = on && ctl->swatches > 0;
     uint32_t fill = tile_fill(ctl);
-    canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, fill);
-    // Amber as a ring, so the pick's own colour stays visible when it runs.
-    if (on) {
-        canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_AMBER);
+    // A coloured pick runs as an accent ring, so its own colour stays visible.
+    if (ringed) {
+        canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_ACCENT);
         canvas_round_rect(c, r.x + BORDER, r.y + BORDER, r.w - 2 * BORDER, r.h - 2 * BORDER,
                           DESK_RADIUS - BORDER, DESK_RAISED);
         fill = DESK_RAISED;
+    } else {
+        tile_frame(c, r, DESK_RADIUS, ctl, fill);
     }
     if (ctl->pressed)
         press_outline(c, r, fill);
-    uint32_t ink = DESK_INK;
+    uint32_t ink = on && !ringed ? DESK_ACCENT_INK : DESK_INK;
     if (!ctl->enabled || link != DESK_LINK_READY)
         ink = DESK_MUTED;
     pending_mark(c, ctl, r);
@@ -234,7 +258,8 @@ static void paint_swatch(struct canvas *c, const struct desk_control *ctl,
     if (ctl->detail[0]) {
         // A paired look says what the rest of the rig does: "Resto Azul".
         centred(c, fonts->tile_s, r.x + 8, r.y + DISC + 12, r.w - 16, 20, ctl->label, ink);
-        centred(c, fonts->small, r.x + 8, r.y + DISC + 32, r.w - 16, 18, ctl->detail, DESK_MUTED);
+        centred(c, fonts->small, r.x + 8, r.y + DISC + 32, r.w - 16, 18, ctl->detail,
+                on && !ringed ? DESK_ACCENT_INK : DESK_MUTED);
     } else {
         caption(c, fonts->tile_s, r.x + 8, r.w - 16, r.y + DISC + 12 + (r.h - DISC - 12) / 2, ctl->label,
                 ink);
@@ -274,14 +299,14 @@ static void paint_hold(struct canvas *c, const struct desk_control *ctl,
     }
     centred(c, fonts->small, r.x + 8, r.y + r.h - 24, r.w - 16, 18, foot,
             unresolved ? DESK_WARN : DESK_MUTED);
-    // Running, on the master's word: an amber ring, the one meaning amber has.
+    // Running, on the master's word: the accent fill, the one meaning it has.
     if (ctl->kind == DESK_BURST && ctl->state == DESK_ON && ctl->enabled) {
-        canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_AMBER);
-        canvas_round_rect(c, r.x + BORDER, r.y + BORDER, r.w - 2 * BORDER, r.h - 2 * BORDER,
-                          DESK_RADIUS - BORDER, DESK_HOLD_FILL);
-        icon_paint(c, corner, r.x + 8, r.y + 6, DESK_AMBER);
-        caption(c, fonts->tile_s, r.x + 8, r.w - 16, r.y + r.h / 2 - 2, ctl->label, DESK_INK);
-        centred(c, fonts->small, r.x + 8, r.y + r.h - 24, r.w - 16, 18, foot, DESK_MUTED);
+        canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_ACCENT);
+        if (ctl->pressed && !capped)
+            press_outline(c, r, DESK_ACCENT);
+        icon_paint(c, corner, r.x + 8, r.y + 6, DESK_ACCENT_INK);
+        caption(c, fonts->tile_s, r.x + 8, r.w - 16, r.y + r.h / 2 - 2, ctl->label, DESK_ACCENT_INK);
+        centred(c, fonts->small, r.x + 8, r.y + r.h - 24, r.w - 16, 18, foot, DESK_ACCENT_INK);
     }
     // While the finger is down a thin bar counts the cap down.
     if (ctl->hold_progress >= 0) {
@@ -300,10 +325,10 @@ static void paint_state(struct canvas *c, const struct desk_control *ctl,
     struct rect r = of(p);
     int on = ctl->state == DESK_ON && ctl->enabled;
     uint32_t fill = tile_fill(ctl);
-    canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, fill);
+    tile_frame(c, r, DESK_RADIUS, ctl, fill);
     if (ctl->pressed)
         press_outline(c, r, fill);
-    uint32_t ink = on ? DESK_AMBER_INK : DESK_INK;
+    uint32_t ink = on ? DESK_ACCENT_INK : DESK_INK;
     if (!ctl->enabled || link != DESK_LINK_READY)
         ink = DESK_MUTED;
     const char *under = state_line(ctl, link);
@@ -320,25 +345,25 @@ static void paint_state(struct canvas *c, const struct desk_control *ctl,
         // A qualification that keeps someone from a mistake reads as loud as the name.
         int qualifies = ctl->enabled && ctl->state != DESK_UNKNOWN;
         centred(c, fonts->label, r.x + 4, r.y + r.h - 26, r.w - 8, 20, under,
-                on ? DESK_AMBER_INK : qualifies ? DESK_INK : DESK_MUTED);
+                on ? DESK_ACCENT_INK : qualifies ? DESK_INK : DESK_MUTED);
     } else {
         caption(c, fonts->tile_s, r.x + 6, r.w - 12, r.y + (marked ? 58 : r.h / 2), ctl->label, ink);
     }
     pending_mark(c, ctl, r);
 }
 
-// One option of the ambient selector: the running rhythm is amber; OFF
-// reads as chosen when no rhythm runs.
+// One option of the ambient selector: the running rhythm is accent; so is
+// OFF when the master says no rhythm runs, since then it is the one chosen.
 static void paint_segment(struct canvas *c, const struct desk_control *ctl,
                           const struct desk_placement *p, const struct desk_fonts *fonts,
                           enum desk_link link, int none_running) {
     struct rect r = of(p);
     int on = ctl->kind == DESK_HAZE_OFF ? none_running : ctl->state == DESK_ON && ctl->enabled;
-    uint32_t fill = !ctl->enabled ? DESK_GLASS : on ? (ctl->kind == DESK_HAZE_OFF ? DESK_RAISED : DESK_AMBER) : DESK_TILE;
-    canvas_round_rect(c, r.x, r.y, r.w, r.h, 10, fill);
+    uint32_t fill = !ctl->enabled ? DESK_GLASS : on ? DESK_ACCENT : DESK_TILE;
+    tile_frame(c, r, 10, ctl, fill);
     if (ctl->pressed)
         press_outline(c, r, fill);
-    uint32_t ink = fill == DESK_AMBER ? DESK_AMBER_INK : DESK_INK;
+    uint32_t ink = fill == DESK_ACCENT ? DESK_ACCENT_INK : DESK_INK;
     if (!ctl->enabled || link != DESK_LINK_READY)
         ink = DESK_MUTED;
     // The rhythm's mark over its words, when they keep to one line.
@@ -358,9 +383,9 @@ static void paint_mini(struct canvas *c, const struct desk_control *ctl,
                        enum desk_link link) {
     struct rect r = of(p);
     int on = ctl->state == DESK_ON && ctl->enabled;
-    canvas_round_rect(c, r.x, r.y, r.w, r.h, 10, ctl->enabled ? DESK_TILE : DESK_GLASS);
+    tile_frame(c, r, 10, ctl, ctl->enabled ? DESK_TILE : DESK_GLASS);
     if (on) {
-        canvas_round_rect(c, r.x, r.y, r.w, r.h, 10, DESK_AMBER);
+        canvas_round_rect(c, r.x, r.y, r.w, r.h, 10, DESK_ACCENT);
         canvas_round_rect(c, r.x + BORDER, r.y + BORDER, r.w - 2 * BORDER, r.h - 2 * BORDER,
                           10 - BORDER, DESK_RAISED);
     }
@@ -382,7 +407,7 @@ static void paint_mini(struct canvas *c, const struct desk_control *ctl,
 static void paint_tempo_frame(struct canvas *c, const struct desk_control *ctl,
                               const struct desk_placement *p, const struct desk_fonts *fonts) {
     struct rect r = of(p);
-    canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, ctl->enabled ? DESK_TILE : DESK_GLASS);
+    tile_frame(c, r, DESK_RADIUS, ctl, ctl->enabled ? DESK_TILE : DESK_GLASS);
     char cap[64];
     upper(cap, sizeof cap, ctl->label);
     text_at(c, fonts->section, r.x + 16, r.y + 12, r.w - 32, cap, DESK_MUTED);
@@ -396,10 +421,10 @@ static void paint_compact(struct canvas *c, const struct desk_control *ctl,
     struct rect r = of(p);
     int on = ctl->state == DESK_ON && ctl->enabled;
     uint32_t fill = tile_fill(ctl);
-    canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, fill);
+    tile_frame(c, r, DESK_RADIUS, ctl, fill);
     if (ctl->pressed)
         press_outline(c, r, fill);
-    uint32_t ink = on ? DESK_AMBER_INK : DESK_INK;
+    uint32_t ink = on ? DESK_ACCENT_INK : DESK_INK;
     if (!ctl->enabled || link != DESK_LINK_READY)
         ink = DESK_MUTED;
     // The mark at the left, as on a cue.
@@ -415,16 +440,16 @@ static void paint_compact(struct canvas *c, const struct desk_control *ctl,
 }
 
 // The master: a dark track, the level as a restrained fill, an ink thumb
-// where the level is, the readout on its own backing. Amber is not a level.
+// where the level is, the readout on its own backing. The accent is not a level.
 static void paint_master(struct canvas *c, const struct desk_control *ctl,
                          const struct desk_placement *p, const struct desk_fonts *fonts,
                          enum desk_link link) {
     struct rect r = of(p);
-    canvas_round_rect(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_TILE);
+    desk_paint_keyline(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_TILE, DESK_LINE);
     int live = link == DESK_LINK_READY;
     int known = ctl->state != DESK_UNKNOWN;
     // The readout above the travel, never under the thumb; the thumb a grip
-    // of 24 px; the request marker ink, since amber is not a level.
+    // of 24 px; the request marker ink, since the accent is not a level.
     char text[16];
     if (live && known)
         snprintf(text, sizeof text, "%d%%", ctl->level * 100 / 255);
@@ -472,7 +497,7 @@ static void paint_stop_all(struct canvas *c, const struct desk_control *ctl,
     centred(c, fonts->tile, r.x, r.y + r.h / 2 - 34, r.w, 24, "PARAR", ink);
     centred(c, fonts->tile, r.x, r.y + r.h / 2 - 10, r.w, 24, "TODO", ink);
     const char *foot = live ? (ctl->detail[0] ? ctl->detail : "") : state_line(ctl, link);
-    centred(c, fonts->small, r.x, r.y + r.h / 2 + 22, r.w, 18, foot, live ? 0xFFFFC8BEu : DESK_MUTED);
+    centred(c, fonts->small, r.x, r.y + r.h / 2 + 22, r.w, 18, foot, live ? DESK_WARN_INK : DESK_MUTED);
 }
 
 // ---- the bar
@@ -489,17 +514,9 @@ static const char *link_words(enum desk_link link) {
 static void paint_bar(struct canvas *c, const struct desk_model *model,
                       const struct desk_fonts *fonts) {
     canvas_fill_rect(c, 0, 0, DESK_W, DESK_BAR_H, DESK_GLASS);
-    for (int i = 0; i < model->layout.pages; i++) {
-        struct desk_rect t = desk_view_tab(i);
-        int current = i == model->page && !model->setup_open;
-        if (current)
-            canvas_round_rect(c, t.x, t.y + 8, t.w, t.h - 16, 8, DESK_RAISED);
-        char cap[48];
-        upper(cap, sizeof cap, model->layout.title[i]);
-        centred(c, fonts->tab, t.x, t.y, t.w, t.h, cap, current ? DESK_INK : DESK_MUTED);
-    }
-    // The status cluster: the master's word, the fan, the battery, then the
-    // two targets. The word is what matters at a glance; the address is the
+    desk_paint_tabs(c, model, fonts);
+    // The status cluster: the master's word and its dot, the fan, the
+    // battery, then the two targets. The word is what matters at a glance; the address is the
     // settings' business.
     // The word: the room's state the master says runs, then the link, so
     // a family tab still says where the show is.
@@ -515,8 +532,8 @@ static void paint_bar(struct canvas *c, const struct desk_model *model,
         snprintf(word, sizeof word, "%s", link_words(model->link));
     // Status owns only the run after the last tab, with an 8 px gutter.
     // Fit the complete room/link phrase, including future longer captions.
-    int word_x = DESK_TAB_X + model->layout.pages * (DESK_TAB_W + DESK_TAB_GAP) + 4;
-    int word_w = 760 - word_x;
+    int word_x = DESK_TAB_X + DESK_TABS * (DESK_TAB_W + DESK_TAB_GAP) + 4;
+    int word_w = DESK_STATUS_END - word_x;
     if (word_w > 0) {
         int width = text_w(fonts->small, word);
         if (width > word_w) width = word_w;
@@ -526,9 +543,13 @@ static void paint_bar(struct canvas *c, const struct desk_model *model,
             while (chars && text_w(NULL, word) > word_w) word[--chars] = '\0';
             width = text_w(NULL, word);
         }
-        text_at(c, fonts->small, 760 - width, (DESK_BAR_H - text_h(fonts->small)) / 2,
+        text_at(c, fonts->small, DESK_STATUS_END - width, (DESK_BAR_H - text_h(fonts->small)) / 2,
                 word_w, word, model->link == DESK_LINK_READY ? DESK_MUTED : DESK_WARN);
     }
+    // The link at a glance: green while the master answers, red otherwise.
+    canvas_round_rect(c, DESK_LINK_DOT_X, (DESK_BAR_H - DESK_LINK_DOT) / 2, DESK_LINK_DOT,
+                      DESK_LINK_DOT, DESK_LINK_DOT / 2,
+                      model->link == DESK_LINK_READY ? DESK_OK : DESK_WARN);
     icon_paint_wifi(c, 776, 12, model->wifi_bars, DESK_INK, DESK_LINE);
     icon_paint_battery(c, 816, 12, model->battery < 0 ? 0 : model->battery, model->charging, DESK_INK,
                        model->battery >= 0 && model->battery <= 20 ? DESK_WARN : DESK_INK, DESK_GLASS);
@@ -582,12 +603,21 @@ static void paint_headings(struct canvas *c, const struct desk_model *model,
             snprintf(text, sizeof text, "%.60s  %d/%d", h->text, h->part, h->parts);
         else
             snprintf(text, sizeof text, "%.60s%s", h->text, any && held_only ? "  \xc2\xb7  solo en el Mac" : "");
-        desk_paint_section(c, fonts, h->x, h->y, h->w, text);
+        if (h->h <= 0) {
+            desk_paint_section(c, fonts, h->x, h->y, h->w, text);
+            continue;
+        }
+        // A flowed section's panel, its heading inside in capitals.
+        canvas_round_rect(c, h->x, h->y, h->w, h->h, DESK_PANEL_RADIUS, DESK_PANEL);
+        char cap[192];
+        upper(cap, sizeof cap, text);
+        text_at(c, fonts->section, h->x + DESK_PANEL_PAD, h->y + DESK_PANEL_PAD,
+                h->w - 2 * DESK_PANEL_PAD, cap, DESK_MUTED);
     }
 }
 
 // Section names and parts describe each bank; the small number keeps its place
-// in the sequence. Invert the current segment so it reads across the wide bar.
+// in the sequence. The current pill is ink with dark words, the others tiles.
 static void paint_pager(struct canvas *c, const struct desk_model *model,
                         const struct desk_fonts *fonts) {
     int banks = model->layout.pages > 0 ? model->layout.banks[model->page] : 1;
@@ -596,7 +626,8 @@ static void paint_pager(struct canvas *c, const struct desk_model *model,
     for (int i = 0; i < banks; i++) {
         struct desk_rect b = desk_view_pager(i, &model->layout, model->page);
         int current = i == model->bank;
-        canvas_round_rect(c, b.x, b.y, b.w, b.h, 8, current ? DESK_INK : DESK_TILE);
+        desk_paint_keyline(c, b.x, b.y, b.w, b.h, DESK_RADIUS, current ? DESK_INK : DESK_TILE,
+                           current ? DESK_INK : DESK_LINE);
         char digit[16];
         snprintf(digit, sizeof digit, "%d", i + 1);
         char label[DESK_PAGER_BANK_CAPTION_MAX];
@@ -618,7 +649,7 @@ static void paint_pager(struct canvas *c, const struct desk_model *model,
                 running = 1;
         }
         if (running)
-            canvas_round_rect(c, b.x + b.w - 12, b.y + 4, 8, 8, 4, DESK_AMBER);
+            canvas_round_rect(c, b.x + b.w - 12, b.y + 4, 8, 8, 4, DESK_ACCENT);
     }
 }
 
@@ -653,11 +684,14 @@ void desk_paint(struct canvas *canvas, const struct desk_model *model,
                 const struct desk_fonts *fonts) {
     canvas_fill_rect(canvas, 0, 0, DESK_W, DESK_H, DESK_GLASS);
     paint_bar(canvas, model, fonts);
+    if (model->layout.pages > 0 && model->layout.tab[model->page] == DESK_TAB_EFECTOS)
+        desk_paint_families(canvas, model, fonts);
     paint_headings(canvas, model, fonts);
-    int none_running = 1;
+    // OFF is chosen only on the master's word: linked, and every rhythm known off.
+    int none_running = model->link == DESK_LINK_READY;
     for (int i = 0; i < model->count; i++)
         if (model->control[i].kind == DESK_CUE && model->control[i].role == MAP_ROLE_HAZE &&
-            model->control[i].state == DESK_ON)
+            model->control[i].state != DESK_OFF)
             none_running = 0;
     for (int i = 0; i < model->layout.placements; i++) {
         const struct desk_placement *p = &model->layout.placement[i];

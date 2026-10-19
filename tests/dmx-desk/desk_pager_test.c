@@ -1,4 +1,4 @@
-// SOURCES: desk_view_pager.c desk_pager_label.c desk_pager_caption.c desk_pager_bank_caption.c desk_view.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c font.c canvas.c canvas_blend.c
+// SOURCES: desk_view_pager.c desk_pager_label.c desk_pager_caption.c desk_pager_bank_caption.c desk_view.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c font.c canvas.c canvas_blend.c desk_family_icon.c icon_glyph.c
 // Label budgets never steal content space, even with six long Spanish captions.
 #include <assert.h>
 #include <stdio.h>
@@ -8,6 +8,7 @@
 #include "desk_pager_bank_caption.h"
 #include "desk_pager_caption.h"
 #include "desk_pager_label.h"
+#include "desk_tab.h"
 #include "desk_view.h"
 #include "showmap.h"
 
@@ -26,7 +27,7 @@ int main(void) {
             int right = DESK_CONTENT_X - DESK_GAP;
             for (int i = 0; i < banks; i++) {
                 struct desk_rect r = desk_view_pager(i, &layout, 0);
-                assert(r.x == right + DESK_GAP && r.w >= 128);
+                assert(r.x == right + DESK_GAP && r.w >= DESK_PAGER_MIN_W);
                 assert(r.y == 528 && r.h == 56 && r.y + r.h == DESK_CONTENT_END);
                 assert(desk_rect_contains(r, r.x + r.w - 1, r.y + r.h - 1));
                 assert(!desk_rect_contains(r, r.x + r.w, r.y));
@@ -35,6 +36,20 @@ int main(void) {
             assert(right == DESK_CONTENT_X + DESK_CONTENT_W);
         }
     }
+    // An EFECTOS family's pager spans its own content, right of the families,
+    // and six long labels still fit at the minimum width.
+    layout.tab[0] = DESK_TAB_EFECTOS;
+    for (int banks = 2; banks <= DESK_MAX_BANKS; banks++) {
+        layout.banks[0] = banks;
+        int right = DESK_EFFECTS_X - DESK_GAP;
+        for (int i = 0; i < banks; i++) {
+            struct desk_rect r = desk_view_pager(i, &layout, 0);
+            assert(r.x == right + DESK_GAP && r.w >= DESK_PAGER_MIN_W && r.y == 528);
+            right = r.x + r.w;
+        }
+        assert(right == DESK_CONTENT_X + DESK_CONTENT_W);
+    }
+    layout.tab[0] = DESK_TAB_DIRECTO;
     // Equal label demand gives deterministic rounding, including the last pixel.
     layout.headings = 0;
     layout.banks[0] = 6;

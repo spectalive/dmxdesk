@@ -55,9 +55,9 @@ void keyboard_paint(struct canvas *c, const struct keyboard *kb, const struct de
     for (int i = 0; i < n; i++) {
         const struct kb_key *k = &keys[i];
         uint32_t fill = DESK_TILE;
-        // Shift shows its state: amber when upper case is on, and it stays on
+        // Shift shows its state: raised when upper case is on, and it stays on
         // when locked; the layer key likewise names where it goes.
-        // Ink, never amber: amber is the show's word and a key has none.
+        // Ink, never the accent: that is the show's word and a key has none.
         // The primary key is raised with an ink ring, never a white slab.
         int primary = (k->kind == KB_KEY_DONE && k->enabled) || (k->kind == KB_KEY_SHIFT && kb->layer == KB_UPPER);
         if (primary)

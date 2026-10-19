@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "desk_master_level_at.h"
+#include "desk_tab.h"
 
 #define NO_CAPTURE (-1)
 
@@ -124,6 +125,7 @@ int desk_add(struct desk_model *m, const struct desk_control *control) {
 void desk_set_layout(struct desk_model *m, const struct desk_layout *layout) {
     m->layout = *layout;
     memset(m->page_bank, 0, sizeof m->page_bank);
+    m->effects_page = layout->families > 0 ? layout->family_page[0] : -1;
     m->page = 0;
     m->bank = 0;
     release(m);
@@ -143,6 +145,8 @@ void desk_set_view(struct desk_model *m, int page, int bank) {
     if (bank >= banks)
         bank = banks - 1;
     m->page_bank[page] = bank;
+    if (m->layout.tab[page] == DESK_TAB_EFECTOS)
+        m->effects_page = page;
     if (page == m->page && bank == m->bank)
         return;
     m->page = page;

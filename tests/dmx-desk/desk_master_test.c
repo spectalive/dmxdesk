@@ -1,4 +1,4 @@
-// SOURCES: desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c canvas.c canvas_blend.c font.c desk_fonts.c
+// SOURCES: desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c
 // The master is unknown until the master speaks, a drag moves only what the
 // desk asked for, and a finger on a tile never repaints what the show said.
 #include <assert.h>
@@ -51,9 +51,9 @@ int main(void) {
     memset(&fonts, 0, sizeof fonts);
     struct desk_rect track = desk_master_track(mp, fonts.value);
     desk_paint(&c, &m, &fonts);
-    // Unknown: no fill and no thumb in the master tile; amber is never a level.
+    // Unknown: no fill and no thumb in the master tile; the accent is never a level.
     assert(count(&c, mp->x, mp->y, mp->w, mp->h, DESK_RAISED) == 0);
-    assert(count(&c, mp->x, mp->y, mp->w, mp->h, DESK_AMBER) == 0);
+    assert(count(&c, mp->x, mp->y, mp->w, mp->h, DESK_ACCENT) == 0);
 
     // The first push, whatever its value, makes the level known.
     desk_apply_master(&m, 0);
@@ -83,15 +83,15 @@ int main(void) {
     desk_paint(&c, &m, &fonts);
     assert(count(&c, mp->x, mp->y, mp->w, mp->h, DESK_RAISED) > half);
 
-    // A pressed cue keeps its fill: a running cue stays amber under the
+    // A pressed cue keeps its fill: a running cue stays accent under the
     // finger, and the outline is ink.
     desk_apply_function(&m, 720, 1);
     desk_paint(&c, &m, &fonts);
-    int lit = count(&c, cp->x, cp->y, cp->w, cp->h, DESK_AMBER);
+    int lit = count(&c, cp->x, cp->y, cp->w, cp->h, DESK_ACCENT);
     assert(lit > cp->w * cp->h / 2);
     desk_touch_down(&m, 1, cp->x + 20, cp->y + 20, NULL);
     desk_paint(&c, &m, &fonts);
-    int lit_pressed = count(&c, cp->x, cp->y, cp->w, cp->h, DESK_AMBER);
+    int lit_pressed = count(&c, cp->x, cp->y, cp->w, cp->h, DESK_ACCENT);
     assert(lit_pressed > lit * 8 / 10);
     assert(count(&c, cp->x, cp->y, cp->w, cp->h, DESK_INK) > 2 * (cp->w + cp->h));
     free(c.px);

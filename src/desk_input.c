@@ -4,7 +4,10 @@
 
 #include "desk_layout.h"
 #include "desk_pager_hit.h"
+#include "desk_tab.h"
+#include "desk_tab_page.h"
 #include "desk_view.h"
+#include "desk_view_family.h"
 
 enum desk_target desk_input_target(const struct desk_model *m, int x, int y, int *index) {
     *index = -1;
@@ -14,8 +17,8 @@ enum desk_target desk_input_target(const struct desk_model *m, int x, int y, int
         if (desk_rect_contains(desk_view_lock_target(), x, y))
             return TARGET_LOCK;
         // Setup is modal over navigation; the master, gear and lock remain.
-        for (int i = 0; !m->setup_open && i < m->layout.pages; i++) {
-            if (desk_rect_contains(desk_view_tab(i), x, y)) {
+        for (int i = 0; !m->setup_open && i < DESK_TABS; i++) {
+            if (desk_tab_page(m, i) >= 0 && desk_rect_contains(desk_view_tab(i), x, y)) {
                 *index = i;
                 return TARGET_RAIL;
             }
@@ -24,6 +27,13 @@ enum desk_target desk_input_target(const struct desk_model *m, int x, int y, int
     }
     if (x >= DESK_MASTER_X)
         return TARGET_CONTENT;
+    int efectos = m->layout.pages > 0 && m->layout.tab[m->page] == DESK_TAB_EFECTOS;
+    for (int i = 0; efectos && !m->setup_open && i < m->layout.families; i++) {
+        if (desk_rect_contains(desk_view_family(i, m->layout.families), x, y)) {
+            *index = i;
+            return TARGET_FAMILY;
+        }
+    }
     int banks = m->layout.pages > 0 ? m->layout.banks[m->page] : 1;
     if (banks > 1 && y >= DESK_PAGER_Y) {
         for (int i = 0; i < banks; i++) {
@@ -64,8 +74,10 @@ enum desk_target desk_input_feed(struct desk_input *in, const struct desk_model 
         // The rectangle the release margin is measured against has to be the
         // one the press was accepted in, or a tap that lands in the pager's
         // margin is taken and then dropped on the lift.
-        in->slot[ev->slot].rect = in->slot[ev->slot].target == TARGET_RAIL
-                               ? desk_view_tab(at) : desk_pager_hit(at, &m->layout, m->page);
+        enum desk_target t = in->slot[ev->slot].target;
+        in->slot[ev->slot].rect = t == TARGET_RAIL ? desk_view_tab(at)
+                               : t == TARGET_FAMILY ? desk_view_family(at, m->layout.families)
+                               : desk_pager_hit(at, &m->layout, m->page);
         return in->slot[ev->slot].target;
     }
     enum desk_target owner = in->slot[ev->slot].target;
@@ -74,15 +86,17 @@ enum desk_target desk_input_feed(struct desk_input *in, const struct desk_model 
         in->slot[ev->slot].target = TARGET_NONE;
         in->slot[ev->slot].index = -1;
     }
-    if ((owner == TARGET_RAIL || owner == TARGET_BANK) && ev->kind == TOUCH_UP) {
+    if ((owner == TARGET_RAIL || owner == TARGET_BANK || owner == TARGET_FAMILY) &&
+        ev->kind == TOUCH_UP) {
         if (ev->x < 0 || ev->x >= DESK_W || ev->y < 0 || ev->y >= DESK_H)
             return owner;
         enum desk_target now = desk_input_target(m, (int)ev->x, (int)ev->y, &at);
         // A neighbouring entry wins hit testing but never inherits this tap.
         // Only the originally pressed rectangle gets the finger-roll margin.
-        if ((now == TARGET_RAIL || now == TARGET_BANK) && (now != owner || at != pressed))
+        if ((now == TARGET_RAIL || now == TARGET_BANK || now == TARGET_FAMILY) &&
+            (now != owner || at != pressed))
             return owner;
-        if (owner == TARGET_BANK && m->page != in->slot[ev->slot].page)
+        if ((owner == TARGET_BANK || owner == TARGET_FAMILY) && m->page != in->slot[ev->slot].page)
             return owner;
         struct desk_rect r = in->slot[ev->slot].rect;
         r.x -= DESK_INPUT_SLOP;
