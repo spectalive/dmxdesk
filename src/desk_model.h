@@ -41,6 +41,7 @@ struct desk_control {
     enum desk_kind kind;
     char label[DESK_LABEL_MAX];
     char detail[DESK_LABEL_MAX];    // the second line, when the map has one
+    char icon[MAP_ICON_MAX];        // the map's glyph for its mark; "" for none
     int widget_id;      // -1 when the control has no console widget
     int function_id;    // -1 when it drives no function
     int page, section;  // where the map puts it; -1 for the chrome controls

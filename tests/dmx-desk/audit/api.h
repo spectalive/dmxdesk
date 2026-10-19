@@ -1,6 +1,7 @@
 #ifndef AUDIT_API_H
 #define AUDIT_API_H
 #include "context.h"
+#include "icon_data.h"
 extern struct audit_context *audit_active;
 void audit_note(struct audit_context *a, int warning, const char *rule, const char *fmt, ...);
 void audit_record(struct desk_rect rect, const char *label, unsigned char *ink);
@@ -9,6 +10,7 @@ void audit_fill(struct canvas *c, int x, int y, int w, int h, uint32_t col);
 void audit_text(struct font *f, struct canvas *c, int x, int y, int max_w, const char *s, uint32_t col);
 void audit_glyph_text(struct canvas *c, int x, int y, const char *s, int scale, uint32_t col);
 void audit_blend(struct canvas *c, int x, int y, uint32_t col);
+void audit_icon(struct canvas *c, enum icon_id id, int x, int y, uint32_t colour);
 void audit_add(struct audit_context *a, int kind, int index, int sub, int enabled,
                const char *label, struct desk_rect drawn, struct desk_rect hit, struct desk_rect allowance);
 void audit_inventory(struct audit_context *a);

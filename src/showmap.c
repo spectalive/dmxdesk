@@ -100,6 +100,11 @@ static int parse_control(const char *key, const cJSON *item, struct map_control 
         fprintf(stderr, "map: control %s is incomplete\n", key);
         return -1;
     }
+    // The icon only decorates: one the desk cannot hold is no icon, never a
+    // reason to refuse the map.
+    const cJSON *icon = cJSON_GetObjectItemCaseSensitive(item, "icon");
+    if (cJSON_IsString(icon) && icon->valuestring && strlen(icon->valuestring) < sizeof c->icon)
+        strcpy(c->icon, icon->valuestring);
     char word[16];
     if (string_into(item, "role", word, sizeof word, 1) != 0 || parse_role(word, &c->role) != 0) {
         fprintf(stderr, "map: control %s has an unknown role\n", key);

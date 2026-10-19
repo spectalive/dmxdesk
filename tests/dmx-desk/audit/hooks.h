@@ -5,3 +5,4 @@
 #define canvas_fill_rect audit_fill
 #define font_draw_fit audit_text
 #define canvas_text audit_glyph_text
+#define icon_paint audit_icon

@@ -155,6 +155,225 @@ def chevron(size=24):
     return im
 
 
+# ---- the show's marks: one per glyph `qlctool deskmap` writes in a
+# control's "icon" field (its catalogue in qlctool/glyph.py and
+# pick_marks.py). Same 18 px optical square and 2 px stroke as the status
+# icons, so a tile's mark weighs what the bolt on a hit does.
+
+def disc(d, cx, cy, r, fill=255):
+    d.ellipse([(cx - r) * S, (cy - r) * S, (cx + r) * S, (cy + r) * S], fill=fill)
+
+
+def ring(d, cx, cy, r):
+    """A 2 px circle whose outer edge is r."""
+    d.ellipse([(cx - r) * S, (cy - r) * S, (cx + r) * S, (cy + r) * S],
+              outline=255, width=STROKE * S)
+
+
+def stroke(d, pts):
+    d.line([(x * S, y * S) for x, y in pts], fill=255, width=STROKE * S,
+           joint="curve")
+    for x, y in (pts[0], pts[-1]):
+        disc(d, x, y, STROKE / 2)
+
+
+def play(size=24):
+    im, d = canvas(size, size)
+    cx, cy, r = size / 2, size / 2, OPTICAL_SIZE / 2
+    pts = [(cx - r * 0.6, cy - r * 0.95), (cx + r * 0.95, cy),
+           (cx - r * 0.6, cy + r * 0.95)]
+    d.polygon([(x * S, y * S) for x, y in pts], fill=255)
+    return im
+
+
+def stop(size=24):
+    im, d = canvas(size, size)
+    cx, cy, h = size / 2, size / 2, OPTICAL_SIZE * 0.8 / 2
+    d.rounded_rectangle([(cx - h) * S, (cy - h) * S, (cx + h) * S, (cy + h) * S],
+                        radius=STROKE * S, fill=255)
+    return im
+
+
+def microphone(size=24):
+    im, d = canvas(size, size)
+    cx, top = size / 2, size / 2 - OPTICAL_SIZE / 2
+    d.rounded_rectangle([(cx - 3.5) * S, top * S, (cx + 3.5) * S, (top + 11) * S],
+                        radius=3.5 * S, fill=255)
+    d.arc([(cx - 6.5) * S, (top + 3) * S, (cx + 6.5) * S, (top + 14) * S],
+          0, 180, fill=255, width=STROKE * S)
+    stroke(d, [(cx, top + 14), (cx, top + 17)])
+    stroke(d, [(cx - 4, top + 17), (cx + 4, top + 17)])
+    return im
+
+
+def moon(size=24):
+    im, d = canvas(size, size)
+    cx, cy, r = size / 2, size / 2, OPTICAL_SIZE / 2 - 0.5
+    disc(d, cx, cy, r)
+    disc(d, cx + 4.5, cy - 3.5, r - 1.5, fill=0)
+    return im
+
+
+def party(size=24):
+    """A popper: the cone from the lower left, its burst to the upper right."""
+    im, d = canvas(size, size)
+    lo = size / 2 - OPTICAL_SIZE / 2
+    hi = size / 2 + OPTICAL_SIZE / 2
+    pts = [(lo + 0.5, hi - 0.5), (lo + 4.5, lo + 6), (lo + 12, hi - 5.5)]
+    d.polygon([(x * S, y * S) for x, y in pts], fill=255)
+    stroke(d, [(lo + 10, lo + 6.5), (lo + 12.5, lo + 1.5)])
+    stroke(d, [(lo + 12, lo + 9), (hi - 1.5, lo + 6.5)])
+    disc(d, lo + 7, lo + 1.5, 1.4)
+    disc(d, hi - 1.5, lo + 1.5, 1.4)
+    disc(d, hi - 1.5, lo + 12, 1.4)
+    return im
+
+
+def flame(size=24):
+    im, d = canvas(size, size)
+    cx, bottom = size / 2, size / 2 + OPTICAL_SIZE / 2
+    def drop(r, tip, fill):
+        cy = bottom - r
+        pts = []
+        for i in range(0, 181):
+            a = math.radians(i)
+            pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+        # Up from the left of the bowl to the tip, leaning a little, and down.
+        pts += [(cx - r, cy - r * 0.6), (cx - r * 0.3, tip + r * 0.5), (cx + r * 0.1, tip),
+                (cx + r * 0.6, cy - r * 1.0), (cx + r, cy - r * 0.2)]
+        d.polygon([(x * S, y * S) for x, y in pts], fill=fill)
+    drop(7, size / 2 - OPTICAL_SIZE / 2, 255)
+    drop(3.2, size / 2 + 1, 0)
+    return im
+
+
+def bulb(size=24):
+    im, d = canvas(size, size)
+    cx, top = size / 2, size / 2 - OPTICAL_SIZE / 2
+    ring(d, cx, top + 6.5, 6.5)
+    d.rectangle([(cx - 3.5) * S, (top + 10) * S, (cx + 3.5) * S, (top + 13) * S], fill=0)
+    stroke(d, [(cx - 3.5, top + 10.5), (cx - 3.5, top + 13)])
+    stroke(d, [(cx + 3.5, top + 10.5), (cx + 3.5, top + 13)])
+    stroke(d, [(cx - 3.5, top + 14), (cx + 3.5, top + 14)])
+    stroke(d, [(cx - 2, top + 17), (cx + 2, top + 17)])
+    return im
+
+
+def palette(size=24):
+    im, d = canvas(size, size)
+    cx, cy, r = size / 2, size / 2, OPTICAL_SIZE / 2
+    ring(d, cx, cy, r)
+    disc(d, cx - 3.5, cy - 2.5, 1.6)
+    disc(d, cx + 0.5, cy - 4.5, 1.6)
+    disc(d, cx + 4.5, cy - 1.5, 1.6)
+    disc(d, cx - 1, cy + 4, 2.2)
+    return im
+
+
+def cloud(size=24):
+    im, d = canvas(size, size)
+    cx, cy = size / 2, size / 2 + 1
+    disc(d, cx - 4.5, cy + 1.5, 4)
+    disc(d, cx + 0.5, cy - 2, 5.5)
+    disc(d, cx + 5, cy + 2, 3.5)
+    d.rectangle([(cx - 4.5) * S, (cy + 1.5) * S, (cx + 5) * S, (cy + 5.5) * S], fill=255)
+    return im
+
+
+def arrow_up(size=24):
+    im, d = canvas(size, size)
+    cx, top = size / 2, size / 2 - OPTICAL_SIZE / 2 + 1
+    bottom = size / 2 + OPTICAL_SIZE / 2 - 1
+    pts = [(cx, top), (cx + 7.5, top + 8), (cx + 3, top + 8), (cx + 3, bottom),
+           (cx - 3, bottom), (cx - 3, top + 8), (cx - 7.5, top + 8)]
+    d.polygon([(x * S, y * S) for x, y in pts], outline=255, width=STROKE * S)
+    return im
+
+
+def asterisk(size=24):
+    im, d = canvas(size, size)
+    cx, cy, r = size / 2, size / 2, OPTICAL_SIZE / 2 - 1
+    for k in range(4):
+        a = math.radians(k * 45)
+        stroke(d, [(cx - r * math.cos(a), cy - r * math.sin(a)),
+                   (cx + r * math.cos(a), cy + r * math.sin(a))])
+    return im
+
+
+def arrow_both(size=24):
+    im, d = canvas(size, size)
+    cx, cy, r = size / 2, size / 2, OPTICAL_SIZE / 2 - 1
+    stroke(d, [(cx - r, cy), (cx + r, cy)])
+    stroke(d, [(cx - r + 4.5, cy - 4.5), (cx - r, cy), (cx - r + 4.5, cy + 4.5)])
+    stroke(d, [(cx + r - 4.5, cy - 4.5), (cx + r, cy), (cx + r - 4.5, cy + 4.5)])
+    return im
+
+
+def target(size=24):
+    im, d = canvas(size, size)
+    cx, cy = size / 2, size / 2
+    ring(d, cx, cy, OPTICAL_SIZE / 2)
+    disc(d, cx, cy, 3)
+    return im
+
+
+def gobo(size=24):
+    """A gobo's wheel of holes round a centre."""
+    im, d = canvas(size, size)
+    cx, cy = size / 2, size / 2
+    disc(d, cx, cy, 2.5)
+    for k in range(8):
+        a = math.radians(k * 45)
+        disc(d, cx + 6.8 * math.cos(a), cy + 6.8 * math.sin(a), 2.1)
+    return im
+
+
+def sparkle(size=24):
+    im, d = canvas(size, size)
+    cx, cy, r = size / 2, size / 2, OPTICAL_SIZE / 2
+    pts = []
+    for k in range(8):
+        a = math.radians(k * 45 - 90)
+        rr = r if k % 2 == 0 else r * 0.3
+        pts.append(((cx + rr * math.cos(a)) * S, (cy + rr * math.sin(a)) * S))
+    d.polygon(pts, fill=255)
+    return im
+
+
+def rainbow(size=24):
+    im, d = canvas(size, size)
+    cx, cy = size / 2, size / 2 + OPTICAL_SIZE / 4
+    for r in (OPTICAL_SIZE / 2, OPTICAL_SIZE / 2 - 2 * STROKE + 0.5,
+              OPTICAL_SIZE / 2 - 4 * STROKE + 1):
+        d.arc([(cx - r) * S, (cy - r) * S, (cx + r) * S, (cy + r) * S],
+              180, 360, fill=255, width=STROKE * S)
+    return im
+
+
+def half(size=24, start=90):
+    """A ring with one half filled; `start` is Pillow's angle of the fill."""
+    im, d = canvas(size, size)
+    cx, cy, r = size / 2, size / 2, OPTICAL_SIZE / 2
+    ring(d, cx, cy, r)
+    d.pieslice([(cx - r) * S, (cy - r) * S, (cx + r) * S, (cy + r) * S],
+               start, start + 180, fill=255)
+    return im
+
+
+def grid(size=24):
+    im, d = canvas(size, size)
+    lo = size / 2 - OPTICAL_SIZE / 2 + 0.5
+    hi = size / 2 + OPTICAL_SIZE / 2 - 0.5
+    d.rounded_rectangle([lo * S, lo * S, hi * S, hi * S], radius=STROKE * S,
+                        outline=255, width=STROKE * S)
+    third = (hi - lo) / 3
+    for k in (1, 2):
+        at = lo + k * third
+        d.line([at * S, lo * S, at * S, hi * S], fill=255, width=STROKE * S)
+        d.line([lo * S, at * S, hi * S, at * S], fill=255, width=STROKE * S)
+    return im
+
+
 ICONS = [
     ("ICON_GEAR", gear()),
     ("ICON_LOCK", lock()),
@@ -168,6 +387,54 @@ ICONS = [
     ("ICON_BOLT", bolt()),
     ("ICON_CHECK", check()),
     ("ICON_CHEVRON", chevron()),
+    ("ICON_PLAY", play()),
+    ("ICON_STOP", stop()),
+    ("ICON_MICROPHONE", microphone()),
+    ("ICON_MOON", moon()),
+    ("ICON_PARTY", party()),
+    ("ICON_FLAME", flame()),
+    ("ICON_BULB", bulb()),
+    ("ICON_PALETTE", palette()),
+    ("ICON_CLOUD", cloud()),
+    ("ICON_ARROW_UP", arrow_up()),
+    ("ICON_ASTERISK", asterisk()),
+    ("ICON_ARROW_BOTH", arrow_both()),
+    ("ICON_TARGET", target()),
+    ("ICON_GOBO", gobo()),
+    ("ICON_SPARKLE", sparkle()),
+    ("ICON_RAINBOW", rainbow()),
+    ("ICON_HALF_LEFT", half(start=90)),
+    ("ICON_HALF_RIGHT", half(start=270)),
+    ("ICON_HALF_BOTTOM", half(start=0)),
+    ("ICON_HALF_TOP", half(start=180)),
+    ("ICON_GRID", grid()),
+]
+
+# The map's glyph for each mark, as UTF-8. The bolt the hits already wear
+# is the flash's own.
+GLYPHS = [
+    ("\u25b6", "ICON_PLAY"),
+    ("\u23f9", "ICON_STOP"),
+    ("\U0001f3a4", "ICON_MICROPHONE"),
+    ("\U0001f319", "ICON_MOON"),
+    ("\U0001f389", "ICON_PARTY"),
+    ("\U0001f525", "ICON_FLAME"),
+    ("\U0001f4a1", "ICON_BULB"),
+    ("\u26a1", "ICON_BOLT"),
+    ("\U0001f3a8", "ICON_PALETTE"),
+    ("\u2601", "ICON_CLOUD"),
+    ("\u21e7", "ICON_ARROW_UP"),
+    ("\u2733", "ICON_ASTERISK"),
+    ("\u2194", "ICON_ARROW_BOTH"),
+    ("\u25ce", "ICON_TARGET"),
+    ("\u274b", "ICON_GOBO"),
+    ("\u2727", "ICON_SPARKLE"),
+    ("\U0001f308", "ICON_RAINBOW"),
+    ("\u25d0", "ICON_HALF_LEFT"),
+    ("\u25d1", "ICON_HALF_RIGHT"),
+    ("\u25d2", "ICON_HALF_BOTTOM"),
+    ("\u25d3", "ICON_HALF_TOP"),
+    ("\u25a6", "ICON_GRID"),
 ]
 
 
@@ -189,6 +456,12 @@ def emit():
             vals = ", ".join(f"{v:3d}" for v in data[row * 24:(row + 1) * 24])
             print(f"        {vals},")
         print("    },")
+    print("};\n")
+    print("// The map's \"icon\" glyphs, as UTF-8, and the mark each one draws.")
+    print("static const struct {\n    const char *glyph;\n    enum icon_id id;\n} ICON_GLYPHS[] = {")
+    for glyph, name in GLYPHS:
+        utf8 = "".join(f"\\x{b:02x}" for b in glyph.encode())
+        print(f'    {{ "{utf8}", {name} }},   // U+{ord(glyph):04X}')
     print("};\n\n#endif")
 
 

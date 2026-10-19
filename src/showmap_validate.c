@@ -126,6 +126,7 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
         c.kind = DESK_CUE;
         snprintf(c.label, sizeof c.label, "%s", m->caption);
         snprintf(c.detail, sizeof c.detail, "%s", m->detail);
+        snprintf(c.icon, sizeof c.icon, "%s", m->icon);
         c.widget_id = m->widget_id;
         c.function_id = m->function_id;
         c.page = m->page;

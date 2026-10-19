@@ -36,6 +36,7 @@ desk_action_log.c
 http_fetch.c
 status.c
 icon.c
+icon_glyph.c
 desk_fonts.c
 canvas.c
 canvas_blend.c

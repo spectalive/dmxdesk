@@ -17,8 +17,10 @@ static int lit(const struct canvas *c, int x, int y, int w, int h) {
 }
 
 int main(void) {
-    struct canvas c = { .px = calloc(400 * 80, 4), .w = 400, .h = 80 };
-    for (int i = 0; i < 400 * 80; i++)
+    // One 32 px column per icon, however many the generator emits.
+    int width = 8 + ICON_COUNT * 32;
+    struct canvas c = { .px = calloc((size_t)width * 80, 4), .w = width, .h = 80 };
+    for (int i = 0; i < width * 80; i++)
         c.px[i] = 0xFF101012u;
     for (int id = 0; id < ICON_COUNT; id++) {
         icon_paint(&c, (enum icon_id)id, 8 + id * 32, 8, 0xFFF5F5F7u);

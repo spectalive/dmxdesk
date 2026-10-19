@@ -1,4 +1,4 @@
-// SOURCES: desk_model.c desk_master_level_at.c desk_master_track.c desk_paint.c desk_pager_caption.c desk_pager_bank_caption.c icon.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c canvas.c canvas_blend.c font.c desk_fonts.c
+// SOURCES: desk_model.c desk_master_level_at.c desk_master_track.c desk_paint.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c canvas.c canvas_blend.c font.c desk_fonts.c
 // The production placement and loaded font must agree with both touch and paint.
 #include <assert.h>
 #include <stdio.h>

@@ -16,6 +16,7 @@
 #define MAP_MAX_CONTROLS 256
 #define MAP_KEY_MAX 48
 #define MAP_CAPTION_MAX 48
+#define MAP_ICON_MAX 16
 #define MAP_MAX_SWATCHES 4
 #define MAP_MAX_DIALS 4
 #define MAP_MAX_DIAL_MEMBERS 24
@@ -45,6 +46,7 @@ struct map_control {
     char key[MAP_KEY_MAX];
     char caption[MAP_CAPTION_MAX];
     char detail[MAP_CAPTION_MAX];
+    char icon[MAP_ICON_MAX];    // the glyph its tile wears, UTF-8; "" for none
     enum map_role role;
     int held;           // the Mac's button is a Flash: never pressed from here
     int widget_id;      // never -1 for a control
