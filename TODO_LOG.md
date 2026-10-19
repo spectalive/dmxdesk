@@ -6,6 +6,20 @@
 
 ## 2026
 
+### 2026-10
+
+- [x] 2026-10-19 — **Release:** v0.1.3: tiles wear their map icon, Fijo
+  only over a toggle, the request channel redials, flip endpoints fixed.
+  - Result: the map's per-control `icon` drawn as 22 vector marks on 111
+    Vibra tiles (fbf61c3); SHOW's Fijo heading only over a placed toggle
+    (cb5df70); `wpa_ctrl_begin` redials once per request after a failed
+    abandon (f5dd224); `touch_flip_value` returns `width - 1 - value` and
+    the desk logs `flip none` (266de97). Tagged `v0.1.3` (f5dd224).
+  - Evidence: `tools/test-dmx-desk-host.sh` exit 0, 45/45 PASS on macOS and
+    45/45 on Linux (taq102 OrbStack, gcc + ASan), geometry audit
+    `failures=0 warnings=0`; taq102 `tools/build-dmxdesk.sh` cross-build
+    (GCC 14.3.0, -Werror) produced an ARM ELF.
+
 ### 2026-09
 
 - [x] 2026-09-27 **v0.1.2: releases return the family to its floor.** The desk
