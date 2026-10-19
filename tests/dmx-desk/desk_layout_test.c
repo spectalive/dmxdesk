@@ -1,4 +1,4 @@
-// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c
+// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c
 // The resolver over the real map: every control placed, nothing overlapping,
 // nothing outside the content area, the banks as the arithmetic yields them,
 // three tabs, six EFECTOS families, and every flowed section on its panel.
@@ -161,7 +161,29 @@ int main(void) {
             colours = i;
     assert(colours >= 0);
     const struct desk_placement *hook = find(&l, colours, map.control[colours].page);
-    assert(hook && hook->tile == TILE_CUE && hook->w == 200 && hook->h == 64);
+    // A family's hooks run four to a row across its content, 64 tall.
+    int hook_w = (DESK_EFFECTS_W - 2 * DESK_PANEL_PAD - 3 * DESK_GAP) / 4;
+    assert(hook && hook->tile == TILE_CUE && hook->w == hook_w && hook->h == 64);
+    for (int page = 1; page < l.pages; page++) {
+        if (l.tab[page] != DESK_TAB_EFECTOS)
+            continue;
+        for (int i = 0; i < l.placements; i++) {
+            const struct desk_placement *p = &l.placement[i];
+            if (p->page != page || p->control >= map.count || map.control[p->control].role != MAP_ROLE_HOOK)
+                continue;
+            int in_row = 0;
+            for (int j = 0; j < l.placements; j++)
+                if (l.placement[j].page == page && l.placement[j].bank == p->bank &&
+                    l.placement[j].y == p->y && l.placement[j].control < map.count &&
+                    map.control[l.placement[j].control].role == MAP_ROLE_HOOK)
+                    in_row++;
+            int sec_hooks = 0;
+            for (int j = 0; j < map.count; j++)
+                sec_hooks += map.control[j].page == page && map.control[j].role == MAP_ROLE_HOOK &&
+                             map.control[j].section == map.control[p->control].section;
+            assert(p->w == hook_w && (in_row == 4 || in_row == sec_hooks % 4 || in_row == sec_hooks));
+        }
+    }
     {
         // Turn one LIVE accent into a toggle: it stays in GOLPES' row, in
         // its map place, as a cue, and the row still spans the panel.
@@ -186,10 +208,10 @@ int main(void) {
         const struct desk_heading *wide = heading_named(&show, 0, "COLOR DEL RIG");
         assert(wide && wide->w == DESK_CONTENT_W);
     }
-    // COLOR keeps its picks 128x88, five to a row inside their panel right of
-    // the families, and its colour hits as holds.
+    // COLOR keeps its picks 128 wide, five to a row inside their panel right
+    // of the families, 96 tall for their square, and its colour hits as holds.
     const struct desk_placement *rojo = find(&l, control_named(&map, "Rig Rojo"), 1);
-    assert(rojo && rojo->tile == TILE_SWATCH && rojo->w == 128 && rojo->h == 88);
+    assert(rojo && rojo->tile == TILE_SWATCH && rojo->w == 128 && rojo->h == 96);
     assert(rojo->x == DESK_EFFECTS_X + DESK_PANEL_PAD);
     int in_row = 0;
     for (int i = 0; i < l.placements; i++)
@@ -264,6 +286,56 @@ int main(void) {
                 assert(a->y + a->h + DESK_GAP <= b->y || b->y + b->h + DESK_GAP <= a->y);
         }
     }
+    // GOBOS: "Gobo 1".."Gobo 17" are numbers, six to a row of 96+ px tiles
+    // at least 48 tall; "Gobo Repartido 3" and "Gobo Shake - Gobo 9", which
+    // end in a number under another stem, keep their mark tile on a row of
+    // their own. PRISMA's bare numbers are numbers too; "Insert Prism" not.
+    int gobos = 0;
+    for (int i = 0; i < map.count; i++) {
+        const struct map_control *c = &map.control[i];
+        const struct desk_placement *p = find(&l, i, c->page);
+        if (c->role != MAP_ROLE_PICK || strcmp(map.page[c->page].key, "gobos") != 0)
+            continue;
+        int plain = strncmp(c->caption, "Gobo ", 5) == 0 && c->caption[5] >= '0' && c->caption[5] <= '9';
+        assert(p->tile == (plain ? TILE_NUMBER : TILE_SWATCH));
+        assert(p->w >= 96 && p->h >= 48);
+        if (plain) {
+            gobos++;
+            int in_row = 0;
+            for (int j = 0; j < l.placements; j++)
+                if (l.placement[j].page == p->page && l.placement[j].bank == p->bank &&
+                    l.placement[j].y == p->y && l.placement[j].tile != TILE_MASTER &&
+                    l.placement[j].tile != TILE_PANIC) {
+                    assert(l.placement[j].tile == TILE_NUMBER);
+                    in_row++;
+                }
+            assert(in_row == 6 || in_row == 17 % 6);
+        }
+    }
+    assert(gobos == 17 && l.banks[4] == 2);
+    assert(find(&l, control_named(&map, "1 y 3"), 5)->tile == TILE_NUMBER);
+    assert(find(&l, control_named(&map, "4"), 5)->tile == TILE_NUMBER);
+    assert(find(&l, control_named(&map, "Insert Prism"), 5)->tile == TILE_SWATCH);
+    assert(find(&l, control_named(&map, "Prisma Giro Rapido"), 5)->tile == TILE_SWATCH);
+    assert(find(&l, control_named(&map, "Effect 42"), 2)->tile == TILE_NUMBER);
+    assert(find(&l, control_named(&map, "Paneles Manual"), 2)->tile == TILE_SWATCH);
+    // CABEZAS: every pick that leads with a figure's name draws it, the rest
+    // keep their glyph; six to a row, over two banks.
+    int figures = 0, glyphs = 0;
+    for (int i = 0; i < map.count; i++) {
+        const struct map_control *c = &map.control[i];
+        if (c->role != MAP_ROLE_PICK || strcmp(map.page[c->page].key, "heads") != 0)
+            continue;
+        const struct desk_placement *p = find(&l, i, c->page);
+        assert(p->w >= 96 && p->h >= 48 && p->w * 6 + 5 * DESK_GAP <= DESK_EFFECTS_W - 2 * DESK_PANEL_PAD);
+        if (p->tile == TILE_TRAJECTORY)
+            figures++;
+        else if (p->tile == TILE_SWATCH && c->icon[0])
+            glyphs++;
+        else
+            assert(0);
+    }
+    assert(figures == 21 && glyphs == 5 && l.banks[3] == 2);
     // Headings: the gobo picks are split across banks with part/parts.
     int gobo_parts = 0;
     for (int i = 0; i < l.headings; i++) {

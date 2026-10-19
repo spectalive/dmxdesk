@@ -1,4 +1,4 @@
-// SOURCES: desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c
+// SOURCES: desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c
 // What changed is what gets painted: a push lights one tile's rectangle, a
 // view change everything, and a clip keeps a primitive inside its damage.
 #include <assert.h>

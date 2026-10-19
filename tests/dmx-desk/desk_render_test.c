@@ -1,8 +1,8 @@
-// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_text_at.c desk_speed_target_rect.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_text_at.c desk_speed_target_rect.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c
 // The desk, built from the generated Vibra map against the real console
 // document, pressed once, and painted. Writes $TEST_OUT/desk.ppm so the screen can be
 // looked at on a laptop before it reaches the tablet, and one render per tab:
-// EFECTOS' COLOR, CABEZAS and GOBOS, and RITMO with its speed cards.
+// every EFECTOS family and bank, and RITMO with its speed cards.
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -211,14 +211,51 @@ int main(void) {
         if (h->page == 1 && h->bank == 0)
             assert(canvas.px[(h->y + h->h - 2) * canvas.w + h->x + h->w / 2] == DESK_PANEL);
     }
-    desk_set_view(&model, 4, 1);
-    desk_paint(&canvas, &model, &fonts);
-    snprintf(path, sizeof path, "%s/desk-gobos.ppm", out ? out : "/tmp");
-    write_ppm(&canvas, path);
+    // COLOR's picks: a colour square over the name; the running one ringed in
+    // accent with its square whole, the rest in their keyline.
+    int squares = 0;
+    for (int i = 0; i < layout.placements; i++) {
+        const struct desk_placement *p = &layout.placement[i];
+        if (p->page != 1 || p->bank != 0 || p->tile != TILE_SWATCH)
+            continue;
+        const struct desk_control *ctl = &model.control[p->control];
+        assert(ctl->swatches == 1);
+        int lit = ctl->state == DESK_ON;
+        assert(lit == (strcmp(ctl->label, "Rig Rojo Fuego") == 0));
+        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x] == (lit ? DESK_ACCENT : DESK_LINE));
+        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x + 1] == (lit ? DESK_ACCENT : DESK_TILE));
+        // The square: 56 px or more, its colour whole across the middle.
+        for (int dx = -26; dx <= 26; dx++)
+            assert(canvas.px[(p->y + 36) * canvas.w + p->x + p->w / 2 + dx] == (ctl->swatch[0] | 0xFF000000u));
+        squares++;
+    }
+    assert(squares == 10);
+    // Running, a number, a figure and a hook fill with the accent.
+    const char *running[] = { "Gobo 14", "Circulo Simultaneo", "AUTO lento" };
+    for (int k = 0; k < 3; k++) {
+        int index = (int)(by_label(&model, running[k]) - model.control);
+        model.control[index].state = DESK_ON;
+        const struct desk_placement *p = NULL;
+        for (int i = 0; i < layout.placements && !p; i++)
+            if (layout.placement[i].control == index)
+                p = &layout.placement[i];
+        assert(p);
+        desk_set_view(&model, p->page, p->bank);
+        desk_paint(&canvas, &model, &fonts);
+        assert(canvas.px[(p->y + 4) * canvas.w + p->x + p->w / 2] == DESK_ACCENT);
+        assert(canvas.px[(p->y + p->h / 2) * canvas.w + p->x] == DESK_ACCENT);
+    }
+    // One render per EFECTOS family and bank: desk-<page key>-<bank>.ppm.
+    for (int f = 0; f < layout.families; f++) {
+        int page = layout.family_page[f];
+        for (int bank = 0; bank < layout.banks[page]; bank++) {
+            desk_set_view(&model, page, bank);
+            desk_paint(&canvas, &model, &fonts);
+            snprintf(path, sizeof path, "%s/desk-%s-%d.ppm", out ? out : "/tmp", map.page[page].key, bank + 1);
+            write_ppm(&canvas, path);
+        }
+    }
     desk_set_view(&model, 3, 0);
-    desk_paint(&canvas, &model, &fonts);
-    snprintf(path, sizeof path, "%s/desk-heads.ppm", out ? out : "/tmp");
-    write_ppm(&canvas, path);
 
     // RITMO: the SPEED page's chrome and the speed model's cards over it.
     desk_set_view(&model, desk_tab_page(&model, DESK_TAB_RITMO), 0);

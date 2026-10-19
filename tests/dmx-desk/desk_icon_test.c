@@ -1,4 +1,4 @@
-// SOURCES: icon_glyph.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_text_at.c
+// SOURCES: icon_glyph.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_text_at.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c
 // The map's per-control "icon" (2026-10-19, qlctool deskmap splits the glyph
 // off the console caption): every glyph the shipped map uses has a mark, the
 // parser keeps the field and shrugs off one it cannot hold, and the painter
@@ -119,7 +119,7 @@ int main(void) {
 
     // The painter: the same desk with and without its icons, every page and
     // bank. A tile differs exactly when it carries a known glyph and is one
-    // that wears a mark (not a colour disc); the bolt stays on a hit without one.
+    // that wears a mark (not a colour square, a number or a trajectory); the bolt stays on a hit without one.
     assert(showmap_parse(text, len, &map) == 0);
     free(text);
     char *json = slurp("tests/dmx-desk/fixtures/vc-vibra.json", &len);
@@ -155,7 +155,9 @@ int main(void) {
                 if (p->page != page || p->bank != bank || p->control >= map.count)
                     continue;
                 const struct desk_control *ctl = &marked.control[p->control];
+                // A number or a trajectory stands in the mark's place.
                 int wears = icon_glyph(ctl->icon) >= 0 && p->tile != TILE_MINI &&
+                            p->tile != TILE_NUMBER && p->tile != TILE_TRAJECTORY &&
                             !(p->tile == TILE_SWATCH && ctl->swatches > 0) &&
                             // The flash's mark is the bolt a hit already wears.
                             !((p->tile == TILE_HOLD || p->tile == TILE_FOG) &&
@@ -169,7 +171,8 @@ int main(void) {
             }
         }
     printf("tiles with a mark %d, unchanged %d\n", drawn, kept);
-    assert(drawn > 100 && kept > 0);
+    // Numbers and trajectories (56 picks) stand where their glyph was.
+    assert(drawn > 50 && kept > 0);
 
     // The look: SHOW with its marks, beside desk.ppm.
     desk_set_view(&marked, 0, 0);

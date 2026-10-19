@@ -412,6 +412,122 @@ def sliders(size=24):
     return im
 
 
+# ---- the heads' trajectories: one 40 px mark per figure qlctool's EFX
+# generator names (its locales' shape_* words), drawn as the path the beam
+# travels with a 2.5 px stroke. Each figure comes three ways: alone; the
+# "Simultaneo" variant, two copies overlapped on a diagonal; the "Alternado"
+# variant, two smaller copies side by side, the right one mirrored.
+
+LARGE = 40
+TRAJ_STROKE = 2.5
+TRAJ_R = 15  # the figure's half extent inside the 40 px square
+
+
+def figure_circle():
+    pts = [(math.cos(math.radians(a)), math.sin(math.radians(a))) for a in range(0, 361, 4)]
+    return [pts], [(1.0, 0.0, 90)]
+
+
+def figure_eight():
+    pts = [(math.cos(t), 0.55 * math.sin(2 * t)) for t in
+           (math.radians(a) for a in range(0, 361, 3))]
+    return [pts], []
+
+
+def figure_line():
+    return [[(-1.0, 0.0), (1.0, 0.0)]], [(1.0, 0.0, 0), (-1.0, 0.0, 180)]
+
+
+def figure_diamond():
+    pts = [(0.0, -1.0), (1.0, 0.0), (0.0, 1.0), (-1.0, 0.0), (0.0, -1.0)]
+    return [pts], [(0.5, -0.5, 45)]
+
+
+def figure_square():
+    k = 0.8
+    pts = [(-k, -k), (k, -k), (k, k), (-k, k), (-k, -k)]
+    return [pts], [(k, 0.0, 90)]
+
+
+def figure_leaf():
+    """An almond standing on its points: two arcs meeting top and bottom,
+    each of radius 1.25 round a centre 0.75 to the other side."""
+    left, right = [], []
+    span = math.degrees(math.atan2(1.0, 0.75))
+    for k in range(0, 41):
+        t = math.radians(-span + 2 * span * k / 40)
+        x, y = -0.75 + 1.25 * math.cos(t), 1.25 * math.sin(t)
+        right.append((x, y))
+        left.append((-x, -y))
+    return [right, left], [(0.5, 0.0, 90)]
+
+
+def figure_lissajous():
+    """The 1:2 figure turned on its side and opened by a quarter phase:
+    two wings crossing in the middle, the butterfly a beam draws."""
+    pts = [(math.sin(t), 0.8 * math.sin(2 * t + math.pi / 4)) for t in
+           (math.radians(a) for a in range(0, 361, 2))]
+    return [pts], []
+
+
+FIGURES = [
+    ("CIRCLE", figure_circle),
+    ("EIGHT", figure_eight),
+    ("LINE", figure_line),
+    ("DIAMOND", figure_diamond),
+    ("SQUARE", figure_square),
+    ("LEAF", figure_leaf),
+    ("LISSAJOUS", figure_lissajous),
+]
+
+
+def draw_figure(d, figure, cx, cy, r, mirror=False):
+    paths, arrows = figure()
+    sx = -r if mirror else r
+    w = TRAJ_STROKE * S
+    for path in paths:
+        pts = [((cx + x * sx) * S, (cy + y * r) * S) for x, y in path]
+        d.line(pts, fill=255, width=round(w), joint="curve")
+        for x, y in (pts[0], pts[-1]):
+            d.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=255)
+    head = max(3.0, 5.0 * r / TRAJ_R)
+    for x, y, angle in arrows:
+        if mirror:
+            angle = 180 - angle
+        ax, ay = cx + x * sx, cy + y * r
+        a = math.radians(angle)
+        for side in (150, -150):
+            b = a + math.radians(side)
+            tip = (ax * S, ay * S)
+            end = ((ax + head * math.cos(b)) * S, (ay + head * math.sin(b)) * S)
+            d.line([tip, end], fill=255, width=round(w))
+            d.ellipse([end[0] - w / 2, end[1] - w / 2, end[0] + w / 2, end[1] + w / 2], fill=255)
+        d.ellipse([ax * S - w / 2, ay * S - w / 2, ax * S + w / 2, ay * S + w / 2], fill=255)
+
+
+def trajectory(figure, variant):
+    im, d = canvas(LARGE, LARGE)
+    c = LARGE / 2
+    if variant == "":
+        draw_figure(d, figure, c, c, TRAJ_R)
+    elif variant == "SIMULTANEOUS":
+        r = TRAJ_R * 0.72
+        draw_figure(d, figure, c - 4, c - 4, r)
+        draw_figure(d, figure, c + 4, c + 4, r)
+    else:
+        r = TRAJ_R * 0.58
+        draw_figure(d, figure, c - 9, c, r)
+        draw_figure(d, figure, c + 9, c, r, mirror=True)
+    return im
+
+
+LARGE_ICONS = []
+for _name, _figure in FIGURES:
+    for _variant in ("", "SIMULTANEOUS", "ALTERNATE"):
+        LARGE_ICONS.append(("ICON_TRAJ_" + _name + ("_" + _variant if _variant else ""),
+                            trajectory(_figure, _variant)))
+
+
 ICONS = [
     ("ICON_GEAR", gear()),
     ("ICON_LOCK", lock()),
@@ -503,6 +619,22 @@ def emit():
     for glyph, name in GLYPHS:
         utf8 = "".join(f"\\x{b:02x}" for b in glyph.encode())
         print(f'    {{ "{utf8}", {name} }},   // U+{ord(glyph):04X}')
+    print("};\n")
+    print("// The heads' trajectories, 40 px, the same alpha and order.")
+    print(f"#define ICON_LARGE_SIZE {LARGE}")
+    print("enum icon_large_id {")
+    for name, _ in LARGE_ICONS:
+        print(f"    {name},")
+    print("    ICON_LARGE_COUNT\n};\n")
+    print("static const uint8_t ICON_LARGE_ALPHA[ICON_LARGE_COUNT][ICON_LARGE_SIZE * ICON_LARGE_SIZE] = {")
+    for name, im in LARGE_ICONS:
+        small = im.resize((LARGE, LARGE), Image.Resampling.BOX)
+        data = list(small.tobytes())
+        print(f"    [{name}] = {{")
+        for row in range(LARGE):
+            vals = ", ".join(f"{v:3d}" for v in data[row * LARGE:(row + 1) * LARGE])
+            print(f"        {vals},")
+        print("    },")
     print("};\n\n#endif")
 
 

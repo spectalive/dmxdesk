@@ -5,9 +5,11 @@
 #define DESK_PLACEMENT_H
 
 enum desk_tile {
-    TILE_CUE,       // 200x64, a state, a hook, a toggle, a chase
-    TILE_WIDE,      // 200x64 as well; kept for the hand-laid tests
-    TILE_SWATCH,    // 128x88, a pick: its colour as a disc over its name
+    TILE_CUE,       // 64 tall, a hook, a toggle, a chase: four to a family's row
+    TILE_WIDE,      // the cue's size; kept for the hand-laid tests
+    TILE_SWATCH,    // a pick: its colour as a square over its name, or its mark
+    TILE_NUMBER,    // a numbered pick: the number large over its caption
+    TILE_TRAJECTORY,// a heads' pick: the figure its beams draw over its name
     TILE_COMPACT,   // 128x64, a small button
     TILE_HAZE,      // 200x64, an ambient rhythm
     TILE_HOLD,      // 128x104, a hit: held on the Mac, or fired while held here

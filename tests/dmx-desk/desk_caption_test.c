@@ -1,4 +1,4 @@
-// SOURCES: desk_caption.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c canvas.c canvas_blend.c font.c
+// SOURCES: desk_caption.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c canvas.c canvas_blend.c font.c desk_layout_resolve.c desk_show_layout.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c
 // Captions measured against the bundled Inter: the show's own words on the
 // tiles that will carry them, with the cuts counted rather than assumed.
 #include <assert.h>
@@ -7,7 +7,10 @@
 
 #include "desk_caption.h"
 #include "desk_layout.h"
+#include "desk_layout_resolve.h"
+#include "desk_tab.h"
 #include "font.h"
+#include "icon_glyph.h"
 #include "showmap.h"
 
 int main(void) {
@@ -88,6 +91,51 @@ int main(void) {
     assert(states == 7 && holds == 7);
     // The longest foot a hold carries: "pulsa · máx 8 s".
     assert(font_width(foot, "pulsa \xc2\xb7 m\xc3\xa1x 8 s") <= hold_w - 8);
+    // EFECTOS at the faces and widths its painters use (desk v3, 2026-10-19):
+    // a hook's name beside its mark in SemiBold 14 on one line or two; a pick's name in SemiBold 14 under its square, mark or
+    // figure; a number's caption in Regular 13. Nothing is cut.
+    struct font *tile14 = font_open("fonts/Inter-SemiBold.ttf", 14);
+    struct font *small13 = font_open("fonts/Inter-Regular.ttf", 13);
+    assert(tile14 && small13);
+    static struct desk_layout layout;
+    assert(desk_layout_resolve(&map, map.count, map.count + 1, map.count + 2, map.count + 3, &layout) == 0);
+    int checked = 0;
+    for (int i = 0; i < layout.placements; i++) {
+        const struct desk_placement *p = &layout.placement[i];
+        if (layout.tab[p->page] != DESK_TAB_EFECTOS || p->control >= map.count)
+            continue;
+        const struct map_control *c = &map.control[p->control];
+        int fits = 0;
+        switch (p->tile) {
+        case TILE_CUE: {
+            int tw = icon_glyph(c->icon) >= 0 ? p->w - 12 - 24 - 8 - 10 : p->w - 20;
+            desk_caption_fit(tile14, tw, c->caption, &l);
+            fits = !l.cut;
+            break;
+        }
+        case TILE_SWATCH:
+            desk_caption_fit(tile14, p->w - 16, c->caption, &l);
+            fits = !l.cut;
+            break;
+        case TILE_NUMBER:
+            desk_caption_fit(small13, p->w - 8, c->caption, &l);
+            fits = !l.cut;
+            break;
+        case TILE_TRAJECTORY:
+            desk_caption_fit(tile14, p->w - 8, c->caption, &l);
+            fits = !l.cut;
+            break;
+        default:
+            continue;
+        }
+        if (!fits)
+            printf("cut on EFECTOS: %s at %d px\n", c->caption, p->w);
+        assert(fits);
+        checked++;
+    }
+    assert(checked > 100);
+    font_close(tile14);
+    font_close(small13);
     font_close(state);
     font_close(detail);
     font_close(hold);

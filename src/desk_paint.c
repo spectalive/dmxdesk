@@ -13,8 +13,10 @@
 #include "desk_pager_bank_caption.h"
 #include "desk_paint_families.h"
 #include "desk_paint_keyline.h"
+#include "desk_paint_number.h"
 #include "desk_paint_room.h"
 #include "desk_paint_tabs.h"
+#include "desk_paint_trajectory.h"
 #include "desk_panel_running.h"
 #include "desk_rig_name.h"
 #include "desk_tab.h"
@@ -154,30 +156,44 @@ static void paint_cue(struct canvas *c, const struct desk_control *ctl,
     const char *under = state_line(ctl, link);
     // The mark sits at the left, the words centred in what remains.
     int mark = icon_glyph(ctl->icon);
-    int tx = r.x + 12, tw = r.w - 24;
+    int tx = r.x + 10, tw = r.w - 20;
     if (mark >= 0) {
-        icon_paint(c, (enum icon_id)mark, r.x + 14, r.y + (r.h - MARK) / 2, ink);
-        tx = r.x + 14 + MARK + MARK_GAP;
-        tw = r.x + r.w - 12 - tx;
+        icon_paint(c, (enum icon_id)mark, r.x + 12, r.y + (r.h - MARK) / 2, ink);
+        tx = r.x + 12 + MARK + MARK_GAP;
+        tw = r.x + r.w - 10 - tx;
     }
+    // The name in the small tile face, one size across a row of four hooks,
+    // on one line or two.
+    struct font *face = fonts->tile_s;
     struct desk_caption_lines lines;
-    desk_caption_fit(fonts->tile, tw, ctl->label, &lines);
+    desk_caption_fit(face, tw, ctl->label, &lines);
     int keep_line = under[0] && (!ctl->enabled || ctl->state == DESK_UNKNOWN);
-    if (under[0] && (lines.lines <= 1 || keep_line)) {
-        const char *name = lines.lines <= 1 ? ctl->label : lines.line[0];
-        centred(c, fonts->tile, tx, r.y + 10, tw, text_h(fonts->tile) + 4, name, ink);
+    if (under[0] && lines.lines <= 1) {
+        centred(c, face, tx, r.y + 10, tw, text_h(face) + 4, ctl->label, ink);
         centred(c, fonts->small, tx, r.y + r.h - 12 - text_h(fonts->small) - 2, tw,
                 text_h(fonts->small) + 4, under, on ? DESK_ACCENT_INK : DESK_MUTED);
+    } else if (keep_line) {
+        // Why it is dead or unknown stays, so the name takes two small lines.
+        desk_caption_fit(fonts->tile_s, tw, ctl->label, &lines);
+        int pitch = text_h(fonts->tile_s) + 1, foot = text_h(fonts->small);
+        int top = r.y + (r.h - lines.lines * pitch - 2 - foot) / 2;
+        for (int i = 0; i < lines.lines; i++)
+            centred(c, fonts->tile_s, tx, top + i * pitch, tw, pitch, lines.line[i], ink);
+        centred(c, fonts->small, tx, top + lines.lines * pitch + 2, tw, foot, under,
+                on ? DESK_ACCENT_INK : DESK_MUTED);
     } else {
-        caption(c, fonts->tile, tx, tw, r.y + r.h / 2, ctl->label, ink);
+        caption(c, face, tx, tw, r.y + r.h / 2, ctl->label, ink);
     }
     pending_mark(c, ctl, r);
 }
 
-// A pick: its colours as a disc (segments for a mix) over its name, the
-// whole tile the target. A pick with no colour wears its family's mark in
-// the disc's place, or, without one, has its name alone, larger; running,
-// it fills with the accent like any other tile.
+// A pick: its colours as a square (stripes for a mix) over its name, the
+// whole tile the target; the square takes what the name leaves of the tile,
+// at most 64 px. A pick with no colour wears its family's mark in a disc's
+// place, or, without one, has its name alone, larger; running, it fills
+// with the accent like any other tile.
+#define SQUARE_MAX 64
+
 static void paint_swatch(struct canvas *c, const struct desk_control *ctl,
                          const struct desk_placement *p, const struct desk_fonts *fonts,
                          enum desk_link link) {
@@ -210,46 +226,64 @@ static void paint_swatch(struct canvas *c, const struct desk_control *ctl,
             return;
         }
         icon_paint(c, (enum icon_id)mark, cx - MARK / 2, cy + (DISC - MARK) / 2, ink);
-    } else {
-        int old_x = c->clip_x, old_y = c->clip_y, old_w = c->clip_w, old_h = c->clip_h;
-        int n = ctl->swatches > DESK_MAX_SWATCHES ? DESK_MAX_SWATCHES : ctl->swatches;
-        for (int i = 0; i < n; i++) {
-            int sx = cx - DISC / 2 + i * DISC / n;
-            int sw = (i + 1) * DISC / n - i * DISC / n;
-            int cx0 = sx, cy0 = cy, cw = sw, ch = DISC;
-            if (old_w > 0) {
-                int x1 = cx0 > old_x ? cx0 : old_x, y1 = cy0 > old_y ? cy0 : old_y;
-                int x2 = cx0 + cw < old_x + old_w ? cx0 + cw : old_x + old_w;
-                int y2 = cy0 + ch < old_y + old_h ? cy0 + ch : old_y + old_h;
-                cx0 = x1; cy0 = y1; cw = x2 > x1 ? x2 - x1 : 0; ch = y2 > y1 ? y2 - y1 : 0;
-            }
-            if (cw <= 0 || ch <= 0)
-                continue;
-            canvas_set_clip(c, cx0, cy0, cw, ch);
-            canvas_round_rect(c, cx - DISC / 2, cy, DISC, DISC, DISC / 2, ctl->swatch[i]);
+        if (ctl->detail[0]) {
+            centred(c, fonts->tile_s, r.x + 8, r.y + DISC + 12, r.w - 16, 20, ctl->label, ink);
+            centred(c, fonts->small, r.x + 8, r.y + DISC + 32, r.w - 16, 18, ctl->detail,
+                    on ? DESK_ACCENT_INK : DESK_MUTED);
+        } else {
+            caption(c, fonts->tile_s, r.x + 8, r.w - 16, r.y + DISC + 12 + (r.h - DISC - 12) / 2,
+                    ctl->label, ink);
         }
-        if (old_w > 0)
-            canvas_set_clip(c, old_x, old_y, old_w, old_h);
-        else
-            canvas_clear_clip(c);
-        // Black and near-black discs need a keyline to exist on the tile.
-        uint32_t first = ctl->swatch[0];
-        int brightest = (first >> 16 & 0xFF) > (first >> 8 & 0xFF) ? (first >> 16 & 0xFF) : (first >> 8 & 0xFF);
-        if (brightest < (int)(first & 0xFF))
-            brightest = first & 0xFF;
-        if (brightest < 0x20)
-            canvas_round_rect(c, cx - DISC / 2 - 1, cy - 1, DISC + 2, DISC + 2, DISC / 2 + 1, DESK_MUTED),
-            canvas_round_rect(c, cx - DISC / 2, cy, DISC, DISC, DISC / 2, first);
+        return;
     }
-    if (ctl->detail[0]) {
-        // A paired look says what the rest of the rig does: "Resto Azul".
-        centred(c, fonts->tile_s, r.x + 8, r.y + DISC + 12, r.w - 16, 20, ctl->label, ink);
-        centred(c, fonts->small, r.x + 8, r.y + DISC + 32, r.w - 16, 18, ctl->detail,
-                on && !ringed ? DESK_ACCENT_INK : DESK_MUTED);
-    } else {
-        caption(c, fonts->tile_s, r.x + 8, r.w - 16, r.y + DISC + 12 + (r.h - DISC - 12) / 2, ctl->label,
-                ink);
+    // The words first: their lines decide how much height the square keeps.
+    struct desk_caption_lines name;
+    desk_caption_fit(fonts->tile_s, r.w - 16, ctl->label, &name);
+    int pitch = text_h(fonts->tile_s) + 3, small_pitch = text_h(fonts->small) + 2;
+    int words = name.lines * pitch + (ctl->detail[0] ? small_pitch : 0);
+    int side = r.h - 8 - 6 - words - 6;
+    if (side > SQUARE_MAX)
+        side = SQUARE_MAX;
+    if (side > r.w - 24)
+        side = r.w - 24;
+    int top = r.y + (r.h - side - 6 - words) / 2;
+    int sx0 = cx - side / 2;
+    int old_x = c->clip_x, old_y = c->clip_y, old_w = c->clip_w, old_h = c->clip_h;
+    int n = ctl->swatches > DESK_MAX_SWATCHES ? DESK_MAX_SWATCHES : ctl->swatches;
+    for (int i = 0; i < n; i++) {
+        int sx = sx0 + i * side / n;
+        int sw = (i + 1) * side / n - i * side / n;
+        int cx0 = sx, cy0 = top, cw = sw, ch = side;
+        if (old_w > 0) {
+            int x1 = cx0 > old_x ? cx0 : old_x, y1 = cy0 > old_y ? cy0 : old_y;
+            int x2 = cx0 + cw < old_x + old_w ? cx0 + cw : old_x + old_w;
+            int y2 = cy0 + ch < old_y + old_h ? cy0 + ch : old_y + old_h;
+            cx0 = x1; cy0 = y1; cw = x2 > x1 ? x2 - x1 : 0; ch = y2 > y1 ? y2 - y1 : 0;
+        }
+        if (cw <= 0 || ch <= 0)
+            continue;
+        canvas_set_clip(c, cx0, cy0, cw, ch);
+        canvas_round_rect(c, sx0, top, side, side, 8, ctl->swatch[i]);
     }
+    if (old_w > 0)
+        canvas_set_clip(c, old_x, old_y, old_w, old_h);
+    else
+        canvas_clear_clip(c);
+    // Black and near-black squares need a keyline to exist on the tile.
+    uint32_t first = ctl->swatch[0];
+    int brightest = (first >> 16 & 0xFF) > (first >> 8 & 0xFF) ? (first >> 16 & 0xFF) : (first >> 8 & 0xFF);
+    if (brightest < (int)(first & 0xFF))
+        brightest = first & 0xFF;
+    if (brightest < 0x20)
+        canvas_round_rect(c, sx0 - 1, top - 1, side + 2, side + 2, 9, DESK_MUTED),
+        canvas_round_rect(c, sx0, top, side, side, 8, first);
+    int y = top + side + 6;
+    for (int i = 0; i < name.lines; i++)
+        centred(c, fonts->tile_s, r.x + 8, y + i * pitch, r.w - 16, pitch, name.line[i], ink);
+    // A paired look says what the rest of the rig does: "Resto Azul".
+    if (ctl->detail[0])
+        centred(c, fonts->small, r.x + 8, y + name.lines * pitch, r.w - 16, small_pitch, ctl->detail,
+                DESK_MUTED);
 }
 
 // A hit: the hold look. Held on the Mac it is dead and says so; fired from
@@ -717,6 +751,8 @@ void desk_paint(struct canvas *canvas, const struct desk_model *model,
         case TILE_MASTER:  paint_master(canvas, ctl, p, fonts, model->link); break;
         case TILE_PANIC:   paint_stop_all(canvas, ctl, p, fonts, model->link); break;
         case TILE_SWATCH:  paint_swatch(canvas, ctl, p, fonts, model->link); break;
+        case TILE_NUMBER:  desk_paint_number(canvas, ctl, p, fonts, model->link); break;
+        case TILE_TRAJECTORY: desk_paint_trajectory(canvas, ctl, p, fonts, model->link); break;
         case TILE_HOLD:
         case TILE_FOG:     paint_hold(canvas, ctl, p, fonts, model->link); break;
         case TILE_STATE:   paint_state(canvas, ctl, p, fonts, model->link); break;
