@@ -104,7 +104,8 @@ static int next_cp(const char **text) {
     }
     *text = (const char *)p;
     if (cp < minimum || cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff)) return 0xfffd;
-    return cp <= 0xff || cp == 0x2026 ? (int)cp : 0xfffd;
+    // Latin-1, the ellipsis captions are cut with, and the dash an idle room reads as.
+    return cp <= 0xff || cp == 0x2026 || cp == 0x2014 ? (int)cp : 0xfffd;
 }
 
 static int face_cp(const struct font *f, int cp) {
