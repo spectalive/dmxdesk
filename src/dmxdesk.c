@@ -486,7 +486,9 @@ int main(int argc, char **argv) {
 
     // The controller reports in its own units on the mainline driver and in
     // screen pixels on the vendor one, so its declared maxima decide the
-    // scale rather than a constant.
+    // scale rather than a constant. The desk never turns the panel over, so
+    // no axis is flipped: the mode is "none" and the log says so, rather than
+    // naming axes (DMXDESK_TOUCH_FLIP used to) that nothing ever applied.
     int touch_fd = open(touch_device, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
     struct touch_input *touch = NULL;
     struct touch_flip flip;
@@ -497,11 +499,11 @@ int main(int argc, char **argv) {
             declared_x = ai.maximum;
         if (ioctl(touch_fd, EVIOCGABS(ABS_MT_POSITION_Y), &ai) == 0)
             declared_y = ai.maximum;
-        touch_flip_configure(&flip, w, h, declared_x, declared_y,
-                             getenv("DMXDESK_TOUCH_FLIP"));
+        touch_flip_configure(&flip, w, h, declared_x, declared_y, "none");
         touch = touch_input_new(&flip);
-        printf("touch: declared %dx%d, mapping %dx%d, %s\n", declared_x,
-               declared_y, w, h, flip.name);
+        printf("touch: declared %dx%d, mapping %dx%d, scale %.3fx%.3f, flip %s\n",
+               declared_x, declared_y, w, h, flip.scale_x, flip.scale_y,
+               flip.name);
     }
     if (!touch)
         fprintf(stderr, "no touch on %s: the desk will only show\n", touch_device);
