@@ -8,6 +8,13 @@
 
 ### 2026-10
 
+- [x] 2026-10-19 — **Request channel after an idle supplicant restart:** v0.1.3 redials
+  only when an abandon left no socket; a daemon restarting while nothing is
+  pending leaves the socket connected to the dead peer, `wpa_ctrl_begin`'s
+  send fails and neither caller abandons, so every later request fails.
+  - Result: wpa_ctrl_begin abandons and sends once more when its send fails; a daemon still gone fails at once and the next request dials again. wpa_ctrl_test restarts the fake with nothing pending.
+  - Evidence: tools/test-dmx-desk-host.sh exit 0, 45/45 PASS on macOS and 45/45 on Linux (taq102 OrbStack, gcc 15.2 + ASan); the new wpa_ctrl_test block aborts at line 271 (exit 134) on both with the v0.1.3 wpa_ctrl_begin.c.
+
 - [x] 2026-10-19 — **Release:** v0.1.3: tiles wear their map icon, Fijo
   only over a toggle, the request channel redials, flip endpoints fixed.
   - Result: the map's per-control `icon` drawn as 22 vector marks on 111

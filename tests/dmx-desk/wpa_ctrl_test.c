@@ -251,6 +251,28 @@ int main(void) {
     assert(request.fd >= 0 && poll(&request, 1, 300) == 1);
     assert(wpa_ctrl_reply(c, buf, sizeof buf) == 1 && strcmp(buf, "PONG\n") == 0);
     assert(ask(c, "PING", buf, sizeof buf) == 5 && strcmp(buf, "PONG\n") == 0);
+    // The daemon restarting while nothing is pending (2026-10-19 review): no
+    // abandon runs, so the socket is still connected to the dead peer and
+    // its send fails. The begin that meets that failure redials once and
+    // the request goes through to the new daemon.
+    kill(helper, 9);
+    waitpid(helper, NULL, 0);
+    close(k.fd);
+    unlink(k.path);
+    fake_open(&k);
+    helper = fork();
+    assert(helper >= 0);
+    if (helper == 0) {
+        alarm(30);
+        for (;;)
+            fake_service(&k, NULL);
+        _exit(0);
+    }
+    assert(wpa_ctrl_begin(c, "PING") == 0);
+    request.fd = wpa_ctrl_request_fd(c);
+    assert(request.fd >= 0 && poll(&request, 1, 300) == 1);
+    assert(wpa_ctrl_reply(c, buf, sizeof buf) == 1 && strcmp(buf, "PONG\n") == 0);
+    assert(ask(c, "PING", buf, sizeof buf) == 5 && strcmp(buf, "PONG\n") == 0);
     wpa_ctrl_close(c);
     kill(helper, 9);
     waitpid(helper, NULL, 0);

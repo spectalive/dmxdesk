@@ -18,8 +18,15 @@ int wpa_ctrl_begin(struct wpa_ctrl *c, const char *cmd) {
         return -1;
     }
     size_t len = strlen(cmd);
-    if (send(c->fd, cmd, len, 0) != (ssize_t)len)
-        return -1;
+    if (send(c->fd, cmd, len, 0) != (ssize_t)len) {
+        // A daemon that restarted while nothing was pending leaves the socket
+        // connected to its dead predecessor, so every send fails until it is
+        // dialled again. One fresh dial, one more send; a daemon still gone
+        // fails here and the next request dials again.
+        wpa_ctrl_abandon(c);
+        if (c->fd < 0 || send(c->fd, cmd, len, 0) != (ssize_t)len)
+            return -1;
+    }
     c->pending = 1;
     return 0;
 }
