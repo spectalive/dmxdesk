@@ -53,15 +53,16 @@ int main(void) {
     // Equal label demand gives deterministic rounding, including the last pixel.
     layout.headings = 0;
     layout.banks[0] = 6;
-    const int starts[] = {16, 155, 294, 434, 573, 712};
-    const int widths[] = {131, 131, 132, 131, 131, 132};
+    int right = DESK_CONTENT_X - DESK_GAP;
     for (int i = 0; i < 6; i++) {
         struct desk_rect r = desk_view_pager(i, &layout, 0);
-        assert(r.x == starts[i] && r.w == widths[i]);
+        assert(r.x == right + DESK_GAP && r.w >= 138 && r.w <= 139);
+        right = r.x + r.w;
     }
+    assert(right == DESK_CONTENT_X + DESK_CONTENT_W);
     layout.banks[0] = 2;
-    assert(desk_view_pager(0, &layout, 0).w == 410);
-    assert(desk_view_pager(1, &layout, 0).x == 434);
+    assert(desk_view_pager(0, &layout, 0).w == 432);
+    assert(desk_view_pager(1, &layout, 0).x == 456);
     layout.headings = 2;
     strcpy(layout.heading[0].text, "Corto");
     strcpy(layout.heading[1].text, "Barridos de intensidad");

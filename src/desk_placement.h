@@ -13,7 +13,7 @@ enum desk_tile {
     TILE_COMPACT,   // 128x64, a small button
     TILE_HAZE,      // 200x64, an ambient rhythm
     TILE_HOLD,      // 128x104, a hit: held on the Mac, or fired while held here
-    TILE_STATE,     // 84x104, one of the room's states in SALA AHORA
+    TILE_STATE,     // one of the room states in the current-status view
     TILE_FOG,       // a fog hold in GOLPES, the hold look in teal
     TILE_SEGMENT,   // one equal option of HUMO AMBIENTE, 48 tall
     TILE_MINI,      // a rig colour in COLOR DEL RIG: the colour, no words

@@ -21,10 +21,10 @@ int desk_show_compose(const struct show_map *map, int page, int haze_off, int te
     const struct map_section *haze = desk_show_section(map, live, "haze");
     const struct map_section *accents = desk_show_section(map, live, "accents");
 
-    // SALA AHORA: the hero, and the states in one row of equal tiles under
+    // Current status: the hero, and the states in one row of equal tiles under
     // it; a state that would leave the others narrower than a finger is not laid.
     if (states) {
-        if (desk_show_panel(out, page, DESK_HERO_X, DESK_HERO_Y, DESK_HERO_W, DESK_HERO_H, "SALA AHORA",
+        if (desk_show_panel(out, page, DESK_HERO_X, DESK_HERO_Y, DESK_HERO_W, DESK_HERO_H, "ESTADO ACTUAL",
                             (int)(states - map->page[live].section), DESK_PANEL_ROOM) != 0)
             return -1;
         int fit = (DESK_HERO_W + DESK_STATE_GAP) / (STATE_MIN_W + DESK_STATE_GAP);

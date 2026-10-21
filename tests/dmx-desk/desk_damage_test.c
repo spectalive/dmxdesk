@@ -82,6 +82,17 @@ int main(void) {
     desk_apply_function(&m, haze_function, 1);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
     assert(x <= off->x && y <= off->y && x + w >= off->x + off->w && y + h >= off->y + off->h);
+    // 2026-10-21: the selected rhythm stays selected when tapped again.
+    int running_haze_ix = -1;
+    for (int i = 0; i < m.count; i++)
+        if (m.control[i].function_id == haze_function && m.control[i].role == MAP_ROLE_HAZE)
+            running_haze_ix = i;
+    assert(running_haze_ix >= 0);
+    const struct desk_placement *running_haze = desk_placement_of(&m, running_haze_ix);
+    desk_touch_down(&m, 0, running_haze->x + 2, running_haze->y + 2, NULL);
+    struct desk_action repeat_haze = desk_touch_up(&m, 0, running_haze->x + 2, running_haze->y + 2);
+    assert(repeat_haze.kind == DESK_ACT_NONE && m.control[running_haze_ix].state == DESK_ON);
+    desk_take_damage(&m, &x, &y, &w, &h);
     desk_touch_down(&m, 0, off->x + off->w / 2, off->y + off->h / 2, NULL);
     struct desk_action off_action = desk_touch_up(&m, 0, off->x + off->w / 2,
                                                   off->y + off->h / 2);
@@ -109,6 +120,10 @@ int main(void) {
     desk_note_sent(&m, haze_widget, 1000);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
     assert(x <= off->x && y <= off->y && x + w >= off->x + off->w && y + h >= off->y + off->h);
+    desk_tick(&m, 1000 + DESK_PENDING_MS + 1);
+    assert(m.control[haze_ix].state == DESK_UNKNOWN && !m.control[haze_ix].pending);
+    assert(desk_touch_down(&m, 0, haze->x + 2, haze->y + 2, NULL).kind == DESK_ACT_NONE);
+    assert(desk_touch_up(&m, 0, haze->x + 2, haze->y + 2).kind == DESK_ACT_NONE);
     desk_touch_down(&m, 0, off->x + 2, off->y + 2, NULL);
     off_action = desk_touch_up(&m, 0, off->x + 2, off->y + 2);
     assert(off_action.kind == DESK_ACT_HAZE_OFF && off_action.widget_id == haze_function);
@@ -134,9 +149,12 @@ int main(void) {
     assert(action.kind == DESK_ACT_NONE);
     action = desk_touch_up(&m, 0, rig->x + 2, rig->y + 2);
     assert(action.kind == DESK_ACT_TOGGLE && action.widget_id == m.control[rig_ix].widget_id);
+    desk_take_damage(&m, &x, &y, &w, &h);
     desk_touch_down(&m, 0, mode->x + 2, mode->y + 2, NULL);
     action = desk_touch_up(&m, 0, mode->x + 2, mode->y + 2);
     assert(action.kind == DESK_ACT_NONE && m.color_one_shot && m.control[mode_ix].state == DESK_ON);
+    assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
+    assert(x <= rig->x && y <= rig->y && x + w >= rig->x + rig->w && y + h >= rig->y + rig->h);
     desk_touch_down(&m, 0, rig->x + 2, rig->y + 2, NULL);
     action = desk_touch_up(&m, 0, rig->x + 2, rig->y + 2);
     assert(action.kind == DESK_ACT_TOGGLE && action.widget_id == hit_widget);

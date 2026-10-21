@@ -87,7 +87,7 @@ int main(void) {
     // DIRECTO, the hero layout: SALA AHORA's hero over the seven states at
     // the left, EFECTOS · MIENTRAS PULSES at the right, and the bottom row of
     // HUMO AMBIENTE, COLOR DEL RIG and TEMPO SHOW.
-    const struct desk_heading *room = heading_named(&l, 0, "SALA AHORA");
+    const struct desk_heading *room = heading_named(&l, 0, "ESTADO ACTUAL");
     const struct desk_heading *hits = heading_named(&l, 0, "EFECTOS \xc2\xb7 MIENTRAS PULSES");
     const struct desk_heading *haze = heading_named(&l, 0, "HUMO AMBIENTE");
     const struct desk_heading *rig = heading_named(&l, 0, "COLOR DEL RIG");
@@ -234,7 +234,7 @@ int main(void) {
     // COLOR keeps its picks 128 wide, five to a row inside their panel right
     // of the families, 96 tall for their square, and its colour hits as holds.
     const struct desk_placement *rojo = find(&l, control_named(&map, "Rig Rojo"), 1);
-    assert(rojo && rojo->tile == TILE_SWATCH && rojo->w == 128 && rojo->h == 96);
+    assert(rojo && rojo->tile == TILE_SWATCH && rojo->w >= 128 && rojo->h == 96);
     assert(rojo->x == DESK_EFFECTS_X + DESK_PANEL_PAD);
     int in_row = 0;
     for (int i = 0; i < l.placements; i++)

@@ -104,7 +104,7 @@ int main(void) {
     assert(strcmp(auto_ctl->caption, "AUTO") == 0 && auto_ctl->widget_id == map_int(json, "controls", "auto", "widget") &&
            auto_ctl->function_id == map_int(json, "controls", "auto", "function") && auto_ctl->role == MAP_ROLE_STATE &&
            auto_ctl->solo_id == 3 && auto_ctl->page == 0 && auto_ctl->section == 0);
-    assert(strcmp(auto_ctl->detail, "el show se lleva solo") == 0);
+    assert(strcmp(auto_ctl->detail, "secuencia automática") == 0);
     const struct map_section *accents = NULL;
     for (int i = 0; i < map.page[0].sections; i++)
         if (strcmp(map.page[0].section[i].key, "accents") == 0)
@@ -181,14 +181,14 @@ int main(void) {
     assert(a && a->enabled && a->widget_id == auto_ctl->widget_id && a->function_id == auto_ctl->function_id);
     int auto_ix = (int)(a - model.control);
     const struct desk_placement *ap = desk_placement_of(&model, auto_ix);
-    // AUTO opens the row of states under SALA AHORA's hero.
+    // AUTO opens the row of states above the current-status hero.
     assert(ap && ap->tile == TILE_STATE && ap->h == DESK_STATE_H && ap->y == DESK_STATE_Y);
     assert(ap->x == DESK_HERO_X);
     // Every hit is a burst the master bounds, fog included.
     const struct desk_control *flash = by_label(&model, "FLASH");
     assert(flash && flash->enabled && flash->kind == DESK_BURST && flash->burst_ms == 8000);
     const struct desk_control *fog = by_label(&model, "HUMO YA");
-    assert(fog && fog->enabled && fog->kind == DESK_BURST && fog->burst_ms == 3000);
+    assert(fog && fog->enabled && fog->kind == DESK_BURST && fog->burst_ms == 5000);
     const struct desk_control *rojo = by_label(&model, "Rig Rojo");
     assert(rojo && rojo->enabled && rojo->swatches == 1);
     const struct desk_placement *rmini = desk_placement_of(&model, (int)(rojo - model.control));

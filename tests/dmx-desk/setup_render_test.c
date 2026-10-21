@@ -76,7 +76,7 @@ int main(void) {
     desk_setup_paint(&canvas, &s, &fonts);
     save(&canvas, "setup.ppm");
     // The master column is untouched; the sheet is painted.
-    assert(canvas.px[100 * DESK_W + 900] == sentinel);
+    assert(canvas.px[100 * DESK_W + 920] == sentinel);
     assert(canvas.px[100 * DESK_W + 200] != sentinel);
     assert(canvas.px[20 * DESK_W + 200] == sentinel);   // the status bar is the caller's
 

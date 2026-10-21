@@ -1,6 +1,5 @@
-// SALA AHORA, DIRECTO's hero: a status dot and the heading, then the name of
-// the state the master says runs, as large as it fits, its detail under it,
-// and at the right its picture (the state's mark large over its colours).
+// DIRECTO's status panel: a link dot, the active state, and live effect,
+// smoke and rig-colour summaries from the master's confirmed function state.
 // While a state runs the panel is the deep indigo hero fill inside an accent
 // hairline; otherwise it is a plain panel and the name is muted: "?" while
 // the master has not said, or while there is no master to say; a dash when

@@ -41,8 +41,10 @@ void desk_paint_hold(struct canvas *c, const struct desk_control *ctl, const str
     uint32_t ink = running ? DESK_ACCENT_INK : armed ? DESK_INK : DESK_MUTED;
     uint32_t mark_ink = running ? DESK_ACCENT_INK : armed ? tone : DESK_LINE;
     if (p->h < 100 && p->w < 2 * p->h) {
+        char limit[24];
+        snprintf(limit, sizeof limit, "MANTENER · %d s", (ctl->burst_ms + 500) / 1000);
         const char *foot = unresolved ? "sin confirmar" : capped ? "suelta" :
-                           live ? PILL : "solo en el Mac";
+                           live ? ctl->kind == DESK_BURST ? limit : PILL : "solo en el Mac";
         int glyph = icon_glyph(ctl->icon);
         enum icon_id mark = glyph >= 0 ? (enum icon_id)glyph : ICON_BOLT;
         icon_paint(c, mark, p->x + 8, p->y + 14, armed ? tone : DESK_LINE);

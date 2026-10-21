@@ -202,7 +202,8 @@ struct desk_action desk_touch_down(struct desk_model *m, int slot, int x, int y,
         return none();
     // A cue whose frame is out waits for the master's word: a second tap
     // now would be a second toggle.
-    if (c->kind == DESK_CUE && c->pending)
+    if (c->kind == DESK_CUE && (c->pending ||
+        (c->role == MAP_ROLE_HAZE && c->state == DESK_UNKNOWN)))
         return none();
     if (m->capture_slot != NO_CAPTURE) {
         // Another finger is busy: only the panic button takes a second one.
@@ -298,6 +299,11 @@ struct desk_action desk_touch_up(struct desk_model *m, int slot, int x, int y) {
         m->color_one_shot = !m->color_one_shot;
         c->state = m->color_one_shot ? DESK_ON : DESK_OFF;
         damage_control(m, (int)(c - m->control));
+        for (int i = 0; i < m->layout.placements; i++) {
+            const struct desk_placement *swatch = &m->layout.placement[i];
+            if (swatch->page == m->page && swatch->bank == m->bank && swatch->tile == TILE_MINI)
+                desk_damage_rect(m, swatch->x, swatch->y, swatch->w, swatch->h);
+        }
         return none();
     }
     // Ambient OFF is an idempotent stop. A just-tapped rhythm may not have
@@ -320,6 +326,10 @@ struct desk_action desk_touch_up(struct desk_model *m, int slot, int x, int y) {
     // master's own push is what lights it. The panic button is the same
     // shape of gesture, a completed tap, with nothing to light afterwards.
     int widget = c->widget_id;
+    // The dedicated OFF segment owns stopping ambient haze. Re-selecting the
+    // current rhythm must not toggle it off behind the operator's finger.
+    if (c->kind == DESK_CUE && c->role == MAP_ROLE_HAZE && c->state == DESK_ON)
+        return none();
     if (c->kind == DESK_CUE && c->role == MAP_ROLE_HAZE)
         m->last_haze_function = c->function_id;
     if (c->kind == DESK_CUE && m->color_one_shot && c->shot_widget_id >= 0)
@@ -388,6 +398,8 @@ void desk_tick(struct desk_model *m, int64_t now_ms) {
         struct desk_control *c = &m->control[i];
         if (c->pending && now_ms - c->pending_since > DESK_PENDING_MS) {
             c->pending = 0;
+            if (c->role == MAP_ROLE_HAZE)
+                c->state = DESK_UNKNOWN;
             damage_control(m, i);
             desk_damage_running(m, i);
         }

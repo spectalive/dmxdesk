@@ -35,8 +35,7 @@ int main(void) {
     // The glyph fallback measures too.
     assert(desk_caption_fit(NULL, 60, "ABC DEF", &l) == 2 && !l.cut);
     assert(desk_caption_fit(tile, 186, "", &l) == 0);
-    // SALA AHORA's "no state runs" dash is drawn, not the '?' fallback: on
-    // the tablet (2026-10-19) an idle room read as unknown.
+    // The fallback font distinguishes an idle dash from an unknown state.
     assert(font_width(tile, "\xe2\x80\x94") != font_width(tile, "?"));
 
     // The show's own captions: no state caption is ever cut at its width;

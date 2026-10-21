@@ -121,6 +121,7 @@ desk_panel_holds.c
 desk_panel_running.c
 desk_rig_name.c
 desk_paint_room.c
+desk_paint_room_status.c
 desk_paint_text_at.c
 desk_speed_target_rect.c
 desk_pick_numbered.c

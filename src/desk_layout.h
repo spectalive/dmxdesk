@@ -30,17 +30,17 @@
 
 // The content and the master column.
 #define DESK_CONTENT_X 16
-#define DESK_CONTENT_W 828
+#define DESK_CONTENT_W 872
 #define DESK_CONTENT_Y 56
 #define DESK_CONTENT_END 584
-#define DESK_MASTER_X 860
-#define DESK_MASTER_W 148
-#define DESK_MASTER_TILE_X (DESK_MASTER_X + 12)
+#define DESK_MASTER_X 904
+#define DESK_MASTER_W 104
+#define DESK_MASTER_TILE_X (DESK_MASTER_X + 4)
 #define DESK_MASTER_TILE_Y 56
-#define DESK_MASTER_TILE_W 124
-#define DESK_MASTER_TILE_H 252
-#define DESK_PANIC_Y 320
-#define DESK_PANIC_H 88
+#define DESK_MASTER_TILE_W 96
+#define DESK_MASTER_TILE_H 372
+#define DESK_PANIC_Y 440
+#define DESK_PANIC_H 144
 
 // EFECTOS: one target per family down the left, at most 64 tall, and the
 // family's page in what is left of the content.
@@ -127,7 +127,7 @@
 #define DESK_SELECTED_TOP  0xFF7A808Cu   // the glass's lit top edge
 #define DESK_ACCENT     0xFF7C86D9u   // calm indigo: the selection bar and small marks
 #define DESK_ACCENT_INK 0xFFFFFFFFu   // words on the selected look and on the hero
-#define DESK_HERO_FILL  0xFF2E3A7Eu   // SALA AHORA while a state runs
+#define DESK_HERO_FILL  0xFF2E3A7Eu   // Current status while a state runs
 #define DESK_HERO_SOFT  0xFFD6DAF8u   // the hero's quieter line (7:1 on its fill)
 #define DESK_OK         0xFF3EE0AAu   // the link dot when the master answers
 #define DESK_WARN       0xFFD42A2Au   // PARAR TODO and warnings

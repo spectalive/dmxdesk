@@ -24,7 +24,9 @@ void desk_damage_running(struct desk_model *m, int control) {
         const struct desk_heading *h = &m->layout.heading[i];
         if (h->page != m->page || h->bank != m->bank || h->h <= 0)
             continue;
-        int speaks = h->kind == DESK_PANEL_ROOM && state;
+        int speaks = h->kind == DESK_PANEL_ROOM &&
+                     (state || c->role == MAP_ROLE_BURST || c->role == MAP_ROLE_HAZE ||
+                      (c->kind == DESK_CUE && c->swatches > 0));
         for (int k = 0; k < m->layout.placements && !speaks; k++)
             speaks = h->kind == DESK_PANEL_NAMES_RUNNING && m->layout.placement[k].control == control &&
                      desk_panel_holds(h, &m->layout.placement[k]);

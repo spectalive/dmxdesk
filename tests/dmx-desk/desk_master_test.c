@@ -1,4 +1,4 @@
-// SOURCES: desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_text_at.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c desk_caption_number.c desk_trajectory_of.c desk_damage_running.c desk_paint_hold.c desk_paint_selected.c desk_paint_selected_mark.c icon_paint_mid.c desk_paint_room_picture.c icon_paint_hero.c
+// SOURCES: desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_room_status.c desk_paint_text_at.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c desk_caption_number.c desk_trajectory_of.c desk_damage_running.c desk_paint_hold.c desk_paint_selected.c desk_paint_selected_mark.c icon_paint_mid.c desk_paint_room_picture.c icon_paint_hero.c
 // The master is unknown until the master speaks, a drag moves only what the
 // desk asked for, and a finger on a tile never repaints what the show said.
 #include <assert.h>
@@ -7,6 +7,7 @@
 #include <string.h>
 #include "canvas.h"
 #include "desk_layout.h"
+#include "desk_master_metrics.h"
 #include "desk_model.h"
 #include "desk_master_track.h"
 #include "desk_paint.h"
@@ -61,8 +62,9 @@ int main(void) {
     desk_apply_master(&m, 128);
     assert(m.control[im].level == 128 && m.control[im].requested_level == 128);
     desk_paint(&c, &m, &fonts);
-    int half = count(&c, mp->x, mp->y, mp->w, mp->h, DESK_RAISED);
-    assert(half > mp->w * mp->h / 8 && half < mp->w * mp->h * 3 / 4);
+    int half = count(&c, mp->x, mp->y, mp->w, mp->h, DESK_INK);
+    assert(half > mp->w * DESK_MASTER_THUMB_H / 2);
+    assert(count(&c, mp->x, mp->y, mp->w, mp->h, DESK_RAISED) == 0);
 
     // A drag moves the requested level and the action, never the confirmed one.
     struct desk_action a = desk_touch_down(&m, 0, mp->x + 10, mp->y + mp->h - 1, &track);
@@ -71,8 +73,8 @@ int main(void) {
     a = desk_touch_move(&m, 0, mp->x + 10, mp->y, &track);
     assert(a.kind == DESK_ACT_MASTER && a.value == 255 && m.control[im].level == 128);
     desk_paint(&c, &m, &fonts);
-    int during = count(&c, mp->x, mp->y, mp->w, mp->h, DESK_RAISED);
-    assert(during <= half && during > half * 9 / 10);    // the fill did not move
+    int during = count(&c, mp->x, mp->y, mp->w, mp->h, DESK_INK);
+    assert(during <= half && during > half * 9 / 10);    // the confirmed thumb did not move
     // A push while the finger is down does not yank the request.
     desk_apply_master(&m, 140);
     assert(m.control[im].level == 140 && m.control[im].requested_level == 255);
@@ -81,7 +83,7 @@ int main(void) {
     desk_apply_master(&m, 255);
     assert(m.control[im].requested_level == 255);
     desk_paint(&c, &m, &fonts);
-    assert(count(&c, mp->x, mp->y, mp->w, mp->h, DESK_RAISED) > half);
+    assert(count(&c, mp->x, mp->y, mp->w, mp->h, DESK_RAISED) == 0);
 
     // A pressed cue keeps its fill: a running cue keeps the selected fill
     // under the finger, and the outline is ink.

@@ -1,4 +1,4 @@
-// SOURCES: desk_model.c desk_master_level_at.c desk_master_track.c desk_paint.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_text_at.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_paint_hold.c desk_paint_selected.c desk_paint_selected_mark.c icon_paint_mid.c desk_paint_room_picture.c icon_paint_hero.c
+// SOURCES: desk_model.c desk_master_level_at.c desk_master_track.c desk_paint.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_room_status.c desk_paint_text_at.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_paint_hold.c desk_paint_selected.c desk_paint_selected_mark.c icon_paint_mid.c desk_paint_room_picture.c icon_paint_hero.c
 // The production placement and loaded font must agree with both touch and paint.
 #include <assert.h>
 #include <stdio.h>
@@ -35,20 +35,20 @@ int main(void) {
         desk_set_layout(&m, &layout);
         desk_set_link(&m, DESK_LINK_READY);
         const struct desk_placement *p = desk_placement_of(&m, im);
-        assert(p && p->y == 56 && p->h == 252);
+        assert(p && p->y == 56 && p->h == 372);
         struct desk_rect track = desk_master_track(p, fonts->value);
         int value_h = fonts->value ? font_height(fonts->value) : 15;
-        // Pin the old drawn rectangle independently of the extracted helper.
-        assert(track.x == 888 && track.w == 92);
+        // Pin the drawn rectangle independently of the extracted helper.
+        assert(track.x == 924 && track.w == 64);
         assert(track.y == 56 + 30 + value_h + 8 + 12);
-        assert(track.y + track.h == 292);
+        assert(track.y + track.h == 412);
         int x = p->x + p->w / 2;
         int top = track.y + 12, bottom = track.y + track.h - 12;
         printf("master %s: text_h=%d, track=(%d,%d,%d,%d), centre travel=%d..%d\n",
                fallback ? "fallback" : "Inter", value_h, track.x, track.y,
                track.w, track.h, top, bottom);
 
-        // The track still paints at its old bounds, with nothing moved above it.
+        // The track paints within the narrower master, with nothing above it moved.
         desk_paint(&c, &m, fonts);
         assert(c.px[(track.y - 1) * c.w + x] == DESK_TILE);
         assert(c.px[track.y * c.w + x] == DESK_GLASS);

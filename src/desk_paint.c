@@ -354,6 +354,8 @@ static void paint_segment(struct canvas *c, const struct desk_control *ctl,
     uint32_t ink = on ? DESK_ACCENT_INK : DESK_INK;
     if (!ctl->enabled || link != DESK_LINK_READY)
         ink = DESK_MUTED;
+    if (ctl->kind == DESK_CUE && ctl->state == DESK_UNKNOWN && !ctl->pending)
+        centred(c, fonts->small, r.x, r.y + r.h - 18, r.w, 14, "?", DESK_MUTED);
     // The rhythm's mark beside its words, when both fit across the segment.
     int mark = icon_glyph(ctl->icon);
     int words = text_w(fonts->tile_s, ctl->label);
@@ -369,24 +371,19 @@ static void paint_segment(struct canvas *c, const struct desk_control *ctl,
     pending_mark(c, ctl, r);
 }
 
-// A rig colour in COLOR DEL RIG: the colour itself, no words; the panel's
-// heading names the one running. Running, a ring in the selected line goes
-// round it with the panel showing between, so the colour stays whole; a
-// finger draws the same ring in ink. While it cannot be chosen it dims.
+// A rig colour keeps a thin selected outline and a check badge. In hit mode
+// every swatch carries a bolt, including white and pale colours.
 static void paint_mini(struct canvas *c, const struct desk_control *ctl,
-                       const struct desk_placement *p, enum desk_link link) {
+                       const struct desk_placement *p, enum desk_link link, int one_shot) {
     struct rect r = of(p);
     int on = ctl->state == DESK_ON && ctl->enabled;
     uint32_t colour = ctl->swatches ? ctl->swatch[0] : DESK_TILE;
     if (!ctl->enabled || link != DESK_LINK_READY)
         colour = desk_colour_dim(colour);
-    int inset = 0;
-    if (on || ctl->pressed) {
-        canvas_blend_round_rect(c, r.x, r.y, r.w, r.h, 10, ctl->pressed ? DESK_INK : DESK_SELECTED_LINE);
-        canvas_blend_round_rect(c, r.x + BORDER, r.y + BORDER, r.w - 2 * BORDER, r.h - 2 * BORDER,
-                          10 - BORDER, DESK_PANEL);
-        inset = 2 * BORDER;
-    }
+    int inset = on || ctl->pressed ? 3 : 0;
+    if (inset)
+        canvas_blend_round_rect(c, r.x, r.y, r.w, r.h, 10,
+                                ctl->pressed ? DESK_INK : DESK_ACCENT);
     // Black and near-black need a keyline to exist on the panel.
     int brightest = (int)(colour >> 16 & 0xFF);
     if ((int)(colour >> 8 & 0xFF) > brightest)
@@ -395,6 +392,16 @@ static void paint_mini(struct canvas *c, const struct desk_control *ctl,
         brightest = (int)(colour & 0xFF);
     uint32_t line = brightest < 0x30 ? DESK_LINE : colour;
     desk_paint_keyline(c, r.x + inset, r.y + inset, r.w - 2 * inset, r.h - 2 * inset, 8, colour, line);
+    if (one_shot) {
+        int badge_x = r.x + r.w - 29, badge_y = r.y + 5;
+        canvas_blend_round_rect(c, badge_x, badge_y, 24, 24, 8, DESK_GLASS);
+        icon_paint(c, ICON_BOLT, badge_x, badge_y, DESK_INK);
+    }
+    if (on) {
+        int badge_x = r.x + 5, badge_y = r.y + r.h - 29;
+        canvas_blend_round_rect(c, badge_x, badge_y, 24, 24, 8, DESK_GLASS);
+        icon_paint(c, ICON_CHECK, badge_x, badge_y, DESK_INK);
+    }
     pending_mark(c, ctl, r);
 }
 
@@ -436,8 +443,7 @@ static void paint_compact(struct canvas *c, const struct desk_control *ctl,
     pending_mark(c, ctl, r);
 }
 
-// The master: a dark track, the level as a restrained fill, an ink thumb
-// where the level is, the readout on its own backing. The accent is not a level.
+// The master: a dark track, one thumb for the confirmed level, and a readout.
 static void paint_master(struct canvas *c, const struct desk_control *ctl,
                          const struct desk_placement *p, const struct desk_fonts *fonts,
                          enum desk_link link) {
@@ -445,8 +451,7 @@ static void paint_master(struct canvas *c, const struct desk_control *ctl,
     desk_paint_keyline(c, r.x, r.y, r.w, r.h, DESK_RADIUS, DESK_TILE, DESK_LINE);
     int live = link == DESK_LINK_READY;
     int known = ctl->state != DESK_UNKNOWN;
-    // The readout above the travel, never under the thumb; the thumb a grip
-    // of 24 px; the request marker ink, since the accent is not a level.
+    // The readout stays above the travel, never under the 24 px thumb.
     char text[16];
     if (live && known)
         snprintf(text, sizeof text, "%d%%", ctl->level * 100 / 255);
@@ -459,23 +464,11 @@ static void paint_master(struct canvas *c, const struct desk_control *ctl,
     int track_y = track.y, track_h = track.h;
     canvas_blend_round_rect(c, track.x, track_y, track.w, track_h, 8, DESK_GLASS);
     if (known) {
-        int fill_h = ctl->level * track_h / 255;
-        if (fill_h > 0)
-            canvas_blend_round_rect(c, track.x, track_y + track_h - fill_h, track.w, fill_h, 8,
-                              live ? DESK_RAISED : DESK_LINE);
-        // The grip follows its own travel, matching the input inverse; the
-        // track and fill retain their existing bounds.
+        // The grip follows its own travel, matching the input inverse.
         int travel = track_h - DESK_MASTER_THUMB_H;
         int thumb_y = track_y + ((255 - ctl->level) * travel + 127) / 255;
         canvas_blend_round_rect(c, r.x + 12, thumb_y, r.w - 24, DESK_MASTER_THUMB_H, 8,
                           live ? DESK_INK : DESK_MUTED);
-        canvas_fill_rect(c, r.x + r.w / 2 - 12, thumb_y + 11, 24, 2, DESK_GLASS);
-    }
-    if (ctl->pressed) {
-        int span = track_h - DESK_MASTER_THUMB_H;
-        int mark_y = track_y + DESK_MASTER_THUMB_H / 2
-                   + ((255 - ctl->requested_level) * span + 127) / 255;
-        canvas_fill_rect(c, r.x + 8, mark_y - 1, r.w - 16, BORDER, DESK_INK);
     }
 }
 
@@ -721,7 +714,7 @@ void desk_paint(struct canvas *canvas, const struct desk_model *model,
         case TILE_FOG:     desk_paint_hold(canvas, ctl, p, fonts, model->link); break;
         case TILE_STATE:   paint_state(canvas, ctl, p, fonts, model->link); break;
         case TILE_SEGMENT: paint_segment(canvas, ctl, p, fonts, model->link, none_running); break;
-        case TILE_MINI:    paint_mini(canvas, ctl, p, model->link); break;
+        case TILE_MINI:    paint_mini(canvas, ctl, p, model->link, model->color_one_shot); break;
         case TILE_TEMPO:   paint_tempo_frame(canvas, ctl, p, fonts); break;
         case TILE_COMPACT: paint_compact(canvas, ctl, p, fonts, model->link); break;
         default:           paint_cue(canvas, ctl, p, fonts, model->link); break;

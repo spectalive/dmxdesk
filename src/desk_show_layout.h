@@ -1,4 +1,4 @@
-// DIRECTO puts the mode buttons and tempo first. A compact SALA AHORA card
+// DIRECTO puts the mode buttons and tempo first. A compact current-status card
 // sits over the rig colours on the left; effects and timed ambient haze fill
 // the right. The rig panel includes a local colour-hit switch. Every control comes
 // from the map's LIVE page and COLOR's

@@ -6,7 +6,7 @@
 #include "desk_caption.h"
 #include "desk_layout.h"
 #include "desk_paint_keyline.h"
-#include "desk_paint_room_picture.h"
+#include "desk_paint_room_status.h"
 #include "desk_paint_text_at.h"
 #include "desk_text_upper.h"
 
@@ -15,7 +15,7 @@ static int height_of(struct font *f) { return f ? font_height(f) : 15; }
 
 #define INSET 24
 #define DOT 8
-#define PICTURE_W 136
+#define STATUS_W 214
 
 void desk_paint_room(struct canvas *c, const struct desk_model *m, const struct desk_heading *h,
                      const struct desk_fonts *fonts) {
@@ -48,18 +48,15 @@ void desk_paint_room(struct canvas *c, const struct desk_model *m, const struct 
     desk_text_upper(cap, sizeof cap, h->text);
     desk_paint_text_at(c, fonts->section, hx + DOT + 8, hy, h->w - 2 * INSET - DOT - 8, cap,
                        on ? DESK_HERO_SOFT : DESK_MUTED);
-    int right = h->x + h->w - INSET;
-    if (on && h->h >= 160) {
-        desk_paint_room_picture(c, on, right - PICTURE_W, h->y + 24, PICTURE_W, h->h - 48);
-        right -= PICTURE_W + 16;
-    }
+    int right = h->x + h->w - INSET - STATUS_W - 16;
+    desk_paint_room_status(c, m, right + 16, h->y + 25, STATUS_W, fonts);
     int x = h->x + INSET, w = right - x;
     if (w <= 0)
         return;
     // A bare dash left the largest panel on the desk looking broken
     // (2026-10-19), so an idle room says so and where to choose one.
     int idle = !on && !unknown;
-    const char *name = on ? on->label : unknown ? "?" : "Sin estado";
+    const char *name = on ? on->label : unknown ? "?" : "Sin escena activa";
     // The largest face the name keeps to one line in, then the tempo's, then
     // the readout face on two lines, then the tile face.
     struct desk_caption_lines lines = { .lines = 1 };
@@ -79,7 +76,7 @@ void desk_paint_room(struct canvas *c, const struct desk_model *m, const struct 
     if (lines.lines == 1)
         snprintf(lines.line[0], sizeof lines.line[0], "%s", name);
     // The detail in the readout face while it fits, else the tile face.
-    const char *detail = on ? on->detail : idle ? "elige uno abajo" : "";
+    const char *detail = on ? on->detail : idle ? "Selecciona un modo" : "";
     struct font *quiet = h->h < 160 ? fonts->tile :
                          width_of(fonts->value, detail) <= w ? fonts->value : fonts->tile;
     int top = hy + height_of(fonts->section) + 8, bottom = h->y + h->h - INSET;

@@ -1,12 +1,12 @@
 // The settings surface's rectangles: two cards, a footer with the brightness
 // fader and the power-aware toggle, and the confirmation sheet. The surface
-// covers the rail and the content (0..844); the master column stays.
+// covers the rail and the content (0..904); the master column stays.
 #ifndef DESK_SETUP_LAYOUT_H
 #define DESK_SETUP_LAYOUT_H
 
 #define SETUP_SHEET_X 0
 #define SETUP_SHEET_Y 48
-#define SETUP_SHEET_W 844
+#define SETUP_SHEET_W 904
 #define SETUP_SHEET_H 552
 
 #define SETUP_HEADER_Y 56
