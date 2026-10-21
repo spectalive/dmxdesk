@@ -287,21 +287,35 @@ int main(void) {
     assert(desk_tab_page(&model, DESK_TAB_EFECTOS) == 3);
     desk_set_view(&model, 0, 0);
 
-    // And the same screen with the link down, which is what a gig sees when
-    // the Wi-Fi goes.
-    desk_set_link(&model, DESK_LINK_DOWN);
+    // A brief Wi-Fi loss changes the status bar without covering any cue.
+    desk_set_link(&model, DESK_LINK_CONNECTING);
     desk_speed_set_link(&speed, 0, 0);
     desk_paint(&canvas, &model, &fonts);
     desk_speed_paint_tempo(&canvas, &speed, 0, &fonts, tempo->x, tempo->y, tempo->w, tempo->h, 0);
+    uint32_t hero_before_overlay =
+        canvas.px[(DESK_HERO_Y + DESK_HERO_H / 2) * canvas.w + DESK_HERO_X + 8];
     desk_paint_overlays(&canvas, &model, &fonts);
-    // A lost master gets a foreground card; the mode row remains visible.
-    assert(canvas.px[70 * canvas.w + 200] != DESK_WARN);
-    assert(canvas.px[260 * canvas.w + 265] == DESK_WARN);
+    assert(canvas.px[(DESK_BAR_H / 2) * canvas.w + DESK_LINK_DOT_X + DESK_LINK_DOT / 2]
+           == DESK_WARN);
+    assert(canvas.px[(DESK_HERO_Y + DESK_HERO_H / 2) * canvas.w + DESK_HERO_X + 8]
+           == hero_before_overlay);
+    assert(canvas.px[260 * canvas.w + 265] != DESK_WARN);
+    uint32_t waiting_bar[DESK_W * DESK_BAR_H];
+    memcpy(waiting_bar, canvas.px, sizeof waiting_bar);
     snprintf(path, sizeof path, "%s/desk-nolink.ppm", out ? out : "/tmp");
     write_ppm(&canvas, path);
-    // Without the master the hero is a plain panel beneath the link layer.
-    assert(canvas.px[(DESK_HERO_Y + DESK_HERO_H / 2) * canvas.w + DESK_HERO_X + 8]
-           == canvas_over(DESK_PANEL, 0xD9000000u));
+    desk_set_link(&model, DESK_LINK_SYNCING);
+    desk_paint(&canvas, &model, &fonts);
+    desk_paint_overlays(&canvas, &model, &fonts);
+    assert(memcmp(waiting_bar, canvas.px, sizeof waiting_bar) == 0);
+    assert(canvas.px[260 * canvas.w + 265] != DESK_WARN);
+    // A different show is an actual incompatibility and still needs its card.
+    desk_set_link(&model, DESK_LINK_READY);
+    model.mismatch = 1;
+    desk_paint(&canvas, &model, &fonts);
+    desk_paint_overlays(&canvas, &model, &fonts);
+    assert(canvas.px[260 * canvas.w + 265] == DESK_WARN);
+    model.mismatch = 0;
 
     // Six parts of one long section keep their distinguishing part numbers.
     // No label may spill into a gap, and the running dot keeps its old meaning.

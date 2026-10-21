@@ -13,6 +13,11 @@ validates the map against it, and only then presses widgets over the
 WebSocket (`/qlcplusWS`). A control the console cannot back is shown disabled,
 with the reason on its tile, rather than dropped.
 
+If the WebSocket briefly drops, the top status bar says "Esperando conexión..."
+without covering the controls. Touch actions stay disabled until the live
+console has been read again. A different show loaded on the master still gets
+the blocking mismatch card.
+
 Priority hits use the source Flash button instead of starting the map's
 ordinary SingleShot chaser. The QLC+ controller must expose that button's
 `flashMaxHoldMs`, `flashOverride` and `flashForceLTP` in `/vc.json`; the desk

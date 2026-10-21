@@ -12,7 +12,7 @@
 // knows which buffer is stale; the painter always draws everything.
 void desk_paint(struct canvas *canvas, const struct desk_model *model,
                 const struct desk_fonts *fonts);
-// The link and lock cards belong above every control layer.
+// Show mismatch and lock cards belong above every control layer.
 void desk_paint_overlays(struct canvas *canvas, const struct desk_model *model,
                          const struct desk_fonts *fonts);
 // A section title with its rule, for pages that compose their own content.

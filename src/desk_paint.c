@@ -499,9 +499,9 @@ static void paint_stop_all(struct canvas *c, const struct desk_control *ctl,
 static const char *link_words(enum desk_link link) {
     switch (link) {
     case DESK_LINK_READY:      return "enlazado";
-    case DESK_LINK_SYNCING:    return "leyendo el show";
-    case DESK_LINK_CONNECTING: return "conectando";
-    default:                   return "sin master";
+    case DESK_LINK_SYNCING:
+    case DESK_LINK_CONNECTING: return "Esperando conexión...";
+    default:                   return "Configurar master";
     }
 }
 
@@ -661,32 +661,23 @@ static void paint_pager(struct canvas *c, const struct desk_model *model,
     }
 }
 
-static void paint_link_banner(struct canvas *c, const struct desk_model *model,
-                              const struct desk_fonts *fonts) {
+static void paint_mismatch_banner(struct canvas *c, const struct desk_model *model,
+                                  const struct desk_fonts *fonts) {
+    if (model->link != DESK_LINK_READY || !model->mismatch)
+        return;
     int x = 248, y = 238, w = 528, h = 116;
-    const char *title;
-    const char *detail;
-    if (model->link == DESK_LINK_READY) {
-        if (!model->mismatch)
-            return;
-        title = "Otro show cargado en el Mac";
-        detail = "Controles desactivados";
-    } else {
-        title = "Esperando al master";
-        detail = "El Mac mantiene el control del show";
-    }
     canvas_blend_round_rect(c, DESK_CONTENT_X, DESK_CONTENT_Y,
                             DESK_W - 2 * DESK_CONTENT_X, DESK_CONTENT_END - DESK_CONTENT_Y,
                             16, 0xD9000000u);
     canvas_blend_round_rect(c, x, y, w, h, 14, DESK_TILE);
     canvas_fill_rect(c, x + 16, y + 17, 4, h - 34, DESK_WARN);
-    centred(c, fonts->tile, x + 24, y + 25, w - 48, 32, title, DESK_INK);
-    centred(c, fonts->label, x + 24, y + 66, w - 48, 24, detail, DESK_MUTED);
+    centred(c, fonts->tile, x + 24, y + 25, w - 48, 32, "Otro show cargado en el Mac", DESK_INK);
+    centred(c, fonts->label, x + 24, y + 66, w - 48, 24, "Controles desactivados", DESK_MUTED);
 }
 
 void desk_paint_overlays(struct canvas *canvas, const struct desk_model *model,
                          const struct desk_fonts *fonts) {
-    paint_link_banner(canvas, model, fonts);
+    paint_mismatch_banner(canvas, model, fonts);
     if (model->locked) {
         int x = DESK_CONTENT_X, w = DESK_CONTENT_W;
         canvas_blend_round_rect(canvas, x, DESK_H - 56, w, 40, 10, DESK_INK);

@@ -8,6 +8,10 @@
 
 ### 2026-10
 
+- [x] 2026-10-21 — **Connection status stays in the top bar.**
+  - Result: A temporary master disconnect now shows a stable "Esperando conexión..." status without covering the controls; a different show still gets the mismatch card.
+  - Evidence: `desk_render_test` checks the warning dot, unchanged content and identical connecting/syncing bar; the host suite and 19,764,864-probe geometry audit passed.
+
 - [x] 2026-10-21 — **SHOW tablet control refinements.**
   - Result: The rig bank includes a white swatch, its colour hit respects GOLPES DE COLOR, Directo again offers BPM fine tuning, state and effect pads keep their icons and complete names, and the master and stop controls use less space.
   - Evidence: Host tests with address and undefined-behaviour sanitizers, the 19,764,864-probe geometry audit, Clang static analysis of changed controls, an ARM GCC 14.3.0 build, and the rendered SHOW screen.
