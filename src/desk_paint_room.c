@@ -49,7 +49,7 @@ void desk_paint_room(struct canvas *c, const struct desk_model *m, const struct 
     desk_paint_text_at(c, fonts->section, hx + DOT + 8, hy, h->w - 2 * INSET - DOT - 8, cap,
                        on ? DESK_HERO_SOFT : DESK_MUTED);
     int right = h->x + h->w - INSET;
-    if (on) {
+    if (on && h->h >= 160) {
         desk_paint_room_picture(c, on, right - PICTURE_W, h->y + 24, PICTURE_W, h->h - 48);
         right -= PICTURE_W + 16;
     }
@@ -63,7 +63,7 @@ void desk_paint_room(struct canvas *c, const struct desk_model *m, const struct 
     // The largest face the name keeps to one line in, then the tempo's, then
     // the readout face on two lines, then the tile face.
     struct desk_caption_lines lines = { .lines = 1 };
-    struct font *face = fonts->huge;
+    struct font *face = h->h < 160 ? fonts->big : fonts->huge;
     if (width_of(face, name) > w)
         face = fonts->big;
     if (width_of(face, name) > w) {
@@ -80,7 +80,8 @@ void desk_paint_room(struct canvas *c, const struct desk_model *m, const struct 
         snprintf(lines.line[0], sizeof lines.line[0], "%s", name);
     // The detail in the readout face while it fits, else the tile face.
     const char *detail = on ? on->detail : idle ? "elige uno abajo" : "";
-    struct font *quiet = width_of(fonts->value, detail) <= w ? fonts->value : fonts->tile;
+    struct font *quiet = h->h < 160 ? fonts->tile :
+                         width_of(fonts->value, detail) <= w ? fonts->value : fonts->tile;
     int top = hy + height_of(fonts->section) + 8, bottom = h->y + h->h - INSET;
     int pitch = lines.lines > 1 ? height_of(face) - 6 : height_of(face);
     int block = lines.lines * pitch + (detail[0] ? 4 + height_of(quiet) : 0);

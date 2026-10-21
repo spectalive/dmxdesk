@@ -39,19 +39,16 @@ int desk_show_compose(const struct show_map *map, int page, int haze_off, int te
     if (accents && accents->count > 0 &&
         desk_show_holds(map, accents, (int)(accents - map->page[live].section), page, out) != 0)
         return -1;
-    // The bottom row, left to right: the haze panel, the rig's colours in
-    // what the tempo panel leaves, the tempo panel at the right.
-    int x = DESK_CONTENT_X, end = DESK_CONTENT_X + DESK_CONTENT_W;
+    // The rig's colours sit below the mode buttons; haze sits below effects.
     if (haze) {
-        if (desk_show_haze(haze, (int)(haze - map->page[live].section), haze_off, page, x, out) != 0)
+        if (desk_show_haze(haze, (int)(haze - map->page[live].section), haze_off, page,
+                           DESK_HITS_X, out) != 0)
             return -1;
-        x += DESK_HAZE_W + DESK_GAP;
     }
-    int rig_end = tempo >= 0 ? end - DESK_TEMPO_W - DESK_GAP : end;
-    if (desk_show_rig(map, page, x, rig_end - x, out) != 0)
+    if (desk_show_rig(map, page, DESK_CONTENT_X, DESK_HERO_W, out) != 0)
         return -1;
     if (tempo >= 0 &&
-        desk_show_place(out, tempo, page, end - DESK_TEMPO_W, DESK_LOWER_Y, DESK_TEMPO_W, DESK_LOWER_H,
+        desk_show_place(out, tempo, page, DESK_TEMPO_X, DESK_TEMPO_Y, DESK_TEMPO_W, DESK_TEMPO_H,
                         TILE_TEMPO) != 0)
         return -1;
     return 0;

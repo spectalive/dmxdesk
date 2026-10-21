@@ -15,7 +15,7 @@
 #include "showmap.h"
 #include "desk_view.h"
 
-#define DESK_MAX_CONTROLS (MAP_MAX_CONTROLS + 4)
+#define DESK_MAX_CONTROLS (MAP_MAX_CONTROLS + 5)
 #define DESK_LABEL_MAX 48
 #define DESK_REASON_MAX 48
 #define DESK_MAX_SWATCHES MAP_MAX_SWATCHES
@@ -28,6 +28,7 @@ enum desk_kind {
     DESK_BURST,      // a SingleShot chaser started on contact, stopped on release, ended by the master
     DESK_HAZE_OFF,   // SHOW's ambient OFF: stops whichever haze rhythm runs
     DESK_TEMPO,      // SHOW's tempo card: the show dial's BPM and a tap (the speed model's)
+    DESK_COLOR_MODE, // SHOW's local switch between fixed colours and bounded hits
 };
 
 // A control's state is three-valued on purpose. Until the desk has been told,
@@ -59,6 +60,7 @@ struct desk_control {
     int hold_progress;  // DESK_HOLD, DESK_BURST: 0..1000 of the cap used while down, -1 idle
     int hold_index;     // DESK_HOLD, DESK_BURST: the hold model's index, -1 when it has none
     int burst_ms;       // DESK_BURST: the master's own length
+    int shot_widget_id; // a rig pick's validated bounded colour hit, -1 when absent
 };
 
 #define DESK_PENDING_MS 1500
@@ -70,6 +72,7 @@ struct desk_model {
     int page, bank;         // the view on screen
     int page_bank[MAP_MAX_PAGES]; // each page resumes at its last bank
     int effects_page;       // the EFECTOS family last on screen, which its tab reopens
+    int color_one_shot;     // local mode for the rig's colour tiles
     enum desk_link link;
     int locked;             // the surface accepts nothing; painted as such
     int mismatch;           // the console is another show: every control off, said once
@@ -92,13 +95,14 @@ struct desk_model {
     // while a cue is held or the fader dragged, and it fires on release.
     int panic_slot;
     int panic_placement;
+    int last_haze_function;
 };
 
-enum desk_action_kind { DESK_ACT_NONE, DESK_ACT_TOGGLE, DESK_ACT_MASTER, DESK_ACT_STOP_ALL };
+enum desk_action_kind { DESK_ACT_NONE, DESK_ACT_TOGGLE, DESK_ACT_MASTER, DESK_ACT_STOP_ALL, DESK_ACT_HAZE_OFF };
 
 struct desk_action {
     enum desk_action_kind kind;
-    int widget_id;
+    int widget_id;      // DESK_ACT_HAZE_OFF: function ID
     int value;          // DESK_ACT_MASTER: 0..255
 };
 

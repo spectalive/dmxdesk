@@ -86,6 +86,7 @@ static void release_panic(struct desk_model *m) {
     }
     m->panic_slot = NO_CAPTURE;
     m->panic_placement = -1;
+    m->last_haze_function = -1;
 }
 
 static void release(struct desk_model *m) {
@@ -287,27 +288,44 @@ struct desk_action desk_touch_up(struct desk_model *m, int slot, int x, int y) {
         return none();
     struct desk_control *c = &m->control[m->capture_index];
     const struct desk_placement *p = &m->layout.placement[m->capture_placement];
-    int fired = (c->kind == DESK_CUE || c->kind == DESK_STOP_ALL || c->kind == DESK_HAZE_OFF) &&
+    int fired = (c->kind == DESK_CUE || c->kind == DESK_STOP_ALL ||
+                 c->kind == DESK_HAZE_OFF || c->kind == DESK_COLOR_MODE) &&
                 inside(p, x, y) && usable(m, c);
     release(m);
     if (!fired)
         return none();
-    // Ambient OFF: one toggle to whichever rhythm the master says runs.
+    if (c->kind == DESK_COLOR_MODE) {
+        m->color_one_shot = !m->color_one_shot;
+        c->state = m->color_one_shot ? DESK_ON : DESK_OFF;
+        damage_control(m, (int)(c - m->control));
+        return none();
+    }
+    // Ambient OFF is an idempotent stop. A just-tapped rhythm may not have
+    // reached the master's next status frame yet.
     if (c->kind == DESK_HAZE_OFF) {
         for (int i = 0; i < m->count; i++) {
             const struct desk_control *h = &m->control[i];
             if (h->kind == DESK_CUE && h->role == MAP_ROLE_HAZE && h->state == DESK_ON && h->enabled) {
-                struct desk_action off = { DESK_ACT_TOGGLE, h->widget_id, 255 };
+                struct desk_action off = { DESK_ACT_HAZE_OFF, h->function_id, 0 };
                 return off;
             }
+        }
+        if (m->last_haze_function >= 0) {
+            struct desk_action off = { DESK_ACT_HAZE_OFF, m->last_haze_function, 0 };
+            return off;
         }
         return none();
     }
     // One gesture, one message. The tile does not change colour here: the
     // master's own push is what lights it. The panic button is the same
     // shape of gesture, a completed tap, with nothing to light afterwards.
+    int widget = c->widget_id;
+    if (c->kind == DESK_CUE && c->role == MAP_ROLE_HAZE)
+        m->last_haze_function = c->function_id;
+    if (c->kind == DESK_CUE && m->color_one_shot && c->shot_widget_id >= 0)
+        widget = c->shot_widget_id;
     struct desk_action a = { c->kind == DESK_STOP_ALL ? DESK_ACT_STOP_ALL : DESK_ACT_TOGGLE,
-                             c->widget_id, 255 };
+                             widget, 255 };
     // One stop is enough: a second finger on the same button fires nothing.
     if (c->kind == DESK_STOP_ALL && m->panic_placement >= 0)
         release_panic(m);
@@ -360,6 +378,7 @@ void desk_note_sent(struct desk_model *m, int widget_id, int64_t now_ms) {
             c->pending = 1;
             c->pending_since = now_ms;
             damage_control(m, i);
+            desk_damage_running(m, i);
         }
     }
 }
@@ -370,6 +389,7 @@ void desk_tick(struct desk_model *m, int64_t now_ms) {
         if (c->pending && now_ms - c->pending_since > DESK_PENDING_MS) {
             c->pending = 0;
             damage_control(m, i);
+            desk_damage_running(m, i);
         }
     }
 }

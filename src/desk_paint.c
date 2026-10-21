@@ -697,7 +697,7 @@ void desk_paint(struct canvas *canvas, const struct desk_model *model,
     int none_running = model->link == DESK_LINK_READY;
     for (int i = 0; i < model->count; i++)
         if (model->control[i].kind == DESK_CUE && model->control[i].role == MAP_ROLE_HAZE &&
-            model->control[i].state != DESK_OFF)
+            (model->control[i].state != DESK_OFF || model->control[i].pending))
             none_running = 0;
     for (int i = 0; i < model->layout.placements; i++) {
         const struct desk_placement *p = &model->layout.placement[i];

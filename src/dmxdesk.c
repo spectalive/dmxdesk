@@ -255,6 +255,7 @@ static void send_action(struct qlc_session *session, struct desk_toggle_queue *t
     int n = -1;
     switch (action.kind) {
     case DESK_ACT_TOGGLE: {
+        int hook = desk_release_hook(model, map, action.widget_id);
         n = qlc_encode_toggle(frame, sizeof frame, action.widget_id);
         if (n <= 0)
             return;
@@ -262,7 +263,7 @@ static void send_action(struct qlc_session *session, struct desk_toggle_queue *t
             desk_action_log_dropped("toggle", frame, "queue full");
             return;
         }
-        int hook = desk_release_hook(model, map, action.widget_id);
+        desk_note_sent(model, action.widget_id, now);
         if (hook < 0 || qlc_encode_toggle(frame, sizeof frame, hook) <= 0)
             return;
         if (desk_toggle_queue_push(toggles, frame) != 0) {
@@ -271,10 +272,20 @@ static void send_action(struct qlc_session *session, struct desk_toggle_queue *t
         }
         // Both stay pending until QLC+ answers: a second tap before then is
         // not a second release, and the hook is not pressed off again.
-        desk_note_sent(model, action.widget_id, now);
         desk_note_sent(model, hook, now);
         return;
     }
+    case DESK_ACT_HAZE_OFF:
+        n = qlc_encode_function_status(frame, sizeof frame, action.widget_id, 0);
+        if (n <= 0)
+            return;
+        while (desk_toggle_queue_push(toggles, frame) != 0) {
+            char waiting[64];
+            if (!desk_toggle_queue_pop(toggles, waiting, sizeof waiting))
+                return;
+            desk_action_log_dropped("toggle", waiting, "haze off priority");
+        }
+        return;
     case DESK_ACT_MASTER:
         n = qlc_encode_grand_master(frame, sizeof frame, action.value);
         break;

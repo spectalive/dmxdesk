@@ -55,7 +55,7 @@ int main(void) {
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 0);
 
     // A push lights AUTO: its rectangle on LIVE, the hero that names it and
-    // the bar's word, and nothing below the states.
+    // the bar's word, and nothing below the compact hero.
     desk_apply_function(&m, auto_function, 1);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
     int auto_ix = -1;
@@ -63,8 +63,84 @@ int main(void) {
         if (strcmp(m.control[i].label, "AUTO") == 0)
             auto_ix = i;
     const struct desk_placement *ap = desk_placement_of(&m, auto_ix);
-    assert(ap && w > 0 && x <= ap->x && y == 0 && x + w >= ap->x + ap->w && y + h == ap->y + ap->h);
+    assert(ap && w > 0 && x <= ap->x && y == 0 && x + w >= ap->x + ap->w &&
+           y + h == DESK_HERO_Y + DESK_HERO_H);
     assert(x <= DESK_HERO_X && x + w >= DESK_HERO_X + DESK_HERO_W && x + w <= DESK_STATUS_END);
+
+    // 2026-10-21: the tablet left OFF selected beside a running haze rhythm.
+    // Its selection is derived from every rhythm, so either edge must repaint it.
+    int haze_function = -1, off_ix = -1;
+    for (int i = 0; i < map.count; i++)
+        if (strcmp(map.control[i].key, "cada-1-min") == 0)
+            haze_function = map.control[i].function_id;
+    for (int i = 0; i < m.count; i++)
+        if (m.control[i].kind == DESK_HAZE_OFF)
+            off_ix = i;
+    assert(haze_function >= 0 && off_ix >= 0);
+    const struct desk_placement *off = desk_placement_of(&m, off_ix);
+    assert(off);
+    desk_apply_function(&m, haze_function, 1);
+    assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
+    assert(x <= off->x && y <= off->y && x + w >= off->x + off->w && y + h >= off->y + off->h);
+    desk_touch_down(&m, 0, off->x + off->w / 2, off->y + off->h / 2, NULL);
+    struct desk_action off_action = desk_touch_up(&m, 0, off->x + off->w / 2,
+                                                  off->y + off->h / 2);
+    int haze_widget = -1;
+    for (int i = 0; i < map.count; i++)
+        if (strcmp(map.control[i].key, "cada-1-min") == 0)
+            haze_widget = map.control[i].widget_id;
+    assert(off_action.kind == DESK_ACT_HAZE_OFF && off_action.widget_id == haze_function);
+    assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
+    desk_apply_function(&m, haze_function, 0);
+    assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
+    assert(x <= off->x && y <= off->y && x + w >= off->x + off->w && y + h >= off->y + off->h);
+    // 2026-10-21: tapping OFF before QLC+ reports the newly selected rhythm
+    // must still stop it. A widget toggle here used to send nothing.
+    int haze_ix = -1;
+    for (int i = 0; i < m.count; i++)
+        if (m.control[i].widget_id == haze_widget)
+            haze_ix = i;
+    assert(haze_ix >= 0);
+    const struct desk_placement *haze = desk_placement_of(&m, haze_ix);
+    assert(haze);
+    desk_touch_down(&m, 0, haze->x + 2, haze->y + 2, NULL);
+    struct desk_action start_haze = desk_touch_up(&m, 0, haze->x + 2, haze->y + 2);
+    assert(start_haze.kind == DESK_ACT_TOGGLE && start_haze.widget_id == haze_widget);
+    desk_note_sent(&m, haze_widget, 1000);
+    assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
+    assert(x <= off->x && y <= off->y && x + w >= off->x + off->w && y + h >= off->y + off->h);
+    desk_touch_down(&m, 0, off->x + 2, off->y + 2, NULL);
+    off_action = desk_touch_up(&m, 0, off->x + 2, off->y + 2);
+    assert(off_action.kind == DESK_ACT_HAZE_OFF && off_action.widget_id == haze_function);
+
+    // 2026-10-21: a colour tile can send its fixed look or the matching
+    // bounded hit, while changing the local mode sends nothing to QLC+.
+    int rig_ix = -1, mode_ix = -1, hit_widget = -1;
+    for (int i = 0; i < map.count; i++) {
+        if (strcmp(map.control[i].key, "rig-rosa") == 0)
+            rig_ix = i;
+        if (strcmp(map.control[i].key, "rosa") == 0)
+            hit_widget = map.control[i].widget_id;
+    }
+    for (int i = 0; i < m.count; i++)
+        if (m.control[i].kind == DESK_COLOR_MODE)
+            mode_ix = i;
+    assert(rig_ix >= 0 && mode_ix >= 0 && hit_widget >= 0);
+    assert(m.control[mode_ix].enabled && m.control[rig_ix].shot_widget_id == hit_widget);
+    const struct desk_placement *rig = desk_placement_of(&m, rig_ix);
+    const struct desk_placement *mode = desk_placement_of(&m, mode_ix);
+    assert(rig && mode);
+    struct desk_action action = desk_touch_down(&m, 0, rig->x + 2, rig->y + 2, NULL);
+    assert(action.kind == DESK_ACT_NONE);
+    action = desk_touch_up(&m, 0, rig->x + 2, rig->y + 2);
+    assert(action.kind == DESK_ACT_TOGGLE && action.widget_id == m.control[rig_ix].widget_id);
+    desk_touch_down(&m, 0, mode->x + 2, mode->y + 2, NULL);
+    action = desk_touch_up(&m, 0, mode->x + 2, mode->y + 2);
+    assert(action.kind == DESK_ACT_NONE && m.color_one_shot && m.control[mode_ix].state == DESK_ON);
+    desk_touch_down(&m, 0, rig->x + 2, rig->y + 2, NULL);
+    action = desk_touch_up(&m, 0, rig->x + 2, rig->y + 2);
+    assert(action.kind == DESK_ACT_TOGGLE && action.widget_id == hit_widget);
+    assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
 
     // A push for a control on another page damages nothing on this view.
     int gobo_fn = -1;
@@ -79,7 +155,7 @@ int main(void) {
     desk_apply_function(&m, auto_function, 0);
     desk_apply_function(&m, charla_function, 1);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
-    assert(x <= ap->x && y == 0 && w > ap->w && y + h == ap->y + ap->h);
+    assert(x <= ap->x && y == 0 && w > ap->w && y + h == DESK_HERO_Y + DESK_HERO_H);
 
     // A view change is everything; a status rectangle is itself.
     desk_set_view(&m, 1, 0);

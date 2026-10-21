@@ -132,6 +132,7 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
         c.page = m->page;
         c.section = m->section;
         c.role = m->role;
+        c.shot_widget_id = -1;
         for (int s = 0; s < m->swatches; s++)
             c.swatch[s] = 0xFF000000u | m->swatch[s];
         c.swatches = m->swatches;
@@ -241,9 +242,38 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
         stop.enabled = 1;
     if (desk_add(model, &stop) >= 0)
         enabled += stop.enabled;
-    if (desk_add(model, &off) < 0 || desk_add(model, &tempo) < 0)
+    struct desk_control color_mode;
+    memset(&color_mode, 0, sizeof color_mode);
+    color_mode.kind = DESK_COLOR_MODE;
+    snprintf(color_mode.label, sizeof color_mode.label, "GOLPES DE COLOR");
+    color_mode.widget_id = -1;
+    color_mode.function_id = -1;
+    color_mode.shot_widget_id = -1;
+    color_mode.page = -1;
+    color_mode.enabled = !wrong_show;
+    for (int i = 0; i < map->count; i++) {
+        if (strncmp(map->control[i].key, "rig-", 4) != 0 || map->control[i].swatches != 1)
+            continue;
+        int found = 0;
+        for (int j = 0; j < map->count; j++) {
+            if (strcmp(map->control[i].key + 4, map->control[j].key) != 0 ||
+                model->control[j].kind != DESK_BURST || !model->control[j].enabled)
+                continue;
+            model->control[i].shot_widget_id = model->control[j].widget_id;
+            found = 1;
+            break;
+        }
+        if (!found)
+            color_mode.enabled = 0;
+    }
+    if (!color_mode.enabled)
+        disable(&color_mode, wrong_show ? "show mismatch" : "colour hits unavailable");
+    if (desk_add(model, &off) < 0 || desk_add(model, &tempo) < 0 ||
+        desk_add(model, &color_mode) < 0)
         fprintf(stderr, "desk: no room for SHOW's own controls\n");
-    else
-        enabled += off.enabled + tempo.enabled;
+    else {
+        model->control[DESK_COLOR_MODE_INDEX(map)].state = DESK_OFF;
+        enabled += off.enabled + tempo.enabled + color_mode.enabled;
+    }
     return enabled;
 }

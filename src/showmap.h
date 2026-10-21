@@ -19,7 +19,7 @@
 #define MAP_ICON_MAX 16
 #define MAP_MAX_SWATCHES 4
 #define MAP_MAX_DIALS 4
-#define MAP_MAX_DIAL_MEMBERS 24
+#define MAP_MAX_DIAL_MEMBERS 48
 #define MAP_MAX_RELEASES 16
 
 enum map_role {

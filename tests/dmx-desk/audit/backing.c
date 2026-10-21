@@ -12,8 +12,9 @@ void audit_backing(struct audit_context *a,const struct vc_doc *doc) {
             if(p->control==i&&p->page>=0&&p->page<a->model.layout.pages&&p->bank>=0&&p->bank<a->model.layout.banks[p->page])placements++;
         }
         if(!placements)audit_note(a,0,"backing","enabled %s control=%d has no valid page/bank placement",c->label,i);
-        // Ambient OFF is an aggregate action over the haze cues, not a widget.
-        if(c->kind!=DESK_HAZE_OFF && (c->widget_id<0||!vc_find(doc,c->widget_id)))
+        // Ambient OFF and colour mode are local controls, not QLC+ widgets.
+        if(c->kind!=DESK_HAZE_OFF && c->kind!=DESK_COLOR_MODE &&
+           (c->widget_id<0||!vc_find(doc,c->widget_id)))
             audit_note(a,0,"backing","enabled %s control=%d has missing widget id=%d",c->label,i,c->widget_id);
         if(c->kind==DESK_HOLD||c->kind==DESK_BURST) {
             int slot=c->hold_index;
@@ -27,6 +28,18 @@ void audit_backing(struct audit_context *a,const struct vc_doc *doc) {
             int backed=0;
             for(int j=0;j<a->model.count;j++)if(a->model.control[j].kind==DESK_CUE&&a->model.control[j].role==MAP_ROLE_HAZE&&a->model.control[j].enabled)backed++;
             if(!backed)audit_note(a,0,"backing","enabled %s has no enabled haze cues to stop",c->label);
+        }
+        if(c->kind==DESK_COLOR_MODE) {
+            int backed=0;
+            for(int j=0;j<a->model.count;j++) {
+                const struct desk_control *pick=&a->model.control[j];
+                if(pick->kind!=DESK_CUE || pick->shot_widget_id<0)continue;
+                const struct vc_widget *hit=vc_find(doc,pick->shot_widget_id);
+                if(!hit || hit->type_id!=VC_BUTTON || hit->action_type!=VC_TOGGLE)
+                    audit_note(a,0,"backing","colour pick %s lacks its bounded hit",pick->label);
+                backed++;
+            }
+            if(!backed)audit_note(a,0,"backing","enabled %s has no colour hits",c->label);
         }
     }
     for(int i=0;i<a->speed.dials;i++)if(a->speed.dial[i].enabled) {

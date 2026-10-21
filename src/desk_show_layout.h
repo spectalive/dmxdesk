@@ -1,10 +1,7 @@
-// DIRECTO: the page for the night, a fixed composition rather than a flow.
-// At the left SALA AHORA, a hero panel that says what runs, large, and the
-// room's states in one row under it. At the right EFECTOS · MIENTRAS PULSES,
-// every LIVE accent as a pad, three to a row, a lone last one a wide pad.
-// Across the bottom HUMO AMBIENTE (OFF beside the rhythms), COLOR DEL RIG,
-// the rig's single colours as swatches without words, and the TEMPO SHOW
-// panel. Every control comes from the map's LIVE page and COLOR's
+// DIRECTO puts the mode buttons and tempo first. A compact SALA AHORA card
+// sits over the rig colours on the left; effects and timed ambient haze fill
+// the right. The rig panel includes a local colour-hit switch. Every control comes
+// from the map's LIVE page and COLOR's
 // single-colour picks; the OFF segment and the tempo panel are the model's
 // own pseudo controls, given by index.
 #ifndef DESK_SHOW_LAYOUT_H
@@ -15,7 +12,7 @@
 #include "showmap.h"
 
 // At most this many rig colours, in as many equal slots.
-#define DESK_RIG_SLOTS 10
+#define DESK_RIG_SLOTS 17
 
 // Composes page `page` of `out` from the map's LIVE page (its states, haze
 // rhythms and accents) and COLOR's rig colours. `haze_off` and `tempo` are

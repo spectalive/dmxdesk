@@ -184,10 +184,10 @@ int main(void) {
                    bank + 1, caption, r.x, r.y, r.w, r.h);
             fflush(stdout);
             if (strcmp(layout.title[page], "COLOR") == 0) {
-                // ed1dac1 map: five AUTO hooks and twenty ELEGIR picks push
-                // GOLPES onto its own third bank; the picks still span two.
-                const char *expected[] = { "AUTO \xc2\xb7 ELEGIR 1/2", "ELEGIR 2/2", "GOLPES" };
-                assert(layout.banks[page] == 3);
+                // The expanded palette keeps ELEGIR and GOLPES readable on
+                // two banks each.
+                const char *expected[] = { "ELEGIR 1/2 +1", "ELEGIR 2/2", "GOLPES 1/2", "GOLPES 2/2" };
+                assert(layout.banks[page] == 4);
                 assert(strcmp(caption, expected[bank]) == 0);
             }
             if (strcmp(layout.title[page], "GOBOS") == 0)

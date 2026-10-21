@@ -173,7 +173,7 @@ int main(void) {
     assert(vc_parse(vc_text, vc_len, &console) == 0);
     struct desk_model model;
     int enabled = showmap_build(&model, &map, &console);
-    assert(model.count == map.count + 4);
+    assert(model.count == map.count + 5);
     struct desk_layout layout;
     assert(desk_layout_resolve(&map, map.count, map.count + 1, map.count + 2, map.count + 3, &layout) == 0);
     desk_set_layout(&model, &layout);
@@ -202,16 +202,16 @@ int main(void) {
     // Known from the snapshot: the console carries the slider's level.
     assert(master && master->enabled && master->state == DESK_ON && master->level == 255);
     // Nothing is held any more: every hit is a burst, so the whole map is
-    // enabled, plus the master, the stop and SHOW's own two.
+    // enabled, plus the master, the stop and SHOW's own three.
     {
         int bursts_on = 0, on = 0;
         for (int i = 0; i < model.count; i++) {
             on += model.control[i].enabled;
             bursts_on += model.control[i].kind == DESK_BURST && model.control[i].enabled;
         }
-        assert(bursts_on == 17);           // seven on LIVE, ten colour hits
+        assert(bursts_on == 25);           // seven on LIVE, eighteen colour hits
         assert(enabled == on);
-        assert(enabled == map.count + 4);  // every control, the master, the stop, OFF and the tempo
+        assert(enabled == map.count + 5);  // every control, master, stop, OFF, tempo and colour mode
     }
 
     // The panic button is a completed tap when READY, and nothing otherwise.

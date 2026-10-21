@@ -137,7 +137,12 @@ int main(void) {
 
     desk_set_link(&model, DESK_LINK_READY);
     desk_apply_function(&model, auto_function, 1);
-    desk_apply_function(&model, 775, 1);       // Rig Rojo Fuego
+    int rig_red_function = -1;
+    for (int i = 0; i < map.count; i++)
+        if (strcmp(map.control[i].key, "rig-rojo-fuego") == 0)
+            rig_red_function = map.control[i].function_id;
+    assert(rig_red_function >= 0);
+    desk_apply_function(&model, rig_red_function, 1);
     desk_apply_master(&model, 200);
 
     struct desk_fonts fonts;

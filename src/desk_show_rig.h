@@ -1,6 +1,6 @@
-// COLOR DEL RIG in DIRECTO's bottom row: the rig's single colours from
-// COLOR, ten slots in one row while each stays DESK_MINI_MIN_W wide, else
-// two rows of five. Its heading names the colour running.
+// COLOR DEL RIG below the mode buttons: the rig's single colours from
+// COLOR, 17 slots in three rows, plus a local colour-hit switch.
+// Its heading names the colour running.
 #ifndef DESK_SHOW_RIG_H
 #define DESK_SHOW_RIG_H
 

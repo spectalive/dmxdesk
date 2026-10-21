@@ -65,32 +65,33 @@
 #define DESK_PICK_H 88
 #define DESK_HOLD_TILE_H 104
 #define DESK_COLS 6
-// DIRECTO, the hero layout (mockup 2026-10-19): at the left the SALA AHORA
-// hero says what runs, large, over the seven states in one row; at the right
-// EFECTOS · MIENTRAS PULSES, the holds in rows of three under a heading of
-// their own, a lone last one as a wide pad; across the bottom AMBIENTE (OFF
-// beside the rhythms two rows deep), COLOR DEL RIG (the ten colours) and
-// TEMPO SHOW. States keep a 6 px gap so seven fit 68 px or wider.
+// DIRECTO puts the seven mode buttons and tempo above the compact room
+// readout and effects. The rig's 17 colours fill the lower left in three rows;
+// ambient haze sits below effects on the right.
 #define DESK_HERO_X DESK_CONTENT_X
-#define DESK_HERO_Y DESK_CONTENT_Y
+#define DESK_HERO_Y 160
 #define DESK_HERO_W 516
-#define DESK_HERO_H 200
-#define DESK_STATE_Y 264
-#define DESK_STATE_H 128
+#define DESK_HERO_H 114
+#define DESK_STATE_Y DESK_CONTENT_Y
+#define DESK_STATE_H 96
 #define DESK_STATE_GAP 6
 #define DESK_HITS_X 540
 #define DESK_HITS_W (DESK_CONTENT_X + DESK_CONTENT_W - DESK_HITS_X)
-#define DESK_HITS_Y DESK_CONTENT_Y
-#define DESK_HITS_TOP 80
-#define DESK_HITS_END (DESK_STATE_Y + DESK_STATE_H)
+#define DESK_HITS_Y 160
+#define DESK_HITS_TOP 184
+#define DESK_HITS_END 424
 #define DESK_HOLD_WIDE_H 56
-#define DESK_LOWER_Y 400
-#define DESK_LOWER_H (DESK_CONTENT_END - DESK_LOWER_Y)
-#define DESK_HAZE_W 324
+#define DESK_RIG_Y 282
+#define DESK_RIG_H (DESK_CONTENT_END - DESK_RIG_Y)
+#define DESK_HAZE_Y 432
+#define DESK_HAZE_H (DESK_CONTENT_END - DESK_HAZE_Y)
+#define DESK_HAZE_W DESK_HITS_W
 #define DESK_HAZE_OFF_W 60
-#define DESK_RIG_W 272
-#define DESK_TEMPO_W 216
-// A rig colour is no narrower than this, or the ten go two rows deep.
+#define DESK_TEMPO_X DESK_HITS_X
+#define DESK_TEMPO_Y DESK_CONTENT_Y
+#define DESK_TEMPO_W DESK_HITS_W
+#define DESK_TEMPO_H 96
+// Minimum width for a rig colour tile.
 #define DESK_MINI_MIN_W 44
 // A panel's heading: 16 px tall, 8 px over the tiles under it.
 #define DESK_PANEL_TOP (DESK_PANEL_PAD + 16 + DESK_GAP)

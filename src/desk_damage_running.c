@@ -7,6 +7,15 @@
 void desk_damage_running(struct desk_model *m, int control) {
     const struct desk_control *c = &m->control[control];
     int state = c->kind == DESK_CUE && c->role == MAP_ROLE_STATE;
+    // Ambient OFF is a virtual choice: its selected look changes whenever a
+    // rhythm starts or stops, even though OFF has no function push of its own.
+    if (c->kind == DESK_CUE && c->role == MAP_ROLE_HAZE)
+        for (int i = 0; i < m->layout.placements; i++) {
+            const struct desk_placement *p = &m->layout.placement[i];
+            if (p->page == m->page && p->bank == m->bank &&
+                m->control[p->control].kind == DESK_HAZE_OFF)
+                desk_damage_rect(m, p->x, p->y, p->w, p->h);
+        }
     if (state) {
         int word_x = DESK_TAB_X + DESK_TABS * (DESK_TAB_W + DESK_TAB_GAP);
         desk_damage_rect(m, word_x, 0, DESK_STATUS_END - word_x, DESK_BAR_H);
