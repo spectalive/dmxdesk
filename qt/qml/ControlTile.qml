@@ -34,9 +34,11 @@ Rectangle {
     radius: mini ? 8 : 12
     color: mini && swatches.length ? selected ? "#7c86d9" : swatches[0] :
            panic ? connected && control.enabled ? "#d42a2a" : "#1b1f27" :
-           selected ? "#343a46" : hold ? "#1f1b2b" : "#1b1f27"
+           selected ? "#343a46" : control.tile === 9 ? "#14231f" :
+           hold ? "#1f1b2b" : "#1b1f27"
     border.width: selected && !mini ? 2 : 1
-    border.color: panic ? color : selected ? "#7a808c" : hold ? "#7860c8" : "#39404d"
+    border.color: panic ? color : selected ? "#7a808c" :
+                  control.tile === 9 ? "#3fa88a" : hold ? "#7860c8" : "#39404d"
     opacity: control.enabled && connected ? 1 : 0.6
 
     Rectangle {

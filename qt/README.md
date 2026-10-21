@@ -16,6 +16,8 @@ icon, label and hold-prompt groups in Directo.
 capture after restoring the room, Stop All and spacing treatment; the Mac
 preview of the restored effect palette is in
 `docs/evidence/qt-desk-style-colors-2026-10-21.png`.
+The later Directo hold revision is captured on the tablet in
+`docs/evidence/qt-desk-holds-2026-10-21.png`.
 
 ## Host checks
 

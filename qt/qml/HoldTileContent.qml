@@ -5,6 +5,7 @@ Item {
     required property var control
     property int bottomInset: 0
     readonly property bool wide: width >= 2 * height
+    readonly property bool compact: !wide && height < 90
     readonly property string mark: control.icon || "bolt"
     readonly property string ink: control.enabled ? "#f5f7fa" : "#adb6c4"
     readonly property string accent: control.tile === 9 ? "#3ee0aa" : "#a991e8"
@@ -15,8 +16,37 @@ Item {
         width: 25; height: 25; glyph: content.mark
     }
 
+    Item {
+        visible: content.compact
+        x: 8; y: 10; width: parent.width - 16; height: parent.height - 38
+        DeskIcon {
+            x: 3; y: (parent.height - height) / 2
+            width: 24; height: 24; glyph: content.mark
+        }
+        Text {
+            x: 36; width: parent.width - 36; height: parent.height
+            text: content.control.label || ""
+            color: content.ink
+            font.family: "Inter"; font.pixelSize: 12; font.bold: true
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.WordWrap
+            maximumLineCount: 2
+            elide: Text.ElideRight
+        }
+    }
+    Text {
+        visible: content.compact
+        x: 4; y: parent.height - 27; width: parent.width - 8; height: 18
+        text: "MANTENER"; color: content.accent
+        font.family: "Inter"; font.pixelSize: 11
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+    }
+
     Column {
         id: stack
+        visible: !content.compact
         x: content.wide ? 57 : 4
         width: content.width - x - (content.wide ? 16 : 4)
         spacing: 7

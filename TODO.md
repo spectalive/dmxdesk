@@ -36,6 +36,9 @@ Nothing open.
   squares, the red Stop All face, the active room accent and comfortable gaps
   between icons and labels. These faces were restored, reviewed in the Mac
   preview, and captured on the physical tablet; the C desk resumed and linked.
+  The owner preferred the earlier compact hold pads, so Directo again places
+  each mark beside its name with a quiet MANTENER footer, and gives fog holds
+  their teal field. A second physical capture verified the revised layout.
   Next: record the owner's response to this revision, then
   resume the preserved Buildroot build and verify remaining tablet gestures
   before considering any default-interface change.
