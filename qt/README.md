@@ -12,6 +12,10 @@ and `docs/evidence/qt-desk-color-hits-2026-10-21.png` show the corrected
 mode label, aligned status fields, color-hit marks and named effect banks.
 `docs/evidence/qt-desk-spacing-2026-10-21.png` shows the subsequent centered
 icon, label and hold-prompt groups in Directo.
+`docs/evidence/qt-desk-style-direct-2026-10-21.png` is a physical tablet
+capture after restoring the room, Stop All and spacing treatment; the Mac
+preview of the restored effect palette is in
+`docs/evidence/qt-desk-style-colors-2026-10-21.png`.
 
 ## Host checks
 

@@ -10,6 +10,7 @@ Rectangle {
                                      control.tile !== 13 && control.tile !== 14 && control.tile !== 12
     readonly property bool mini: control.tile === 11
     readonly property bool stateTile: control.tile === 8
+    readonly property bool pick: control.tile === 2
     readonly property bool master: control.tile === 13
     readonly property bool panic: control.tile === 14
     readonly property bool tempo: control.tile === 12
@@ -31,25 +32,26 @@ Rectangle {
 
     x: control.x; y: control.y; width: control.w; height: control.h
     radius: mini ? 8 : 12
-    color: mini && swatches.length ? swatches[0] :
+    color: mini && swatches.length ? selected ? "#7c86d9" : swatches[0] :
+           panic ? connected && control.enabled ? "#d42a2a" : "#1b1f27" :
            selected ? "#343a46" : hold ? "#1f1b2b" : "#1b1f27"
     border.width: selected && !mini ? 2 : 1
-    border.color: selected ? "#7a808c" : hold ? "#7860c8" : "#39404d"
+    border.color: panic ? color : selected ? "#7a808c" : hold ? "#7860c8" : "#39404d"
     opacity: control.enabled && connected ? 1 : 0.6
 
     Rectangle {
-        visible: tile.selected && !tile.mini && !tile.master
+        visible: tile.selected && !tile.pick && !tile.mini && !tile.master
         anchors.top: parent.top; anchors.topMargin: 5
         anchors.horizontalCenter: parent.horizontalCenter
         width: Math.max(18, parent.width - 36); height: 3; radius: 2
         color: "#7c86d9"
     }
     DeskIcon {
-        visible: !!tile.control.icon && !tile.stateTile && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo && !tile.trajectory
+        visible: !!tile.control.icon && !tile.pick && !tile.stateTile && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo && !tile.trajectory
         glyph: tile.control.icon
         width: 24
         height: width
-        x: 10
+        x: 12
         y: (parent.height - height) / 2
     }
     IconLabelTileContent {
@@ -63,9 +65,15 @@ Rectangle {
         labelSize: tile.stateTile && label.indexOf(" ") < 0 && label.length >= 9 ? 10 :
                    tile.stateTile ? 11 : 12
     }
+    PickTileContent {
+        visible: tile.pick
+        anchors.fill: parent
+        control: tile.control
+        ink: tile.ink
+    }
     Text {
-        visible: !tile.stateTile && !tile.trajectory && !tile.hold && !tile.mini && !tile.master && !tile.tempo
-        x: tile.panic ? 5 : (tile.control.icon ? 36 : 6)
+        visible: !tile.pick && !tile.stateTile && !tile.trajectory && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo
+        x: tile.panic ? 5 : (tile.control.icon ? 46 : 8)
         width: parent.width - x - 5
         y: (parent.height - height) / 2
         text: tile.control.label === "Insert Prism" ? "Insertar prisma" : tile.control.label || ""
@@ -89,6 +97,17 @@ Rectangle {
         anchors.fill: parent
         control: tile.control
         bottomInset: tile.burst ? 12 : 0
+    }
+    StopTileContent {
+        visible: tile.panic
+        anchors.fill: parent
+        control: tile.control
+        ink: tile.ink
+    }
+    Rectangle {
+        visible: tile.mini && tile.selected && tile.swatches.length > 0
+        x: 3; y: 3; width: parent.width - 6; height: parent.height - 6
+        radius: 7; color: tile.swatches.length ? tile.swatches[0] : "transparent"
     }
     Rectangle {
         visible: tile.mini && tile.colorOneShot

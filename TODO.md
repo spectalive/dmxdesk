@@ -32,7 +32,11 @@ Nothing open.
   and Mac Qt trial later reconnected to the intended show. A visual spacing
   pass centered hold prompts, mode labels and trajectory labels by their
   actual content height; the updated QML rendered on the tablet offscreen.
-  Next: record the owner's comparison, then
+  The owner's comparison found that the Qt trial had lost the effect colour
+  squares, the red Stop All face, the active room accent and comfortable gaps
+  between icons and labels. These faces were restored, reviewed in the Mac
+  preview, and captured on the physical tablet; the C desk resumed and linked.
+  Next: record the owner's response to this revision, then
   resume the preserved Buildroot build and verify remaining tablet gestures
   before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**

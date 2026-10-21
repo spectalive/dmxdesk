@@ -19,7 +19,7 @@ Item {
         id: stack
         x: content.wide ? 57 : 4
         width: content.width - x - (content.wide ? 16 : 4)
-        spacing: 4
+        spacing: 7
         y: (content.height - content.bottomInset - height) / 2
 
         DeskIcon {

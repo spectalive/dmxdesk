@@ -15,6 +15,8 @@ Window {
     readonly property var settings: view.settings || ({})
     readonly property int currentTab: pages.length > view.page ? pages[view.page].tab : 0
     readonly property bool linked: view.link === 3
+    readonly property var activeState: controls.find(c => c.tile === 8 && c.selected)
+    readonly property bool roomActive: linked && !!view.activeMode
     property var touchSlots: ({})
 
     function familyIconName(id) {
@@ -85,12 +87,38 @@ Window {
     DeskIcon { x: 972; y: 12; width: 24; height: 24; glyph: root.view.locked ? "lock" : "lock_open"; opacity: 0.75 }
 
     // DIRECTO: the fixed panels carry validated controls from the map.
-    Rectangle { visible: root.currentTab === 0; x: 16; y: 160; width: 516; height: 114; radius: 16; color: "#14181e" }
+    Rectangle {
+        visible: root.currentTab === 0
+        x: 16; y: 160; width: 516; height: 114; radius: 16
+        color: root.roomActive ? "#2e3a7e" : "#14181e"
+        border.width: root.roomActive ? 1 : 0
+        border.color: "#7c86d9"
+    }
     Rectangle { visible: root.currentTab === 0; x: 16; y: 282; width: 516; height: 302; radius: 16; color: "#14181e" }
     Rectangle { visible: root.currentTab === 0; x: 540; y: 160; width: 348; height: 264; radius: 16; color: "#14181e" }
     Rectangle { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; radius: 16; color: "#14181e" }
-    Text { visible: root.currentTab === 0; x: 28; y: 174; text: "ESTADO ACTUAL"; color: "#adb6c4"; font.pixelSize: 11 }
-    Text { visible: root.currentTab === 0; x: 40; y: 208; width: 230; text: root.view.activeMode || "SIN MODO"; color: "#f5f7fa"; font.pixelSize: 30; font.bold: true; elide: Text.ElideRight }
+    Rectangle {
+        visible: root.currentTab === 0
+        x: 40; y: 180; width: 8; height: 8; radius: 4
+        color: root.linked ? "#3ee0aa" : "#d42a2a"
+    }
+    Text { visible: root.currentTab === 0; x: 56; y: 174; text: "ESTADO ACTUAL"; color: root.roomActive ? "#d6daf8" : "#adb6c4"; font.pixelSize: 11 }
+    Text {
+        visible: root.currentTab === 0
+        x: 40; y: 206; width: 240; height: 36
+        text: root.view.activeMode || "Sin escena activa"
+        color: root.roomActive ? "#ffffff" : "#adb6c4"
+        font.family: "Inter"; font.pixelSize: root.roomActive ? 30 : 19; font.bold: true
+        verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
+    }
+    Text {
+        visible: root.currentTab === 0
+        x: 40; y: 244; width: 240; height: 20
+        text: root.roomActive && root.activeState ? root.activeState.detail || "" :
+              root.linked ? "Selecciona un modo" : ""
+        color: "#d6daf8"; font.family: "Inter"; font.pixelSize: 12
+        verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
+    }
     Repeater {
         model: root.currentTab === 0 ? [
             {label: "EFECTO", value: root.view.activeEffect || "—"},
@@ -112,7 +140,13 @@ Window {
             }
         }
     }
-    Text { visible: root.currentTab === 0; x: 28; y: 296; text: "COLOR DEL RIG"; color: "#adb6c4"; font.pixelSize: 11 }
+    Text {
+        visible: root.currentTab === 0
+        x: 28; y: 296; width: 320
+        text: root.view.activeColor && root.view.activeColor !== "—" ?
+              "COLOR DEL RIG · " + root.view.activeColor.toUpperCase() : "COLOR DEL RIG"
+        color: "#adb6c4"; font.pixelSize: 11; elide: Text.ElideRight
+    }
     Text { visible: root.currentTab === 0; x: 552; y: 172; text: "EFECTOS · MIENTRAS PULSES"; color: "#adb6c4"; font.pixelSize: 11 }
     Text { visible: root.currentTab === 0; x: 552; y: 444; text: "HUMO AMBIENTE"; color: "#adb6c4"; font.pixelSize: 11 }
 
@@ -137,7 +171,7 @@ Window {
                 glyph: root.familyIconName(modelData.icon)
             }
             Text {
-                x: 40; anchors.verticalCenter: parent.verticalCenter; width: 78
+                x: 48; anchors.verticalCenter: parent.verticalCenter; width: 70
                 text: root.pages.length > modelData.page ? root.pages[modelData.page].title : ""
                 color: "#f5f7fa"; font.pixelSize: 11; horizontalAlignment: Text.AlignLeft
                 wrapMode: Text.WordWrap
@@ -160,7 +194,7 @@ Window {
             }
             Text {
                 visible: !!modelData.caption
-                x: 40; y: 0; width: parent.width - 56; height: parent.height
+                x: 50; y: 0; width: parent.width - 62; height: parent.height
                 text: modelData.caption || ""; color: "#f5f7fa"; font.pixelSize: 12
                 verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
             }

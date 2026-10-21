@@ -12,7 +12,7 @@ Item {
         width: parent.width - 6
         x: 3
         y: (parent.height - height) / 2
-        spacing: 4
+        spacing: 8
         DeskIcon {
             width: content.iconSize; height: width
             anchors.horizontalCenter: parent.horizontalCenter
