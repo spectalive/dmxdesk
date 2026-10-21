@@ -42,9 +42,20 @@ int audit_reach(struct audit_context *a,int x,int y,int *value) {
             if(p)desk_speed_tempo_tap_rect(p->x,p->y,p->w,p->h,&tap.x,&tap.y,&tap.w,&tap.h);
             if(m->control[ci].enabled && desk_rect_contains(tap,x,y) && desk_speed_target_enabled(&a->speed,0,SPEED_T_TAP)) {
                 struct desk_speed s=a->speed;
-                desk_speed_tap(&s,0,10000,10000);
+                desk_speed_direct(&s,0,SPEED_T_TAP,10000,10000);
                 if(s.tap[0].last_ms==10000)kind=A_CONTROL,index=ci;
             }
+            if(p && m->control[ci].enabled)
+                for(int step=SPEED_T_BPM_DOWN;step<=SPEED_T_BPM_UP;step++) {
+                    struct desk_rect r={0};
+                    desk_speed_tempo_step_rect(p->x,p->y,p->w,p->h,(enum speed_target)step,
+                                               &r.x,&r.y,&r.w,&r.h);
+                    if(!desk_rect_contains(r,x,y) ||
+                       !desk_speed_target_enabled(&a->speed,0,(enum speed_target)step))continue;
+                    struct desk_speed s=a->speed;
+                    if(desk_speed_direct(&s,0,(enum speed_target)step,10000,10000).kind!=SPEED_ACT_NONE)
+                        kind=A_SPEED,index=step,sub=0;
+                }
         } else {
             int at;
             enum desk_target t=desk_input_target(m,x,y,&at);

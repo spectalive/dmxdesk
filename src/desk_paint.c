@@ -295,10 +295,9 @@ static void paint_swatch(struct canvas *c, const struct desk_control *ctl,
                 DESK_MUTED);
 }
 
-// A state under SALA AHORA: its 36 px mark over its name, and under the name
-// the running state's detail, or why a tile is dead or unknown; an idle state
-// carries no second line, since the hero already says what runs. The mark
-// gives way when the words need the height.
+// A state under SALA AHORA: its mark over its name. The hero carries the
+// running detail; the tile uses its second line only for a disabled or unknown
+// state. Narrow two-line names get a smaller mark instead of losing it.
 static void paint_state(struct canvas *c, const struct desk_control *ctl,
                         const struct desk_placement *p, const struct desk_fonts *fonts,
                         enum desk_link link) {
@@ -312,18 +311,23 @@ static void paint_state(struct canvas *c, const struct desk_control *ctl,
     if (!ctl->enabled || link != DESK_LINK_READY)
         ink = DESK_MUTED;
     int unknown = link == DESK_LINK_READY && ctl->state == DESK_UNKNOWN;
-    const char *under = on ? ctl->detail : !ctl->enabled || unknown ? state_line(ctl, link) : "";
+    const char *under = !ctl->enabled || unknown ? state_line(ctl, link) : "";
     struct desk_caption_lines name, more;
     desk_caption_fit(fonts->section, r.w - 8, ctl->label, &name);
     int lines = under[0] ? desk_caption_fit(fonts->tiny, r.w - 8, under, &more) : 0;
     int name_pitch = text_h(fonts->section) + 2, more_pitch = text_h(fonts->tiny) + 1;
     int words = name.lines * name_pitch + (lines ? 4 + lines * more_pitch : 0);
     int mark = icon_glyph(ctl->icon);
-    int marked = mark >= 0 && words + ICON_MID_SIZE + MARK_GAP <= r.h - 24;
-    int y = r.y + (r.h - words - (marked ? ICON_MID_SIZE + MARK_GAP : 0)) / 2;
-    if (marked) {
-        icon_paint_mid(c, (enum icon_id)mark, r.x + (r.w - ICON_MID_SIZE) / 2, y, ink);
-        y += ICON_MID_SIZE + MARK_GAP;
+    int margin = r.w < 80 ? 12 : 24;
+    int mark_size = mark >= 0 && words + ICON_MID_SIZE + MARK_GAP <= r.h - margin ? ICON_MID_SIZE
+                  : mark >= 0 && words + ICON_SIZE + MARK_GAP <= r.h - margin ? ICON_SIZE : 0;
+    int y = r.y + (r.h - words - (mark_size ? mark_size + MARK_GAP : 0)) / 2;
+    if (mark_size) {
+        if (mark_size == ICON_MID_SIZE)
+            icon_paint_mid(c, (enum icon_id)mark, r.x + (r.w - mark_size) / 2, y, ink);
+        else
+            icon_paint(c, (enum icon_id)mark, r.x + (r.w - mark_size) / 2, y, ink);
+        y += mark_size + MARK_GAP;
     }
     for (int i = 0; i < name.lines; i++)
         centred(c, fonts->section, r.x + 4, y + i * name_pitch, r.w - 8, name_pitch, name.line[i], ink);
@@ -605,7 +609,8 @@ static void paint_headings(struct canvas *c, const struct desk_model *model,
             snprintf(text, sizeof text, "%s", named);
         }
         if (h->h <= 0) {
-            desk_paint_section(c, fonts, h->x, h->y, h->w, text);
+            int title_w = h->kind == DESK_PANEL_NAMES_RUNNING ? h->w - 166 : h->w;
+            desk_paint_section(c, fonts, h->x, h->y, title_w, text);
             continue;
         }
         // The hero paints its own panel and heading.

@@ -15,5 +15,7 @@ void desk_speed_paint_tempo(struct canvas *c, const struct desk_speed *s, int i,
                             const struct desk_fonts *fonts, int x, int y, int w, int h, int pressed);
 // The TAP target's rectangle inside the same panel, for the hit test.
 void desk_speed_tempo_tap_rect(int x, int y, int w, int h, int *tx, int *ty, int *tw, int *th);
+void desk_speed_tempo_step_rect(int x, int y, int w, int h, enum speed_target target,
+                                int *tx, int *ty, int *tw, int *th);
 
 #endif

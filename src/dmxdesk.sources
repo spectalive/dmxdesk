@@ -99,6 +99,7 @@ speed_factor.c
 desk_tap.c
 desk_speed.c
 desk_speed_paint.c
+desk_speed_tempo_step_rect.c
 desk_tab_title.c
 desk_tab_page.c
 desk_view_family.c

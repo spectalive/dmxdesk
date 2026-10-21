@@ -7,6 +7,8 @@
 #include "desk_show_place.h"
 #include "desk_show_slot.h"
 
+#include <string.h>
+
 #define RIG_COLUMNS 6
 
 int desk_show_rig(const struct show_map *map, int page, int x, int w, struct desk_layout *out) {
@@ -28,7 +30,18 @@ int desk_show_rig(const struct show_map *map, int page, int x, int w, struct des
             continue;
         int row = laid / per_row, sw;
         int sx = desk_show_slot(x0, inner_w, per_row, DESK_GAP, laid++ % per_row, &sw);
-        if (desk_show_place(out, i, page, sx, top + row * (h + DESK_GAP), sw, h, TILE_MINI) != 0)
+        if (desk_show_place(out, i, page, sx + 5, top + row * (h + DESK_GAP) + 5,
+                            sw - 10, h - 10, TILE_MINI) != 0)
+            return -1;
+    }
+    // White is the explicit manual look, never a step in an automatic wheel.
+    for (int i = 0; i < map->count && laid < DESK_RIG_SLOTS; i++) {
+        if (strcmp(map->control[i].key, "blanco-total") != 0 || map->control[i].swatches != 1)
+            continue;
+        int row = laid / per_row, sw;
+        int sx = desk_show_slot(x0, inner_w, per_row, DESK_GAP, laid++ % per_row, &sw);
+        if (desk_show_place(out, map->count + 5, page, sx + 5, top + row * (h + DESK_GAP) + 5,
+                            sw - 10, h - 10, TILE_MINI) != 0)
             return -1;
     }
     return 0;

@@ -142,6 +142,23 @@ int main(void) {
     assert(action.kind == DESK_ACT_TOGGLE && action.widget_id == hit_widget);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
 
+    int white_hit = -1;
+    for (int i = 0; i < map.count; i++)
+        if (strcmp(map.control[i].key, "blanco") == 0)
+            white_hit = map.control[i].widget_id;
+    int white_ix = DESK_WHITE_INDEX(&map);
+    const struct desk_placement *white = desk_placement_of(&m, white_ix);
+    assert(white && white->tile == TILE_MINI && m.control[white_ix].shot_widget_id == white_hit);
+    desk_touch_down(&m, 0, white->x + 2, white->y + 2, NULL);
+    action = desk_touch_up(&m, 0, white->x + 2, white->y + 2);
+    assert(action.kind == DESK_ACT_TOGGLE && action.widget_id == white_hit);
+    desk_touch_down(&m, 0, mode->x + 2, mode->y + 2, NULL);
+    desk_touch_up(&m, 0, mode->x + 2, mode->y + 2);
+    desk_touch_down(&m, 0, white->x + 2, white->y + 2, NULL);
+    action = desk_touch_up(&m, 0, white->x + 2, white->y + 2);
+    assert(action.kind == DESK_ACT_TOGGLE && action.widget_id == m.control[white_ix].widget_id);
+    desk_take_damage(&m, &x, &y, &w, &h);
+
     // A push for a control on another page damages nothing on this view.
     int gobo_fn = -1;
     for (int i = 0; i < m.count; i++)

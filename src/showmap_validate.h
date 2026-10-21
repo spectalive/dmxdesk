@@ -26,5 +26,6 @@ int showmap_mismatch(const struct show_map *map, const struct vc_doc *doc);
 #define DESK_HAZE_OFF_INDEX(map) ((map)->count + 2)
 #define DESK_TEMPO_INDEX(map) ((map)->count + 3)
 #define DESK_COLOR_MODE_INDEX(map) ((map)->count + 4)
+#define DESK_WHITE_INDEX(map) ((map)->count + 5)
 
 #endif

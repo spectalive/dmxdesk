@@ -1,5 +1,5 @@
-// COLOR DEL RIG below the mode buttons: the rig's single colours from
-// COLOR, 17 slots in three rows, plus a local colour-hit switch.
+// COLOR DEL RIG below the mode buttons: the rig's single colours and the
+// manually selected white look, 18 slots in three rows, plus a hit switch.
 // Its heading names the colour running.
 #ifndef DESK_SHOW_RIG_H
 #define DESK_SHOW_RIG_H

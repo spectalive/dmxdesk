@@ -104,7 +104,7 @@ void desk_speed_tempo_tap_rect(int x, int y, int w, int h, int *tx, int *ty, int
     *tw = 88;
     *th = h - 48;
     *tx = x + w - 12 - *tw;
-    *ty = y + 24;
+    *ty = y + (h - *th) / 2;
 }
 
 void desk_speed_paint_tempo(struct canvas *c, const struct desk_speed *s, int i,
@@ -120,12 +120,16 @@ void desk_speed_paint_tempo(struct canvas *c, const struct desk_speed *s, int i,
         snprintf(big, sizeof big, "--");
     int tx, ty, tw, th;
     desk_speed_tempo_tap_rect(x, y, w, h, &tx, &ty, &tw, &th);
-    // The number under the panel's heading, then one line: base BPM, or
-    // the note that matters more.
-    int nw = tx - 24 - (x + 12);
-    text_at(c, fonts->big, x + 12, y + 34, nw, big, live ? DESK_INK : DESK_MUTED);
-    text_at(c, fonts->small, x + 12, y + h - 12 - text_h(fonts->small), nw, under_number(d), DESK_MUTED);
-    canvas_fill_rect(c, tx - 12, ty, 1, th, DESK_LINE);
+    int dx, dy, dw, dh;
+    desk_speed_tempo_step_rect(x, y, w, h, SPEED_T_BPM_DOWN, &dx, &dy, &dw, &dh);
+    int nw = dx - 8 - (x + 12);
+    centred(c, fonts->big, x + 12, y + 27, nw, 42, big, live ? DESK_INK : DESK_MUTED);
+    centred(c, fonts->small, x + 12, y + 68, nw, 16, under_number(d), DESK_MUTED);
+    target(c, fonts->tile, dx, dy, dw, dh, "-", desk_speed_target_enabled(s, i, SPEED_T_BPM_DOWN),
+           0, DESK_RAISED, DESK_PANEL);
+    desk_speed_tempo_step_rect(x, y, w, h, SPEED_T_BPM_UP, &dx, &dy, &dw, &dh);
+    target(c, fonts->tile, dx, dy, dw, dh, "+", desk_speed_target_enabled(s, i, SPEED_T_BPM_UP),
+           0, DESK_RAISED, DESK_PANEL);
     int enabled = desk_speed_target_enabled(s, i, SPEED_T_TAP);
     target(c, fonts->tile, tx, ty, tw, th, "TAP", enabled, pressed, DESK_RAISED, DESK_PANEL);
 }

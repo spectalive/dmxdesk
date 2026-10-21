@@ -35,13 +35,13 @@ int main(void) {
         desk_set_layout(&m, &layout);
         desk_set_link(&m, DESK_LINK_READY);
         const struct desk_placement *p = desk_placement_of(&m, im);
-        assert(p && p->y == 56 && p->h == 372);
+        assert(p && p->y == 56 && p->h == 252);
         struct desk_rect track = desk_master_track(p, fonts->value);
         int value_h = fonts->value ? font_height(fonts->value) : 15;
         // Pin the old drawn rectangle independently of the extracted helper.
-        assert(track.x == 876 && track.w == 116);
+        assert(track.x == 888 && track.w == 92);
         assert(track.y == 56 + 30 + value_h + 8 + 12);
-        assert(track.y + track.h == 412);
+        assert(track.y + track.h == 292);
         int x = p->x + p->w / 2;
         int top = track.y + 12, bottom = track.y + track.h - 12;
         printf("master %s: text_h=%d, track=(%d,%d,%d,%d), centre travel=%d..%d\n",

@@ -35,6 +35,13 @@ void audit_inventory(struct audit_context *a) {
         if(c->kind==DESK_TEMPO)
             desk_speed_tempo_tap_rect(p->x,p->y,p->w,p->h,&r.x,&r.y,&r.w,&r.h);
         audit_add(a,A_CONTROL,p->control,0,c->enabled,c->label,r,r,r);
+        if(c->kind==DESK_TEMPO && !a->setup.open)
+            for(int step=SPEED_T_BPM_DOWN;step<=SPEED_T_BPM_UP;step++) {
+                desk_speed_tempo_step_rect(p->x,p->y,p->w,p->h,(enum speed_target)step,
+                                           &r.x,&r.y,&r.w,&r.h);
+                audit_add(a,A_SPEED,step,0,desk_speed_target_enabled(&a->speed,0,(enum speed_target)step),
+                          step==SPEED_T_BPM_DOWN?"Tempo Show -1 BPM":"Tempo Show +1 BPM",r,r,r);
+            }
     }
     if(a->setup.open) { audit_setup_inventory(a); return; }
     // EFECTOS' families, on a family's page only; setup hides them.

@@ -33,9 +33,17 @@ void desk_inert_mask(const struct desk_model *m, const struct desk_setup *s, con
             (s->open && p->x < SETUP_SHEET_W) || !m->control[p->control].enabled)
             continue;
         struct desk_rect r = {p->x, p->y, p->w, p->h};
-        if (m->control[p->control].kind == DESK_TEMPO)
+        if (m->control[p->control].kind == DESK_TEMPO) {
             desk_speed_tempo_tap_rect(p->x, p->y, p->w, p->h, &r.x, &r.y, &r.w, &r.h);
-        desk_region_mark(mask, r, 0);
+            desk_region_mark(mask, r, 0);
+            for (int step = SPEED_T_BPM_DOWN; step <= SPEED_T_BPM_UP; step++) {
+                desk_speed_tempo_step_rect(p->x, p->y, p->w, p->h,
+                                           (enum speed_target)step, &r.x, &r.y, &r.w, &r.h);
+                if (desk_speed_target_enabled(speed, 0, (enum speed_target)step))
+                    desk_region_mark(mask, r, 0);
+            }
+        } else
+            desk_region_mark(mask, r, 0);
     }
     desk_region_mark(mask, desk_view_gear(), 0);
     desk_region_mark(mask, desk_view_lock_target(), 0);

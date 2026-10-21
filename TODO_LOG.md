@@ -8,6 +8,10 @@
 
 ### 2026-10
 
+- [x] 2026-10-21 — **SHOW tablet control refinements.**
+  - Result: The rig bank includes a white swatch, its colour hit respects GOLPES DE COLOR, Directo again offers BPM fine tuning, state and effect pads keep their icons and complete names, and the master and stop controls use less space.
+  - Evidence: Host tests with address and undefined-behaviour sanitizers, the 19,764,864-probe geometry audit, Clang static analysis of changed controls, an ARM GCC 14.3.0 build, and the rendered SHOW screen.
+
 - [x] 2026-10-21 — **SHOW tablet haze, colour hits and layout.**
   - Result: OFF now repaints with every ambient haze change and sends an idempotent stop for the selected rhythm, including before QLC+ echoes a new selection. SHOW puts modes above a compact room card, effects above timed haze, and 17 rig colours beside a local GOLPES DE COLOR switch. The colour bank maps to bounded one-shot hits when the switch is on.
   - Evidence: `desk_damage_test`, `desk_layout_test`, `showmap_v2_test`, `desk_geometry_test` and the rendered `docs/evidence/show-tablet-2026-10-21.png`; isolated QLC+ 5.2.2 reported `Running` then `Stopped` after `setFunctionStatus|639|0`.

@@ -43,8 +43,16 @@ void desk_paint_hold(struct canvas *c, const struct desk_control *ctl, const str
     if (p->h < 100 && p->w < 2 * p->h) {
         const char *foot = unresolved ? "sin confirmar" : capped ? "suelta" :
                            live ? PILL : "solo en el Mac";
-        desk_paint_text_centred(c, fonts->tile_s, p->x + 4, p->y + 12,
-                                p->w - 8, p->h - 42, ctl->label, ink);
+        int glyph = icon_glyph(ctl->icon);
+        enum icon_id mark = glyph >= 0 ? (enum icon_id)glyph : ICON_BOLT;
+        icon_paint(c, mark, p->x + 8, p->y + 14, armed ? tone : DESK_LINE);
+        struct desk_caption_lines name;
+        desk_caption_fit(fonts->tile_s, p->w - 42, ctl->label, &name);
+        int pitch = height_of(fonts->tile_s);
+        int top = p->y + 14 + (40 - name.lines * pitch) / 2;
+        for (int i = 0; i < name.lines && i < 2; i++)
+            desk_paint_text_centred(c, fonts->tile_s, p->x + 36, top + i * pitch,
+                                    p->w - 42, pitch, name.line[i], ink);
         desk_paint_text_centred(c, fonts->small, p->x + 4, p->y + p->h - 28,
                                 p->w - 8, 18, foot, unresolved ? DESK_WARN : tone);
         if (ctl->hold_progress >= 0) {
@@ -97,7 +105,7 @@ void desk_paint_hold(struct canvas *c, const struct desk_control *ctl, const str
         else
             icon_paint(c, mark, p->x + (p->w - size) / 2, top, mark_ink);
         top += size + GAP;
-        for (int i = 0; i < name.lines; i++)
+        for (int i = 0; i < name.lines && i < 2; i++)
             desk_paint_text_centred(c, face, p->x + 8, top + i * pitch, p->w - 16, pitch, name.line[i], ink);
         tx = p->x + 4;
         tw = p->w - 8;

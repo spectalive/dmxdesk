@@ -147,21 +147,21 @@ int main(void) {
                           : seg->x + seg->w == haze->x + haze->w - DESK_PANEL_PAD);
         assert(k < 2 ? seg->y == off->y : seg->y + seg->h == off->y + off->h);
     }
-    // COLOR DEL RIG: all seventeen colours, three rows of six, each at least the
+    // COLOR DEL RIG: eighteen manual colours, three rows of six, each at least the
     // 42x44 finger minimum, inside the panel.
     const struct desk_placement *mini = find(&l, control_named(&map, "Rig Rojo"), 0);
-    assert(mini && mini->tile == TILE_MINI && inside(mini, rig) && mini->x == rig->x + DESK_PANEL_PAD);
+    assert(mini && mini->tile == TILE_MINI && inside(mini, rig) && mini->x == rig->x + DESK_PANEL_PAD + 5);
     int swatches = 0, top_row = 0;
     for (int i = 0; i < l.placements; i++)
         if (l.placement[i].page == 0 && l.placement[i].tile == TILE_MINI) {
             const struct desk_placement *p = &l.placement[i];
             assert(inside(p, rig) && p->w >= 42 && p->h >= 44);
-            assert(p->y == mini->y || p->y == mini->y + mini->h + DESK_GAP ||
-                   p->y == mini->y + 2 * (mini->h + DESK_GAP));
+            assert(p->y == mini->y || p->y == mini->y + mini->h + 10 + DESK_GAP ||
+                   p->y == mini->y + 2 * (mini->h + 10 + DESK_GAP));
             top_row += p->y == mini->y;
             swatches++;
         }
-    assert(swatches == 17 && top_row == 6 && in_panel(&l, rig) == 18);
+    assert(swatches == 18 && top_row == 6 && in_panel(&l, rig) == 19);
     const struct desk_placement *shot_mode = find(&l, map.count + 4, 0);
     assert(shot_mode && shot_mode->tile == TILE_COMPACT && inside(shot_mode, rig));
     assert(shot_mode->h >= 44 && shot_mode->y + shot_mode->h <= mini->y);

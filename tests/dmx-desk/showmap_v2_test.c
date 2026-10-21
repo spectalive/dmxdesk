@@ -173,7 +173,7 @@ int main(void) {
     assert(vc_parse(vc_text, vc_len, &console) == 0);
     struct desk_model model;
     int enabled = showmap_build(&model, &map, &console);
-    assert(model.count == map.count + 5);
+    assert(model.count == map.count + 6);
     struct desk_layout layout;
     assert(desk_layout_resolve(&map, map.count, map.count + 1, map.count + 2, map.count + 3, &layout) == 0);
     desk_set_layout(&model, &layout);
@@ -211,7 +211,7 @@ int main(void) {
         }
         assert(bursts_on == 25);           // seven on LIVE, eighteen colour hits
         assert(enabled == on);
-        assert(enabled == map.count + 5);  // every control, master, stop, OFF, tempo and colour mode
+        assert(enabled == map.count + 6);  // every control, master, stop, OFF, tempo, colour mode and white swatch
     }
 
     // The panic button is a completed tap when READY, and nothing otherwise.

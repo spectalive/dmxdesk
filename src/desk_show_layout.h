@@ -12,7 +12,7 @@
 #include "showmap.h"
 
 // At most this many rig colours, in as many equal slots.
-#define DESK_RIG_SLOTS 17
+#define DESK_RIG_SLOTS 18
 
 // Composes page `page` of `out` from the map's LIVE page (its states, haze
 // rhythms and accents) and COLOR's rig colours. `haze_off` and `tempo` are

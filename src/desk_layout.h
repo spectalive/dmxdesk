@@ -35,12 +35,12 @@
 #define DESK_CONTENT_END 584
 #define DESK_MASTER_X 860
 #define DESK_MASTER_W 148
-#define DESK_MASTER_TILE_X DESK_MASTER_X
+#define DESK_MASTER_TILE_X (DESK_MASTER_X + 12)
 #define DESK_MASTER_TILE_Y 56
-#define DESK_MASTER_TILE_W DESK_MASTER_W
-#define DESK_MASTER_TILE_H 372
-#define DESK_PANIC_Y 440
-#define DESK_PANIC_H 144
+#define DESK_MASTER_TILE_W 124
+#define DESK_MASTER_TILE_H 252
+#define DESK_PANIC_Y 320
+#define DESK_PANIC_H 88
 
 // EFECTOS: one target per family down the left, at most 64 tall, and the
 // family's page in what is left of the content.

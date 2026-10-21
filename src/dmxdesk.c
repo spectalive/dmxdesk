@@ -898,9 +898,21 @@ int main(int argc, char **argv) {
                         desk_speed_tempo_tap_rect(tp->x, tp->y, tp->w, tp->h, &tx, &ty, &tw, &th);
                         if (x >= tx && x < tx + tw && y >= ty && y < ty + th) {
                             int64_t at = events[i].t > 0 ? (int64_t)(events[i].t * 1000.0) : now;
-                            send_speed(session, desk_speed_tap(&speed, 0, now_ms(), at), now);
+                            send_speed(session, desk_speed_direct(&speed, 0, SPEED_T_TAP, now_ms(), at), now);
                             hold_owner[slot] = ci;      // the release is consumed, the target reads pressed
                             desk_set_hold_progress(&model, ci, -1, 1);
+                        } else {
+                            for (int step = SPEED_T_BPM_DOWN; step <= SPEED_T_BPM_UP; step++) {
+                                desk_speed_tempo_step_rect(tp->x, tp->y, tp->w, tp->h,
+                                                           (enum speed_target)step, &tx, &ty, &tw, &th);
+                                if (x < tx || x >= tx + tw || y < ty || y >= ty + th)
+                                    continue;
+                                send_speed(session, desk_speed_direct(&speed, 0,
+                                                                       (enum speed_target)step,
+                                                                       now_ms(), now), now);
+                                hold_owner[slot] = ci;
+                                break;
+                            }
                         }
                         continue;
                     }

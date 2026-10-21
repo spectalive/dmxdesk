@@ -218,12 +218,15 @@ static struct speed_action fire(struct desk_speed *s, enum speed_target t, int d
     }
 }
 
-struct speed_action desk_speed_tap(struct desk_speed *s, int i, int64_t now_ms, int64_t contact_ms) {
-    if (i < 0 || i >= s->dials)
+struct speed_action desk_speed_direct(struct desk_speed *s, int i, enum speed_target target,
+                                      int64_t now_ms, int64_t contact_ms) {
+    if (i < 0 || i >= s->dials ||
+        (target != SPEED_T_TAP && target != SPEED_T_BPM_DOWN && target != SPEED_T_BPM_UP) ||
+        !desk_speed_target_enabled(s, i, target))
         return none();
     s->submit_ms = now_ms;
     s->dirty = 1;
-    return fire(s, SPEED_T_TAP, i, contact_ms > 0 ? contact_ms : now_ms);
+    return fire(s, target, i, target == SPEED_T_TAP && contact_ms > 0 ? contact_ms : now_ms);
 }
 
 struct speed_action desk_speed_touch_down(struct desk_speed *s, int x, int y, int64_t now_ms,

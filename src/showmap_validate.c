@@ -275,5 +275,38 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
         model->control[DESK_COLOR_MODE_INDEX(map)].state = DESK_OFF;
         enabled += off.enabled + tempo.enabled + color_mode.enabled;
     }
+    // A separate control gives the white swatch its own touch target while
+    // keeping BLANCO TOTAL in the state row. In one-shot mode it uses the
+    // validated, bounded white burst just like the other colour swatches.
+    struct desk_control white;
+    memset(&white, 0, sizeof white);
+    white.kind = DESK_CUE;
+    white.widget_id = -1;
+    white.function_id = -1;
+    white.shot_widget_id = -1;
+    white.page = -1;
+    int white_source = -1;
+    for (int i = 0; i < map->count; i++)
+        if (strcmp(map->control[i].key, "blanco-total") == 0)
+            white_source = i;
+    if (white_source >= 0) {
+        white = model->control[white_source];
+        snprintf(white.label, sizeof white.label, "BLANCO");
+        for (int i = 0; i < map->count; i++)
+            if (strcmp(map->control[i].key, "blanco") == 0 &&
+                model->control[i].kind == DESK_BURST && model->control[i].enabled)
+                white.shot_widget_id = model->control[i].widget_id;
+        if (white.shot_widget_id < 0 && model->control[DESK_COLOR_MODE_INDEX(map)].enabled) {
+            disable(&model->control[DESK_COLOR_MODE_INDEX(map)], "colour hits unavailable");
+            enabled--;
+        }
+    } else
+        disable(&white, "not in this show");
+    int white_index = desk_add(model, &white);
+    if (white_index >= 0) {
+        model->control[white_index].state = white_source >= 0 ?
+            model->control[white_source].state : DESK_UNKNOWN;
+        enabled += white.enabled;
+    }
     return enabled;
 }

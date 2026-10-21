@@ -15,7 +15,7 @@
 #include "showmap.h"
 #include "desk_view.h"
 
-#define DESK_MAX_CONTROLS (MAP_MAX_CONTROLS + 5)
+#define DESK_MAX_CONTROLS (MAP_MAX_CONTROLS + 6)
 #define DESK_LABEL_MAX 48
 #define DESK_REASON_MAX 48
 #define DESK_MAX_SWATCHES MAP_MAX_SWATCHES

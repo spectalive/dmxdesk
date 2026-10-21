@@ -159,8 +159,6 @@ int main(void) {
                 int wears = icon_glyph(ctl->icon) >= 0 && p->tile != TILE_MINI &&
                             p->tile != TILE_NUMBER && p->tile != TILE_TRAJECTORY &&
                             !(p->tile == TILE_SWATCH && ctl->swatches > 0) &&
-                            !((p->tile == TILE_HOLD || p->tile == TILE_FOG) &&
-                              p->h < 100 && p->w < 2 * p->h) &&
                             // The flash's mark is the bolt a hit already wears.
                             !((p->tile == TILE_HOLD || p->tile == TILE_FOG) &&
                               icon_glyph(ctl->icon) == ICON_BOLT);
