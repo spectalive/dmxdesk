@@ -18,7 +18,7 @@ void audit_backing(struct audit_context *a,const struct vc_doc *doc) {
             audit_note(a,0,"backing","enabled %s control=%d has missing widget id=%d",c->label,i,c->widget_id);
         if(c->kind==DESK_HOLD||c->kind==DESK_BURST) {
             int slot=c->hold_index;
-            int expected=c->kind==DESK_BURST?BURST_BASE+c->function_id:c->widget_id;
+            int expected=c->kind==DESK_BURST?(c->priority_widget_id>0?c->priority_widget_id:BURST_BASE+c->function_id):c->widget_id;
             if(slot<0||slot>=a->hold.count||a->hold.control[slot].widget_id!=expected)
                 audit_note(a,0,"backing","enabled %s control=%d hold slot=%d / count=%d, expected action id=%d",c->label,i,slot,a->hold.count,expected);
         }

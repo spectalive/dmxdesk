@@ -1,4 +1,4 @@
-// SOURCES: desk_rebuild_model.c desk_model.c desk_master_level_at.c showmap_validate.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c desk_damage_running.c desk_panel_holds.c
+// SOURCES: desk_rebuild_model.c desk_model.c desk_master_level_at.c showmap_validate.c showmap_check_priority.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c desk_damage_running.c desk_panel_holds.c
 // Tabs and console refreshes keep every page's bank, including hidden pages,
 // and the EFECTOS family its tab reopens.
 #include <assert.h>

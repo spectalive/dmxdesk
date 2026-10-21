@@ -101,6 +101,9 @@ static int collect(const cJSON *node, int parent_id, int page,
     w->type_id = number_field(node, "typeId", 0, 255, 0);
     w->function_id = number_field(node, "functionId", 0, 0x7FFFFFF, -1);
     w->action_type = number_field(node, "actionType", 0, 3, 0);
+    w->flash_override = bool_field(node, "flashOverride", 0);
+    w->flash_force_ltp = bool_field(node, "flashForceLTP", 0);
+    w->flash_max_hold_ms = number_field(node, "flashMaxHoldMs", 0, 60000, 0);
     w->page = number_field(node, "page", 0, 255, page);
     copy_caption(node, w->caption);
 

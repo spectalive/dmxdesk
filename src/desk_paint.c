@@ -109,7 +109,11 @@ static const char *state_line(const struct desk_control *ctl, enum desk_link lin
     if (!ctl->enabled) {
         if (strncmp(ctl->reason, "held", 4) == 0)
             return "solo en el Mac";
-        return ctl->reason[0] ? ctl->reason : "no disponible";
+        if (strcmp(ctl->reason, "master timeout missing") == 0)
+            return "actualiza QLC+";
+        if (strcmp(ctl->reason, "master priority missing") == 0)
+            return "revisa Flash en QLC+";
+        return "no disponible";
     }
     if (link != DESK_LINK_READY)
         return "";
@@ -659,18 +663,25 @@ static void paint_pager(struct canvas *c, const struct desk_model *model,
 
 static void paint_link_banner(struct canvas *c, const struct desk_model *model,
                               const struct desk_fonts *fonts) {
-    int x = DESK_CONTENT_X, w = DESK_CONTENT_W;
-    char line[96];
+    int x = 248, y = 238, w = 528, h = 116;
+    const char *title;
+    const char *detail;
     if (model->link == DESK_LINK_READY) {
         if (!model->mismatch)
             return;
-        snprintf(line, sizeof line, "El Mac tiene otro show cargado: controles apagados");
+        title = "Otro show cargado en el Mac";
+        detail = "Controles desactivados";
     } else {
-        snprintf(line, sizeof line, "%s%s - el Mac sigue al mando",
-                 link_words(model->link), model->link == DESK_LINK_DOWN ? "" : " con el master");
+        title = "Esperando al master";
+        detail = "El Mac mantiene el control del show";
     }
-    canvas_blend_round_rect(c, x, DESK_BAR_H + 4, w, 40, 10, DESK_WARN);
-    centred(c, fonts->label, x, DESK_BAR_H + 4, w, 40, line, DESK_INK);
+    canvas_blend_round_rect(c, DESK_CONTENT_X, DESK_CONTENT_Y,
+                            DESK_W - 2 * DESK_CONTENT_X, DESK_CONTENT_END - DESK_CONTENT_Y,
+                            16, 0xD9000000u);
+    canvas_blend_round_rect(c, x, y, w, h, 14, DESK_TILE);
+    canvas_fill_rect(c, x + 16, y + 17, 4, h - 34, DESK_WARN);
+    centred(c, fonts->tile, x + 24, y + 25, w - 48, 32, title, DESK_INK);
+    centred(c, fonts->label, x + 24, y + 66, w - 48, 24, detail, DESK_MUTED);
 }
 
 void desk_paint_overlays(struct canvas *canvas, const struct desk_model *model,
@@ -721,5 +732,4 @@ void desk_paint(struct canvas *canvas, const struct desk_model *model,
         }
     }
     paint_pager(canvas, model, fonts);
-    desk_paint_overlays(canvas, model, fonts);
 }

@@ -60,6 +60,7 @@ struct desk_control {
     int hold_progress;  // DESK_HOLD, DESK_BURST: 0..1000 of the cap used while down, -1 idle
     int hold_index;     // DESK_HOLD, DESK_BURST: the hold model's index, -1 when it has none
     int burst_ms;       // DESK_BURST: the master's own length
+    int priority_widget_id; // controller-bounded Flash source, -1 for a Chaser burst
     int shot_widget_id; // a rig pick's validated bounded colour hit, -1 when absent
 };
 

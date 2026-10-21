@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_speed_paint.c desk_speed_tempo_step_rect.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_room_status.c desk_paint_text_at.c desk_speed_target_rect.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_paint_hold.c desk_paint_selected.c desk_paint_selected_mark.c icon_paint_mid.c desk_paint_room_picture.c icon_paint_hero.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_speed_tempo_step_rect.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_room_status.c desk_paint_text_at.c desk_speed_target_rect.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_paint_hold.c desk_paint_selected.c desk_paint_selected_mark.c icon_paint_mid.c desk_paint_room_picture.c icon_paint_hero.c
 // The desk, built from the generated Vibra map against the real console
 // document, pressed once, and painted. Writes $TEST_OUT/desk.ppm so the screen can be
 // looked at on a laptop before it reaches the tablet, and one render per tab:
@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "canvas.h"
+#include "canvas_blend.h"
 #include "desk_layout.h"
 #include "desk_layout_resolve.h"
 #include "desk_model.h"
@@ -292,10 +293,15 @@ int main(void) {
     desk_speed_set_link(&speed, 0, 0);
     desk_paint(&canvas, &model, &fonts);
     desk_speed_paint_tempo(&canvas, &speed, 0, &fonts, tempo->x, tempo->y, tempo->w, tempo->h, 0);
+    desk_paint_overlays(&canvas, &model, &fonts);
+    // A lost master gets a foreground card; the mode row remains visible.
+    assert(canvas.px[70 * canvas.w + 200] != DESK_WARN);
+    assert(canvas.px[260 * canvas.w + 265] == DESK_WARN);
     snprintf(path, sizeof path, "%s/desk-nolink.ppm", out ? out : "/tmp");
     write_ppm(&canvas, path);
-    // Without the master the hero is a plain panel: nothing it said holds.
-    assert(canvas.px[(DESK_HERO_Y + DESK_HERO_H / 2) * canvas.w + DESK_HERO_X + 8] == DESK_PANEL);
+    // Without the master the hero is a plain panel beneath the link layer.
+    assert(canvas.px[(DESK_HERO_Y + DESK_HERO_H / 2) * canvas.w + DESK_HERO_X + 8]
+           == canvas_over(DESK_PANEL, 0xD9000000u));
 
     // Six parts of one long section keep their distinguishing part numbers.
     // No label may spill into a gap, and the running dot keeps its old meaning.

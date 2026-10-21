@@ -25,6 +25,7 @@ showmap.c
 showmap_release_to_parse.c
 showmap_release_to_prune.c
 showmap_validate.c
+showmap_check_priority.c
 vcjson.c
 qlc_codec.c
 qlc_session.c

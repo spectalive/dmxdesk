@@ -127,10 +127,16 @@ static int parse_control(const char *key, const cJSON *item, struct map_control 
     }
     c->function_id = int_field(item, "function", 0, 0x7FFFFFF, -1);
     c->burst_ms = int_field(item, "burstMs", 0, 60000, 0);
+    c->priority_widget_id = int_field(item, "priorityWidget", 0, 0x7FFFFFF, -1);
+    c->priority_function_id = int_field(item, "priorityFunction", 0, 0x7FFFFFF, -1);
     if (string_into(item, "source", c->source, sizeof c->source, 0) != 0)
         return -1;
     if (c->role == MAP_ROLE_BURST && (c->burst_ms <= 0 || c->function_id < 0)) {
         fprintf(stderr, "map: burst %s needs burstMs and a function\n", key);
+        return -1;
+    }
+    if ((c->priority_widget_id >= 0) != (c->priority_function_id >= 0)) {
+        fprintf(stderr, "map: priority burst %s needs widget and function\n", key);
         return -1;
     }
     c->solo_id = int_field(item, "solo", 0, 0x7FFFFFF, -1);

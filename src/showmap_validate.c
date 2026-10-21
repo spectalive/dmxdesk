@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "showmap_check_priority.h"
 
 
 static void disable(struct desk_control *c, const char *reason) {
@@ -129,6 +130,7 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
         snprintf(c.icon, sizeof c.icon, "%s", m->icon);
         c.widget_id = m->widget_id;
         c.function_id = m->function_id;
+        c.priority_widget_id = -1;
         c.page = m->page;
         c.section = m->section;
         c.role = m->role;
@@ -144,6 +146,13 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
             c.kind = DESK_BURST;
             c.burst_ms = m->burst_ms;
             widget = check_cue(&c, m, doc);
+            if (widget) {
+                const char *priority_error = showmap_check_priority(m, doc);
+                if (priority_error)
+                    disable(&c, priority_error);
+                else
+                    c.priority_widget_id = m->priority_widget_id;
+            }
         } else if (m->held && !is_fog(m)) {
             c.kind = DESK_HOLD;
             widget = check_hold(&c, m, doc);

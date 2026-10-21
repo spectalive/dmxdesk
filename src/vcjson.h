@@ -23,6 +23,9 @@ struct vc_widget {
     int parent_id;
     int function_id;
     int action_type;
+    int flash_override; // the controller's actual priority flags
+    int flash_force_ltp;
+    int flash_max_hold_ms; // controller-enforced timeout; zero on stock QLC+
     int page;
     char caption[VC_CAPTION_MAX];
 

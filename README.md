@@ -13,6 +13,14 @@ validates the map against it, and only then presses widgets over the
 WebSocket (`/qlcplusWS`). A control the console cannot back is shown disabled,
 with the reason on its tile, rather than dropped.
 
+Priority hits use the source Flash button instead of starting the map's
+ordinary SingleShot chaser. The QLC+ controller must expose that button's
+`flashMaxHoldMs`, `flashOverride` and `flashForceLTP` in `/vc.json`; the desk
+rejects a hit when the controller cannot guarantee its deadline or priority
+after a lost WebSocket. The tablet also sends
+release on touch-up. All Vibra hit sources, including fog, have controller
+deadlines matched to their `burstMs` values.
+
 It was written for, and is shipped on, a Denver TAQ-102 tablet (1024x600 LVDS
 panel, Silead touchscreen) by [spectalive/taq102](https://github.com/spectalive/taq102),
 which cross-compiles it with Buildroot. The defaults in `src/dmxdesk.c` (map

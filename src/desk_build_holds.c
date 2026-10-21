@@ -14,9 +14,11 @@ void desk_build_holds(struct desk_hold *hold, struct desk_model *model, int *own
         struct desk_control *c = &model->control[i];
         c->hold_index = -1;
         if (c->kind == DESK_BURST && c->enabled) {
-            // The master ends the burst at its length; the desk's own stop on
-            // release or at the same cap is a belt over that brace.
-            c->hold_index = desk_hold_add(hold, BURST_BASE + c->function_id, HOLD_HIT, c->burst_ms, 0);
+            // The master ends the priority Flash at its cap; the desk also
+            // releases it on touch-up or at the same cap.
+            int target = c->priority_widget_id > 0 ? c->priority_widget_id
+                                                   : BURST_BASE + c->function_id;
+            c->hold_index = desk_hold_add(hold, target, HOLD_HIT, c->burst_ms, 0);
         } else if (c->kind == DESK_HOLD && c->enabled) {
             // Three seconds for a light hit; strobes and fog never get here,
             // the validator keeps their held controls on the Mac.

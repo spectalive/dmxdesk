@@ -1244,8 +1244,8 @@ int main(int argc, char **argv) {
                 }
                 if (layout.speed_page >= 0 && model.page == layout.speed_page) {
                     desk_speed_paint(&canvas, &speed, &fonts);
-                    desk_paint_overlays(&canvas, &model, &fonts);
                 }
+                desk_paint_overlays(&canvas, &model, &fonts);
                 desk_setup_paint(&canvas, &setup, &fonts);
                 canvas_clear_clip(&canvas);
                 if (log_perf)

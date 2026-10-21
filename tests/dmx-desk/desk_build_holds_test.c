@@ -50,6 +50,16 @@ int main(void) {
     desk_build_holds(&h, &m, owner);
     assert(h.count == 2 && m.control[0].enabled && m.control[1].enabled);
     assert(!m.control[2].enabled && m.control[2].reason[0]);
+    desk_init(&m);
+    struct desk_control priority = {
+        .kind = DESK_BURST, .function_id = 885, .priority_widget_id = 47,
+        .enabled = 1, .burst_ms = 8000
+    };
+    assert(desk_add(&m, &priority) == 0);
+    desk_build_holds(&h, &m, owner);
+    desk_hold_set_link(&h, 1);
+    assert(desk_hold_press(&h, 0, 0, 0).widget_id == 47);
+    assert(desk_hold_release(&h, 0, 0, 1).widget_id == 47);
     puts("desk_build_holds ok");
     return 0;
 }
