@@ -156,13 +156,13 @@ Rectangle {
     }
     Text {
         visible: tile.tempo
-        x: 12; y: 11; width: 124
+        x: 12; y: 11
         text: tile.control.label; color: "#adb6c4"
-        font.pixelSize: 10; horizontalAlignment: Text.AlignHCenter
+        font.pixelSize: 10
     }
     Text {
         visible: tile.tempo
-        x: 12; y: 70; width: 124
+        x: 12; y: 70; width: 82
         text: "BPM BASE"; color: "#adb6c4"; font.pixelSize: 10
         horizontalAlignment: Text.AlignHCenter
     }

@@ -42,10 +42,12 @@ Nothing open.
   A subsequent tablet capture restored the one-line effects heading and large
   BPM, and showed cloud/repeat icons with short ambient haze intervals; the C
   desk resumed and linked after capture. The owner then asked for a Mac-only
-  visual pass: tempo captions now center above their BPM, the Wi-Fi mark shows
-  every layer, and the repeat arrow and effects heading have more room. Next:
-  resume the preserved Buildroot build and verify remaining tablet gestures
-  before considering any default-interface change.
+  visual pass: the Wi-Fi mark now shows every layer and the effects heading
+  has more room. The owner clarified that Directo's number must align with
+  its label; the Mac preview now puts the number and BPM base on one axis
+  below the left heading, and timed haze uses a single custom cloud/repeat
+  asset. Next: resume the preserved Buildroot build and verify remaining
+  tablet gestures before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**
   On 2026-10-21, loopback Art-Net from QLC+ 5.2.2 showed AUTO colour on all
   four 7R wheels in 299/302 steady frames of the tablet's white burst; the

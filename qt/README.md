@@ -24,6 +24,10 @@ with a cloud and repeat symbol on the physical tablet.
 `docs/evidence/qt-desk-mac-final-2026-10-21.png` captures the subsequent Mac
 alignment pass: centered tempo captions, the complete Wi-Fi mark, a clearer
 repeat arrow, and more space below the effects heading.
+`docs/evidence/qt-desk-mac-tempo-cloud-2026-10-21.png` captures the corrected
+Directo tempo grouping and the single cloud/repeat icon. The icon's editable
+source is `qt/assets/cloud_loop.svg`; regenerate its PNG with
+`rsvg-convert -w 96 -h 96 -o qt/qml/icons/cloud_loop.png qt/assets/cloud_loop.svg`.
 
 ## Host checks
 
