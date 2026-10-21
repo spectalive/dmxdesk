@@ -126,12 +126,6 @@ Rectangle {
         color: "#0c0e12"
         DeskIcon { anchors.centerIn: parent; width: 18; height: 18; glyph: "⚡" }
     }
-    Rectangle {
-        visible: tile.mini && tile.selected
-        x: 5; y: parent.height - 29; width: 24; height: 24; radius: 7
-        color: "#0c0e12"
-        DeskIcon { anchors.centerIn: parent; width: 18; height: 18; glyph: "✓" }
-    }
     Text {
         visible: tile.master
         objectName: "align-x-parent"

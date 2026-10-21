@@ -50,9 +50,11 @@ Nothing open.
   made the ambient mark monochrome, and placed the full Humo vertical label
   between paired smoke icons. A new runtime alignment audit and regression
   test check the relevant axes; the final Mac capture also confirmed their
-  optical centers to the pixel. Next: resume the preserved Buildroot build
-  and verify remaining tablet gestures before considering any
-  default-interface change.
+  optical centers to the pixel. A follow-up optical-ink check exposed a
+  1.64 px vertical imbalance in those icons, now reduced to 0.36 px; the
+  selected swatch also uses its outline without a check mark. Next: resume
+  the preserved Buildroot build and verify remaining tablet gestures before
+  considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**
   On 2026-10-21, loopback Art-Net from QLC+ 5.2.2 showed AUTO colour on all
   four 7R wheels in 299/302 steady frames of the tablet's white burst; the

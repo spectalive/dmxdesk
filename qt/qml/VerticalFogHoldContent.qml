@@ -11,6 +11,7 @@ Item {
         spacing: 8
         DeskIcon {
             objectName: "align-mirror:vertical-fog"
+            y: 2
             width: 26; height: 26
             glyph: "vertical_fog"
         }
@@ -26,6 +27,7 @@ Item {
         }
         DeskIcon {
             objectName: "align-mirror:vertical-fog"
+            y: 2
             width: 26; height: 26
             glyph: "vertical_fog"
         }

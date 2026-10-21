@@ -36,6 +36,16 @@ python3 qt/render_monochrome_icon.py qt/assets/cloud_loop.svg qt/qml/icons/cloud
 python3 qt/render_monochrome_icon.py qt/assets/vertical_fog.svg qt/qml/icons/vertical_fog.png
 ```
 
+`docs/evidence/qt-desk-optical-alignment-2026-10-21.png` captures the smoke
+icons after their rendered ink centers were aligned with the label. Run
+`python3 qt/check_vertical_fog_alignment.py /path/to/directo-capture.png`
+against a fresh 1024x600 Mac or tablet capture: it fails when the icons'
+visible centers differ from the label by more than one pixel. The preceding
+capture fails by 1.64 px; the corrected one passes at 0.36 px.
+`docs/evidence/qt-desk-selected-color-2026-10-21.png` compares selected and
+unselected red swatches in an isolated Qt render. Selection uses the existing
+outline without a check mark over the color.
+
 ## Host checks
 
 Build with Qt 6.9 or newer:
