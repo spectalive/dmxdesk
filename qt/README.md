@@ -30,6 +30,20 @@ real backend's Flash activation and its release after pipe EOF. Supply a
 backend command and an address that backend can reach; the script stores no
 device access details. Run this check before any live QLC+ trial.
 
+For fast visual work on a Mac, `tests/qt_preview.py` starts the same mock
+master and opens the host Qt window with a remote ARM backend. Pass the
+backend command and a host address it can reach, as with the integration
+test. `--capture output/preview.png` saves a frame and exits; omit it to use
+the window. `--font /path/to/Inter-Regular.ttf` loads the tablet's font for
+closer visual comparison. The mock master never forwards commands to QLC+.
+With `--tap 230,24 --capture output/effects.png`, the app selects a tab before
+capturing it, which makes repeatable screenshots of other pages quick.
+For an interactive agent session, pass `--agent-stdio` and send one command
+per line to its stdin: `TAP x y`, `CAPTURE /absolute/path.png`, or `QUIT`.
+`TOUCH D|M|U|C slot x y` exposes held controls, drags and multiple touch slots.
+Responses start with `@AGENT`. This control channel is opt-in and is never
+enabled by the tablet launcher.
+
 ## Tablet trial
 
 Build Qt Base with EGLFS, DRM and PNG, plus Qt Declarative Quick, in an

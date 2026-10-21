@@ -69,7 +69,7 @@ Window {
     }
     Text {
         x: 458; y: 16; width: 290; height: 18
-        text: root.linked ? (root.view.activeMode || "") + " · Enlazado" : "Esperando conexión..."
+        text: root.linked ? (root.view.activeMode ? root.view.activeMode + " · Enlazado" : "Enlazado") : "Esperando conexión..."
         color: root.linked ? "#adb6c4" : "#d42a2a"
         horizontalAlignment: Text.AlignRight; elide: Text.ElideLeft
         font.family: "Inter"; font.pixelSize: 11
@@ -90,7 +90,7 @@ Window {
     Rectangle { visible: root.currentTab === 0; x: 540; y: 160; width: 348; height: 264; radius: 16; color: "#14181e" }
     Rectangle { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; radius: 16; color: "#14181e" }
     Text { visible: root.currentTab === 0; x: 28; y: 174; text: "ESTADO ACTUAL"; color: "#adb6c4"; font.pixelSize: 11 }
-    Text { visible: root.currentTab === 0; x: 40; y: 208; width: 230; text: root.view.activeMode || "?"; color: "#f5f7fa"; font.pixelSize: 30; font.bold: true; elide: Text.ElideRight }
+    Text { visible: root.currentTab === 0; x: 40; y: 208; width: 230; text: root.view.activeMode || "SIN MODO"; color: "#f5f7fa"; font.pixelSize: 30; font.bold: true; elide: Text.ElideRight }
     Text {
         visible: root.currentTab === 0; x: 294; y: 184; width: 215
         text: "EFECTO     " + (root.view.activeEffect || "—") + "\nHUMO        " + (root.view.activeHaze || "—") + "\nCOLOR       " + (root.view.activeColor || "—")

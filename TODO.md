@@ -22,9 +22,11 @@ Nothing open.
   The Qt surface renders real C desk snapshots on the 1024x600 EGLFS panel;
   its backend has linked to QLC+, and the mock-master test covered tabs,
   colour-hit mode, two-finger stop-all and held-Flash release. The trial
-  launcher returned to the linked C desk after capture. Next: finish the
-  isolated Buildroot Qt bundle, verify physical touch and record the owner's
-  comparison before considering any default-interface change.
+  launcher returned to the linked C desk after capture. Real tablet touches
+  switched show controls. The Mac preview now supports agent taps, holds and
+  captures against a mock master. Next: record the owner's comparison, then
+  resume the preserved Buildroot build and verify remaining tablet gestures
+  before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**
   On 2026-10-21, loopback Art-Net from QLC+ 5.2.2 showed AUTO colour on all
   four 7R wheels in 299/302 steady frames of the tablet's white burst; the

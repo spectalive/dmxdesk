@@ -7,7 +7,8 @@ set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 6.9 REQUIRED COMPONENTS Core Gui Qml Quick)
 
-add_executable(qt-desk main.cpp DeskBridge.cpp DeskBridge.h)
+add_executable(qt-desk main.cpp DeskBridge.cpp DeskBridge.h
+    DeskAgentControl.cpp DeskAgentControl.h)
 target_link_libraries(qt-desk PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)
 
 include(CTest)
