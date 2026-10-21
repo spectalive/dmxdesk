@@ -39,9 +39,11 @@ Nothing open.
   The owner preferred the earlier compact hold pads, so Directo again places
   each mark beside its name with a quiet MANTENER footer, and gives fog holds
   their teal field. A second physical capture verified the revised layout.
-  Next: record the owner's response to this revision, then
-  resume the preserved Buildroot build and verify remaining tablet gestures
-  before considering any default-interface change.
+  A subsequent tablet capture restored the one-line effects heading and large
+  BPM, and showed cloud/repeat icons with short ambient haze intervals; the C
+  desk resumed and linked after capture. Next: record the owner's response to
+  the updated layout, then resume the preserved Buildroot build and verify
+  remaining tablet gestures before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**
   On 2026-10-21, loopback Art-Net from QLC+ 5.2.2 showed AUTO colour on all
   four 7R wheels in 299/302 steady frames of the tablet's white burst; the

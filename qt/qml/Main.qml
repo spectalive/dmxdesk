@@ -147,7 +147,19 @@ Window {
               "COLOR DEL RIG · " + root.view.activeColor.toUpperCase() : "COLOR DEL RIG"
         color: "#adb6c4"; font.pixelSize: 11; elide: Text.ElideRight
     }
-    Text { visible: root.currentTab === 0; x: 552; y: 172; text: "EFECTOS · MIENTRAS PULSES"; color: "#adb6c4"; font.pixelSize: 11 }
+    Text {
+        id: effectHeading
+        visible: root.currentTab === 0
+        x: 552; y: 172
+        text: "EFECTOS · MIENTRAS PULSES"
+        color: "#adb6c4"; font.pixelSize: 11
+    }
+    Rectangle {
+        visible: effectHeading.visible
+        x: effectHeading.x + effectHeading.implicitWidth + 12; y: 179
+        width: 888 - x; height: 1
+        color: "#39404d"
+    }
     Text { visible: root.currentTab === 0; x: 552; y: 444; text: "HUMO AMBIENTE"; color: "#adb6c4"; font.pixelSize: 11 }
 
     // EFECTOS' headings and family rail come from the validated layout.
@@ -213,10 +225,11 @@ Window {
         delegate: Item {
             x: modelData.x; y: modelData.y; width: modelData.w; height: modelData.h
             Text {
-                x: 12; y: 27; width: 124; height: 42
+                x: 12; y: 19; width: 124; height: 50
                 text: root.view.dials && root.view.dials.length && root.view.dials[0].known ? root.view.dials[0].bpm : "--"
-                color: "#f5f7fa"; font.pixelSize: 27; font.bold: true
+                color: "#f5f7fa"; font.pixelSize: 40; font.bold: true
                 horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
             }
             Repeater {
                 model: ["-", "+", "TAP"]

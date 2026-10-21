@@ -18,6 +18,9 @@ preview of the restored effect palette is in
 `docs/evidence/qt-desk-style-colors-2026-10-21.png`.
 The later Directo hold revision is captured on the tablet in
 `docs/evidence/qt-desk-holds-2026-10-21.png`.
+`docs/evidence/qt-desk-loop-2026-10-21.png` captures the restored one-line
+effects heading and large BPM, plus compact ambient haze intervals marked
+with a cloud and repeat symbol on the physical tablet.
 
 ## Host checks
 

@@ -27,6 +27,7 @@ Rectangle {
     ]
     readonly property bool hold: control.tile === 7 || control.tile === 9
     readonly property bool haze: control.tile === 10 || control.tile === 6
+    readonly property bool ambientLoop: haze && /^cada\s+\d+\s+min$/i.test(control.label || "")
     readonly property var swatches: control.swatches || []
     readonly property string ink: control.enabled && connected ? "#f5f7fa" : "#adb6c4"
 
@@ -49,7 +50,7 @@ Rectangle {
         color: "#7c86d9"
     }
     DeskIcon {
-        visible: !!tile.control.icon && !tile.pick && !tile.stateTile && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo && !tile.trajectory
+        visible: !!tile.control.icon && !tile.ambientLoop && !tile.pick && !tile.stateTile && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo && !tile.trajectory
         glyph: tile.control.icon
         width: 24
         height: width
@@ -73,8 +74,14 @@ Rectangle {
         control: tile.control
         ink: tile.ink
     }
+    AmbientLoopTileContent {
+        visible: tile.ambientLoop
+        anchors.fill: parent
+        control: tile.control
+        ink: tile.ink
+    }
     Text {
-        visible: !tile.pick && !tile.stateTile && !tile.trajectory && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo
+        visible: !tile.ambientLoop && !tile.pick && !tile.stateTile && !tile.trajectory && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo
         x: tile.panic ? 5 : (tile.control.icon ? 46 : 8)
         width: parent.width - x - 5
         y: (parent.height - height) / 2
