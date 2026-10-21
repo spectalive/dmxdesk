@@ -28,8 +28,10 @@ Nothing open.
   zero overflows across Directo, Ritmo, Ajustes, keyboard and every Efectos
   family and bank after the text corrections. A later bounded tablet capture
   restored the C process, but its configured master then refused connections;
-  the tablet repository tracks that external-state check. Next: record the
-  owner's comparison, then
+  the tablet repository tracks that external-state check. A visual spacing
+  pass centered hold prompts, mode labels and trajectory labels by their
+  actual content height; the updated QML rendered on the tablet offscreen.
+  Next: record the owner's comparison, then
   resume the preserved Buildroot build and verify remaining tablet gestures
   before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**
