@@ -14,6 +14,7 @@ Rectangle {
     readonly property bool panic: control.tile === 14
     readonly property bool tempo: control.tile === 12
     readonly property bool trajectory: control.tile === 4
+    readonly property bool burst: control.tile === 7 && control.role === 7 && !control.icon
     readonly property var trajectoryNames: [
         "traj_circle", "traj_circle_simultaneous", "traj_circle_alternate",
         "traj_eight", "traj_eight_simultaneous", "traj_eight_alternate",
@@ -44,12 +45,12 @@ Rectangle {
         color: "#7c86d9"
     }
     DeskIcon {
-        visible: !!tile.control.icon && !tile.mini && !tile.master && !tile.panic && !tile.tempo && !tile.trajectory
-        glyph: tile.control.icon
+        visible: (!!tile.control.icon || tile.burst) && !tile.mini && !tile.master && !tile.panic && !tile.tempo && !tile.trajectory
+        glyph: tile.burst ? "bolt" : tile.control.icon
         width: tile.stateTile ? 40 : tile.hold ? 25 : 24
         height: width
-        x: tile.stateTile || (tile.hold && tile.height >= 70) ? (parent.width - width) / 2 : 10
-        y: tile.stateTile ? 13 : tile.hold && tile.height >= 70 ? 9 : (parent.height - height) / 2
+        x: tile.stateTile || tile.burst || (tile.hold && tile.height >= 70) ? (parent.width - width) / 2 : 10
+        y: tile.stateTile ? 13 : tile.burst ? 12 : tile.hold && tile.height >= 70 ? 9 : (parent.height - height) / 2
     }
     DeskIcon {
         visible: tile.trajectory && tile.control.trajectory >= 0
@@ -60,19 +61,24 @@ Rectangle {
     }
     Text {
         visible: !tile.mini && !tile.master && !tile.tempo
-        x: tile.trajectory ? 4 : tile.stateTile ? 3 : tile.hold && tile.height < 70 ? 45 : tile.hold || tile.panic ? 5 : (tile.control.icon ? 36 : 6)
+        x: tile.trajectory || tile.burst ? 4 : tile.stateTile ? 3 : tile.hold && tile.height < 70 ? 45 : tile.hold || tile.panic ? 5 : (tile.control.icon ? 36 : 6)
         width: parent.width - x - 5
-        y: tile.trajectory ? parent.height - 37 : tile.stateTile ? parent.height - 32 : tile.hold && tile.height >= 70 ? 45 : (parent.height - height) / 2
-        text: tile.control.label || ""
+        y: tile.trajectory ? parent.height - 37 : tile.burst ? 50 : tile.stateTile ? parent.height - 32 : tile.hold && tile.height >= 70 ? 45 : (parent.height - height) / 2
+        text: tile.control.label === "Insert Prism" ? "Insertar prisma" : tile.control.label || ""
         color: tile.ink
         font.family: "Inter"
-        font.pixelSize: tile.stateTile ? 11 : tile.hold ? 13 : 12
+        font.pixelSize: tile.stateTile && text.indexOf(" ") < 0 && text.length >= 9 ? 10 : tile.stateTile ? 11 : tile.hold ? 13 : 12
         font.bold: tile.panic || tile.hold
         horizontalAlignment: tile.trajectory || tile.stateTile || tile.hold || tile.panic ? Text.AlignHCenter : Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         wrapMode: Text.WordWrap
         maximumLineCount: 2
         elide: Text.ElideRight
+    }
+    Rectangle {
+        visible: tile.burst && tile.swatches.length > 0
+        x: (parent.width - 32) / 2; y: parent.height - 11
+        width: 32; height: 4; radius: 2; color: tile.swatches.length ? tile.swatches[0] : "transparent"
     }
     Text {
         visible: tile.hold && !!tile.control.detail

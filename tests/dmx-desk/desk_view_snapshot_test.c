@@ -35,6 +35,11 @@ int main(void) {
     model.control[3].enabled = 1;
     strcpy(model.control[3].label, "Every minute");
     model.layout.pages = 2;
+    model.layout.banks[1] = 2;
+    model.layout.headings = 1;
+    model.layout.heading[0].page = 1;
+    model.layout.heading[0].bank = 0;
+    strcpy(model.layout.heading[0].text, "COLOR");
     model.layout.placements = 3;
     model.layout.placement[0] = (struct desk_placement){.control=0,.page=1,.bank=0,
                                                         .x=40,.y=70,.w=90,.h=88,
@@ -61,6 +66,8 @@ int main(void) {
     assert(cJSON_IsTrue(cJSON_GetObjectItem(root, "colorOneShot")));
     assert(strcmp(cJSON_GetObjectItem(root, "activeMode")->valuestring, "") == 0);
     assert(strcmp(cJSON_GetObjectItem(root, "activeColor")->valuestring, "Pink") == 0);
+    assert(strcmp(cJSON_GetObjectItem(cJSON_GetArrayItem(cJSON_GetObjectItem(root, "pager"), 0),
+                                      "caption")->valuestring, "COLOR") == 0);
     cJSON *controls = cJSON_GetObjectItem(root, "controls");
     assert(cJSON_GetArraySize(controls) == 3);
     cJSON *control = cJSON_GetArrayItem(controls, 0);

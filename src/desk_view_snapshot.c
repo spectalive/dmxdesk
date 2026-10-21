@@ -8,6 +8,7 @@
 
 #include "desk_view.h"
 #include "desk_room_summary.h"
+#include "desk_pager_label.h"
 #include "desk_trajectory_of.h"
 #include "speed_factor.h"
 
@@ -74,6 +75,8 @@ char *desk_view_snapshot(const struct desk_model *model,
             cJSON_AddNumberToObject(entry, "y", rect.y);
             cJSON_AddNumberToObject(entry, "w", rect.w);
             cJSON_AddNumberToObject(entry, "h", rect.h);
+            cJSON_AddStringToObject(entry, "caption",
+                                    desk_pager_label(&model->layout, model->page, i));
             cJSON_AddItemToArray(pager, entry);
         }
     }

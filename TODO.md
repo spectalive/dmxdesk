@@ -24,7 +24,12 @@ Nothing open.
   colour-hit mode, two-finger stop-all and held-Flash release. The trial
   launcher returned to the linked C desk after capture. Real tablet touches
   switched show controls. The Mac preview now supports agent taps, holds and
-  captures against a mock master. Next: record the owner's comparison, then
+  captures against a mock master. A Mac audit of visible Qt Text items found
+  zero overflows across Directo, Ritmo, Ajustes, keyboard and every Efectos
+  family and bank after the text corrections. A later bounded tablet capture
+  restored the C process, but its configured master then refused connections;
+  the tablet repository tracks that external-state check. Next: record the
+  owner's comparison, then
   resume the preserved Buildroot build and verify remaining tablet gestures
   before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**

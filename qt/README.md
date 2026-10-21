@@ -7,6 +7,9 @@ snapshots and returns panel coordinates. The installed C desk remains the
 tablet's default until the physical trial has been compared and approved.
 The 1024x600 EGLFS capture is in
 `docs/evidence/qt-desk-panel-2026-10-21.png`.
+The later Mac review captures in `docs/evidence/qt-desk-text-2026-10-21.png`
+and `docs/evidence/qt-desk-color-hits-2026-10-21.png` show the corrected
+mode label, aligned status fields, color-hit marks and named effect banks.
 
 ## Host checks
 
@@ -41,6 +44,8 @@ capturing it, which makes repeatable screenshots of other pages quick.
 For an interactive agent session, pass `--agent-stdio` and send one command
 per line to its stdin: `TAP x y`, `CAPTURE /absolute/path.png`, or `QUIT`.
 `TOUCH D|M|U|C slot x y` exposes held controls, drags and multiple touch slots.
+`AUDIT` reports coordinates of visible Qt Text items that overflow or elide,
+without printing their contents.
 Responses start with `@AGENT`. This control channel is opt-in and is never
 enabled by the tablet launcher.
 

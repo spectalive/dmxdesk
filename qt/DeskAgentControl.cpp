@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "DeskBridge.h"
+#include "desk_text_audit.h"
 
 DeskAgentControl::DeskAgentControl(DeskBridge *bridge, QQuickWindow *window,
                                    QObject *parent)
@@ -92,6 +93,10 @@ void DeskAgentControl::execute(const QByteArray &line) {
             std::puts("@AGENT OK capture");
         else
             std::puts("@AGENT ERROR capture failed");
+        return;
+    }
+    if (line == "AUDIT") {
+        desk_text_audit(window_->contentItem());
         return;
     }
     if (line == "QUIT") {

@@ -91,10 +91,26 @@ Window {
     Rectangle { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; radius: 16; color: "#14181e" }
     Text { visible: root.currentTab === 0; x: 28; y: 174; text: "ESTADO ACTUAL"; color: "#adb6c4"; font.pixelSize: 11 }
     Text { visible: root.currentTab === 0; x: 40; y: 208; width: 230; text: root.view.activeMode || "SIN MODO"; color: "#f5f7fa"; font.pixelSize: 30; font.bold: true; elide: Text.ElideRight }
-    Text {
-        visible: root.currentTab === 0; x: 294; y: 184; width: 215
-        text: "EFECTO     " + (root.view.activeEffect || "—") + "\nHUMO        " + (root.view.activeHaze || "—") + "\nCOLOR       " + (root.view.activeColor || "—")
-        color: "#d6daf8"; font.pixelSize: 11; lineHeight: 1.8; elide: Text.ElideRight
+    Repeater {
+        model: root.currentTab === 0 ? [
+            {label: "EFECTO", value: root.view.activeEffect || "—"},
+            {label: "HUMO", value: root.view.activeHaze || "—"},
+            {label: "COLOR", value: root.view.activeColor || "—"}
+        ] : []
+        delegate: Item {
+            x: 294; y: 180 + index * 25; width: 215; height: 24
+            Text {
+                x: 0; y: 0; width: 57; height: parent.height
+                text: modelData.label; color: "#d6daf8"; font.pixelSize: 11
+                font.family: "Inter"; verticalAlignment: Text.AlignVCenter
+            }
+            Text {
+                x: 65; y: 0; width: parent.width - 65; height: parent.height
+                text: modelData.value; color: "#d6daf8"; font.pixelSize: 11
+                font.family: "Inter"; verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+        }
     }
     Text { visible: root.currentTab === 0; x: 28; y: 296; text: "COLOR DEL RIG"; color: "#adb6c4"; font.pixelSize: 11 }
     Text { visible: root.currentTab === 0; x: 552; y: 172; text: "EFECTOS · MIENTRAS PULSES"; color: "#adb6c4"; font.pixelSize: 11 }
@@ -135,7 +151,19 @@ Window {
             x: modelData.x; y: modelData.y; width: modelData.w; height: modelData.h
             radius: 10; color: modelData.bank === root.view.bank ? "#343a46" : "#1b1f27"
             border.color: modelData.bank === root.view.bank ? "#7a808c" : "#39404d"
-            Text { anchors.centerIn: parent; text: "BANCO " + (modelData.bank + 1); color: "#f5f7fa"; font.pixelSize: 12 }
+            Text {
+                x: modelData.caption ? 16 : 0; y: 0
+                width: modelData.caption ? 24 : parent.width; height: parent.height
+                text: modelData.bank + 1; color: "#f5f7fa"; font.pixelSize: 12
+                horizontalAlignment: modelData.caption ? Text.AlignLeft : Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+            Text {
+                visible: !!modelData.caption
+                x: 40; y: 0; width: parent.width - 56; height: parent.height
+                text: modelData.caption || ""; color: "#f5f7fa"; font.pixelSize: 12
+                verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
+            }
         }
     }
 

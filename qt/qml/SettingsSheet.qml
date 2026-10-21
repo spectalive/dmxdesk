@@ -104,7 +104,13 @@ Item {
                 x: modelData.x; y: modelData.y - 48; width: modelData.w; height: modelData.h
                 radius: 12; color: "#1b1f27"; border.color: "#39404d"
                 opacity: modelData.enabled ? 1 : 0.5
-                Text { anchors.centerIn: parent; text: modelData.label; color: "#f5f7fa"; font.pixelSize: 15 }
+                Text {
+                    anchors.centerIn: parent
+                    text: modelData.label === "cancel" ? "Cancelar" :
+                          modelData.label === "done" ? "Aceptar" :
+                          modelData.label === "del" ? "Borrar" : modelData.label
+                    color: "#f5f7fa"; font.pixelSize: 15
+                }
             }
         }
     }
