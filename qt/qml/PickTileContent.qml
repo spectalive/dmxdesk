@@ -9,6 +9,7 @@ Item {
 
     Column {
         id: stack
+        objectName: "align-x-parent"
         x: 8; width: parent.width - 16
         y: (content.height - height) / 2
         spacing: 8

@@ -25,9 +25,16 @@ with a cloud and repeat symbol on the physical tablet.
 alignment pass: centered tempo captions, the complete Wi-Fi mark, a clearer
 repeat arrow, and more space below the effects heading.
 `docs/evidence/qt-desk-mac-tempo-cloud-2026-10-21.png` captures the corrected
-Directo tempo grouping and the single cloud/repeat icon. The icon's editable
-source is `qt/assets/cloud_loop.svg`; regenerate its PNG with
-`rsvg-convert -w 96 -h 96 -o qt/qml/icons/cloud_loop.png qt/assets/cloud_loop.svg`.
+Directo tempo grouping and the single cloud/repeat icon.
+`docs/evidence/qt-desk-alignment-2026-10-21.png` captures the Mac pass with
+the full Humo vertical label, paired smoke icons, centered OFF, and the
+monochrome ambient-loop mark. The editable icon sources are in `qt/assets/`;
+regenerate their monochrome PNGs with:
+
+```sh
+python3 qt/render_monochrome_icon.py qt/assets/cloud_loop.svg qt/qml/icons/cloud_loop.png
+python3 qt/render_monochrome_icon.py qt/assets/vertical_fog.svg qt/qml/icons/vertical_fog.png
+```
 
 ## Host checks
 
@@ -62,9 +69,13 @@ capturing it, which makes repeatable screenshots of other pages quick.
 For an interactive agent session, pass `--agent-stdio` and send one command
 per line to its stdin: `TAP x y`, `CAPTURE /absolute/path.png`, or `QUIT`.
 `TOUCH D|M|U|C slot x y` exposes held controls, drags and multiple touch slots.
-`AUDIT` reports coordinates of visible Qt Text items that overflow or elide,
-without printing their contents. Review screenshots separately for spacing and
-alignment; the text audit does not measure either.
+`AUDIT` checks visible Qt Text items for overflow or elision and checks tagged
+items for parent centering, shared left or center axes, and mirrored icons.
+It reports `@AGENT AUDIT 0` and `@AGENT ALIGNMENT 0` on a clean page, without
+printing text contents. The alignment test deliberately displaces tempo, OFF,
+and the paired smoke icons to verify that each error is detected. Review a
+fresh screenshot for optical alignment and spacing, which geometry alone
+cannot measure.
 Responses start with `@AGENT`. This control channel is opt-in and is never
 enabled by the tablet launcher.
 

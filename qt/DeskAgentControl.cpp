@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "DeskBridge.h"
+#include "desk_alignment_audit.h"
 #include "desk_text_audit.h"
 
 DeskAgentControl::DeskAgentControl(DeskBridge *bridge, QQuickWindow *window,
@@ -97,6 +98,7 @@ void DeskAgentControl::execute(const QByteArray &line) {
     }
     if (line == "AUDIT") {
         desk_text_audit(window_->contentItem());
+        desk_alignment_audit(window_->contentItem());
         return;
     }
     if (line == "QUIT") {

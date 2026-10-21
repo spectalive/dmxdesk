@@ -12,17 +12,24 @@ Item {
             x: 16 + index * 418; y: 56; width: 410; height: 456; radius: 16
             color: "#14181e"; border.color: "#39404d"
             Text {
+                objectName: "align-center:rhythm-" + index
                 x: 16; y: 16; width: 240
                 text: modelData.caption; color: "#adb6c4"
                 font.pixelSize: 12; font.bold: true
                 horizontalAlignment: Text.AlignHCenter
             }
             Text {
+                objectName: "align-center:rhythm-" + index
                 x: 16; y: 63; width: 240; text: modelData.known ? modelData.bpm : "--"
                 color: "#f5f7fa"; font.pixelSize: 52; font.bold: true
                 horizontalAlignment: Text.AlignHCenter
             }
-            Text { x: 16; y: 129; width: 240; text: "BPM BASE"; color: "#adb6c4"; font.pixelSize: 12; horizontalAlignment: Text.AlignHCenter }
+            Text {
+                objectName: "align-center:rhythm-" + index
+                x: 16; y: 129; width: 240
+                text: "BPM BASE"; color: "#adb6c4"; font.pixelSize: 12
+                horizontalAlignment: Text.AlignHCenter
+            }
             Rectangle {
                 x: 274; y: 52; width: 120; height: 48; radius: 10
                 color: "#262c36"; border.color: "#39404d"

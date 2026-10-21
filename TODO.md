@@ -46,8 +46,13 @@ Nothing open.
   has more room. The owner clarified that Directo's number must align with
   its label; the Mac preview now puts the number and BPM base on one axis
   below the left heading, and timed haze uses a single custom cloud/repeat
-  asset. Next: resume the preserved Buildroot build and verify remaining
-  tablet gestures before considering any default-interface change.
+  asset. The latest Mac pass removed the transient pending dot, centered OFF,
+  made the ambient mark monochrome, and placed the full Humo vertical label
+  between paired smoke icons. A new runtime alignment audit and regression
+  test check the relevant axes; the final Mac capture also confirmed their
+  optical centers to the pixel. Next: resume the preserved Buildroot build
+  and verify remaining tablet gestures before considering any
+  default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**
   On 2026-10-21, loopback Art-Net from QLC+ 5.2.2 showed AUTO colour on all
   four 7R wheels in 299/302 steady frames of the tablet's white burst; the

@@ -27,6 +27,7 @@ Rectangle {
     ]
     readonly property bool hold: control.tile === 7 || control.tile === 9
     readonly property bool haze: control.tile === 10 || control.tile === 6
+    readonly property bool hazeOff: haze && control.label === "OFF"
     readonly property bool ambientLoop: haze && /^cada\s+\d+\s+min$/i.test(control.label || "")
     readonly property var swatches: control.swatches || []
     readonly property string ink: control.enabled && connected ? "#f5f7fa" : "#adb6c4"
@@ -82,15 +83,16 @@ Rectangle {
     }
     Text {
         visible: !tile.ambientLoop && !tile.pick && !tile.stateTile && !tile.trajectory && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo
-        x: tile.panic ? 5 : (tile.control.icon ? 46 : 8)
-        width: parent.width - x - 5
+        objectName: tile.hazeOff ? "align-x-parent" : ""
+        x: tile.hazeOff ? 0 : tile.panic ? 5 : (tile.control.icon ? 46 : 8)
+        width: tile.hazeOff ? parent.width : parent.width - x - 5
         y: (parent.height - height) / 2
         text: tile.control.label === "Insert Prism" ? "Insertar prisma" : tile.control.label || ""
         color: tile.ink
         font.family: "Inter"
         font.pixelSize: 12
         font.bold: tile.panic
-        horizontalAlignment: tile.panic ? Text.AlignHCenter : Text.AlignLeft
+        horizontalAlignment: tile.hazeOff || tile.panic ? Text.AlignHCenter : Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         wrapMode: Text.WordWrap
         maximumLineCount: 2
@@ -132,12 +134,14 @@ Rectangle {
     }
     Text {
         visible: tile.master
+        objectName: "align-x-parent"
         x: 0; y: 12; width: parent.width
         text: "MASTER"; color: "#adb6c4"; font.pixelSize: 11
         horizontalAlignment: Text.AlignHCenter
     }
     Text {
         visible: tile.master
+        objectName: "align-x-parent"
         x: 0; y: 43; width: parent.width
         text: tile.connected ? Math.round(tile.control.level * 100 / 255) + "%" : "--"
         color: tile.ink; font.pixelSize: 18; font.bold: true
@@ -156,19 +160,16 @@ Rectangle {
     }
     Text {
         visible: tile.tempo
+        objectName: "align-left:direct-tempo"
         x: 12; y: 11
         text: tile.control.label; color: "#adb6c4"
         font.pixelSize: 10
     }
     Text {
         visible: tile.tempo
+        objectName: "align-center:direct-tempo-bpm"
         x: 12; y: 70; width: 82
         text: "BPM BASE"; color: "#adb6c4"; font.pixelSize: 10
         horizontalAlignment: Text.AlignHCenter
-    }
-    Rectangle {
-        visible: tile.control.pending
-        x: parent.width - 8; y: 4; width: 4; height: 4; radius: 2
-        color: "#7c86d9"
     }
 }

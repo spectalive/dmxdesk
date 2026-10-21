@@ -225,6 +225,7 @@ Window {
         delegate: Item {
             x: modelData.x; y: modelData.y; width: modelData.w; height: modelData.h
             Text {
+                objectName: "align-left:direct-tempo;align-center:direct-tempo-bpm"
                 x: 12; y: 19; width: 82; height: 50
                 text: root.view.dials && root.view.dials.length && root.view.dials[0].known ? root.view.dials[0].bpm : "--"
                 color: "#f5f7fa"; font.pixelSize: 40; font.bold: true

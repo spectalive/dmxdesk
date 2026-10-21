@@ -9,6 +9,7 @@ Item {
     required property int labelSize
 
     Column {
+        objectName: "align-x-parent"
         width: parent.width - 6
         x: 3
         y: (parent.height - height) / 2

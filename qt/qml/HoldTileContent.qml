@@ -6,12 +6,13 @@ Item {
     property int bottomInset: 0
     readonly property bool wide: width >= 2 * height
     readonly property bool compact: !wide && height < 90
+    readonly property bool verticalFog: wide && control.tile === 9 && control.label === "HUMO VERT"
     readonly property string mark: control.icon || "bolt"
     readonly property string ink: control.enabled ? "#f5f7fa" : "#adb6c4"
     readonly property string accent: control.tile === 9 ? "#3ee0aa" : "#a991e8"
 
     DeskIcon {
-        visible: content.wide
+        visible: content.wide && !content.verticalFog
         x: 16; y: (parent.height - height) / 2
         width: 25; height: 25; glyph: content.mark
     }
@@ -46,7 +47,8 @@ Item {
 
     Column {
         id: stack
-        visible: !content.compact
+        objectName: content.wide ? "" : "align-x-parent"
+        visible: !content.compact && !content.verticalFog
         x: content.wide ? 57 : 4
         width: content.width - x - (content.wide ? 16 : 4)
         spacing: 7
@@ -78,5 +80,11 @@ Item {
                 color: "#1b1f27"; font.family: "Inter"; font.pixelSize: 10; font.bold: true
             }
         }
+    }
+    VerticalFogHoldContent {
+        visible: content.verticalFog
+        anchors.fill: parent
+        ink: content.ink
+        accent: content.accent
     }
 }
