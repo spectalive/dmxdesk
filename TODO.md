@@ -18,6 +18,15 @@ Nothing open.
 
 ## Design
 
+- [!] **Keep white and colour bursts dominant through their full cap.**
+  On 2026-10-21, loopback Art-Net from QLC+ 5.2.2 showed AUTO colour on all
+  four 7R wheels in 299/302 steady frames of the tablet's white burst; the
+  console Flash button stayed white in 794/794. The tablet's Chaser has an
+  eight-second server deadline but ordinary priority. Driving the console
+  Flash button directly would restore priority, yet it remained active after
+  the WebSocket closed. Next: coordinate with qlctool on a controller-host
+  expiry for light flashes, preserve the existing bounded fog path, and test
+  output plus disconnect before changing the tablet map.
 - [ ] **Pulse at the show tempo (new, from the v3 mockups):** the RITMO cards
   and the SALA AHORA panel could blink with the BPM the desk already knows,
   so the room's beat is visible at a glance (`docs/design/v3/ritmo.png`,
