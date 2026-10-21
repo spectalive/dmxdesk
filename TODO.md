@@ -41,9 +41,11 @@ Nothing open.
   their teal field. A second physical capture verified the revised layout.
   A subsequent tablet capture restored the one-line effects heading and large
   BPM, and showed cloud/repeat icons with short ambient haze intervals; the C
-  desk resumed and linked after capture. Next: record the owner's response to
-  the updated layout, then resume the preserved Buildroot build and verify
-  remaining tablet gestures before considering any default-interface change.
+  desk resumed and linked after capture. The owner then asked for a Mac-only
+  visual pass: tempo captions now center above their BPM, the Wi-Fi mark shows
+  every layer, and the repeat arrow and effects heading have more room. Next:
+  resume the preserved Buildroot build and verify remaining tablet gestures
+  before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**
   On 2026-10-21, loopback Art-Net from QLC+ 5.2.2 showed AUTO colour on all
   four 7R wheels in 299/302 steady frames of the tablet's white burst; the

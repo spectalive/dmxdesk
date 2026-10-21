@@ -21,6 +21,9 @@ The later Directo hold revision is captured on the tablet in
 `docs/evidence/qt-desk-loop-2026-10-21.png` captures the restored one-line
 effects heading and large BPM, plus compact ambient haze intervals marked
 with a cloud and repeat symbol on the physical tablet.
+`docs/evidence/qt-desk-mac-final-2026-10-21.png` captures the subsequent Mac
+alignment pass: centered tempo captions, the complete Wi-Fi mark, a clearer
+repeat arrow, and more space below the effects heading.
 
 ## Host checks
 

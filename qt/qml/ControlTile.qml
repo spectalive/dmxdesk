@@ -156,8 +156,9 @@ Rectangle {
     }
     Text {
         visible: tile.tempo
-        x: 12; y: 11; text: tile.control.label; color: "#adb6c4"
-        font.pixelSize: 10
+        x: 12; y: 11; width: 124
+        text: tile.control.label; color: "#adb6c4"
+        font.pixelSize: 10; horizontalAlignment: Text.AlignHCenter
     }
     Text {
         visible: tile.tempo

@@ -80,7 +80,7 @@ Window {
         x: 756; y: 20; width: 8; height: 8; radius: 4
         color: root.linked ? "#3ee0aa" : "#d42a2a"
     }
-    DeskIcon { x: 777; y: 12; width: 24; height: 24; glyph: "wifi_" + Math.max(0, Math.min(3, root.view.wifiBars || 0)); opacity: 0.65 }
+    WifiStatusIcon { x: 777; y: 12; width: 24; height: 24; bars: Math.max(0, Math.min(3, root.view.wifiBars || 0)) }
     DeskIcon { x: 817; y: 12; width: 24; height: 24; glyph: "battery"; opacity: 0.75 }
     Text { x: 846; y: 17; width: 57; text: root.view.battery >= 0 ? root.view.battery + "%" : "--"; color: "#adb6c4"; font.pixelSize: 11 }
     DeskIcon { x: 924; y: 12; width: 24; height: 24; glyph: "gear"; opacity: 0.75 }
@@ -150,13 +150,13 @@ Window {
     Text {
         id: effectHeading
         visible: root.currentTab === 0
-        x: 552; y: 172
+        x: 552; y: 166
         text: "EFECTOS · MIENTRAS PULSES"
         color: "#adb6c4"; font.pixelSize: 11
     }
     Rectangle {
         visible: effectHeading.visible
-        x: effectHeading.x + effectHeading.implicitWidth + 12; y: 179
+        x: effectHeading.x + effectHeading.implicitWidth + 12; y: 173
         width: 888 - x; height: 1
         color: "#39404d"
     }
