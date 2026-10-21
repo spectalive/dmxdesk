@@ -28,8 +28,8 @@ Nothing open.
   zero overflows across Directo, Ritmo, Ajustes, keyboard and every Efectos
   family and bank after the text corrections. A later bounded tablet capture
   restored the C process, but its configured master then refused connections;
-  the owner identified another QLC+ instance as the cause, and the tablet
-  repository tracks a live reconnection check. A visual spacing
+  the owner identified another QLC+ instance as the cause. Both the C desk
+  and Mac Qt trial later reconnected to the intended show. A visual spacing
   pass centered hold prompts, mode labels and trajectory labels by their
   actual content height; the updated QML rendered on the tablet offscreen.
   Next: record the owner's comparison, then
