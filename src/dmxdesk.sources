@@ -4,6 +4,10 @@ desk_master_level_at.c
 desk_master_track.c
 desk_rebuild_model.c
 desk_paint.c
+desk_pipe_parse.c
+desk_pipe_read.c
+desk_view_snapshot.c
+desk_room_summary.c
 desk_present_drm.c
 desk_layout_resolve.c
 desk_show_layout.c

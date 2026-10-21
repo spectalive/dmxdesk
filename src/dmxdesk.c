@@ -5,6 +5,7 @@
 // what the master says is running.
 //
 //   dmxdesk [--host 192.168.1.50] --map /etc/taq102/show-map.json
+//   dmxdesk --qt-pipe --map /usr/share/dmxdesk/vibra.desk.json
 //
 // The master comes from --host, else from /data/desk.conf, which the gear in
 // the status bar writes: the settings surface joins a Wi-Fi, finds a running
@@ -46,6 +47,8 @@
 #include "desk_rebuild_model.h"
 #include "desk_master_track.h"
 #include "desk_paint.h"
+#include "desk_pipe_read.h"
+#include "desk_view_snapshot.h"
 #include "desk_power.h"
 #include "desk_present_drm.h"
 #include "desk_setup.h"
@@ -399,6 +402,7 @@ int main(int argc, char **argv) {
     const char *power_device = NULL;
     int view_page = 0, view_bank = 0;    // --view P,B: the first page shown, for dumps
     int start_setup = 0;                 // --setup: the surface open at start, for dumps
+    int qt_pipe = 0;
 
     if (argc == 4 && !strcmp(argv[1], "--find")) {
         char *end;
@@ -422,6 +426,7 @@ int main(int argc, char **argv) {
         else if (!strcmp(argv[i], "--touch") && i + 1 < argc) touch_device = argv[++i];
         else if (!strcmp(argv[i], "--power") && i + 1 < argc) power_device = argv[++i];
         else if (!strcmp(argv[i], "--setup")) start_setup = 1;
+        else if (!strcmp(argv[i], "--qt-pipe")) qt_pipe = 1;
         else if (!strcmp(argv[i], "--view") && i + 1 < argc) {
             if (sscanf(argv[++i], "%d,%d", &view_page, &view_bank) != 2)
                 view_page = view_bank = 0;
@@ -429,7 +434,7 @@ int main(int argc, char **argv) {
         else {
             fprintf(stderr, "usage: %s [--host H] [--port P] [--map FILE]"
                             " [--card /dev/dri/cardN] [--touch /dev/input/eventN]"
-                            " [--power /dev/input/eventN] [--view PAGE,BANK] [--setup]\n"
+                            " [--power /dev/input/eventN] [--view PAGE,BANK] [--setup] [--qt-pipe]\n"
                             "       %s --find ADDR/PREFIX PORT\n",
                     argv[0], argv[0]);
             return 2;
@@ -458,10 +463,11 @@ int main(int argc, char **argv) {
     // The display first. The model is built against an empty console, so
     // every tile is drawn disabled with its reason before the network is
     // touched; the session's first snapshot rebuilds it.
-    struct present *present = present_open(card);
-    if (!present)
+    struct present *present = qt_pipe ? NULL : present_open(card);
+    if (!qt_pipe && !present)
         return 1;
-    int w = present_width(present), h = present_height(present);
+    int w = qt_pipe ? DESK_W : present_width(present);
+    int h = qt_pipe ? DESK_H : present_height(present);
     struct canvas canvas = { .px = calloc((size_t)w * h, 4), .w = w, .h = h };
     if (!canvas.px) {
         present_close(present);
@@ -501,7 +507,7 @@ int main(int argc, char **argv) {
     // scale rather than a constant. The desk never turns the panel over, so
     // no axis is flipped: the mode is "none" and the log says so, rather than
     // naming axes (DMXDESK_TOUCH_FLIP used to) that nothing ever applied.
-    int touch_fd = open(touch_device, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+    int touch_fd = qt_pipe ? -1 : open(touch_device, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
     struct touch_input *touch = NULL;
     struct touch_flip flip;
     if (touch_fd >= 0) {
@@ -518,7 +524,15 @@ int main(int argc, char **argv) {
                flip.name);
     }
     if (!touch)
-        fprintf(stderr, "no touch on %s: the desk will only show\n", touch_device);
+        fprintf(stderr, "desk: %s\n", qt_pipe ? "touch comes from Qt pipe"
+                : "physical touch unavailable");
+    struct desk_pipe_reader pipe_reader = {0};
+    if (qt_pipe) {
+        int flags = fcntl(STDIN_FILENO, F_GETFL);
+        if (flags < 0 || fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK) != 0)
+            return 1;
+        setvbuf(stdout, NULL, _IONBF, 0);
+    }
 
     // The power key blanks and locks; without a node the desk simply never
     // blanks, which is show mode anyway.
@@ -607,6 +621,8 @@ int main(int argc, char **argv) {
     unsigned long flips = 0;
     int64_t last_report_ms = now_ms();
     int64_t last_status_ms = 0;
+    int64_t last_snapshot_ms = 0;
+    int snapshot_pending = 1;
     struct status status;
     memset(&status, 0, sizeof status);
     int bar_ready = 0;      // the bar's facts reach the model on the next status tick
@@ -620,6 +636,13 @@ int main(int argc, char **argv) {
         int64_t phase_at = iteration_at;
         struct pollfd fds[6];
         int count = 0, touch_slot = -1, power_slot = -1;
+        if (qt_pipe) {
+            touch_slot = count;
+            fds[count].fd = STDIN_FILENO;
+            fds[count].events = POLLIN | POLLHUP;
+            fds[count].revents = 0;
+            count++;
+        }
         if (touch) {
             touch_slot = count;
             fds[count].fd = touch_fd;
@@ -697,9 +720,20 @@ int main(int argc, char **argv) {
         }
 
         phase_at = loop_trace("power-input", phase_at);
-        if (touch_slot >= 0 && (fds[touch_slot].revents & POLLIN)) {
+        if (qt_pipe || (touch_slot >= 0 && (fds[touch_slot].revents & POLLIN))) {
             struct touch_event events[32];
-            int n = touch_input_read_fd(touch, touch_fd, events, 32);
+            int n = qt_pipe ? desk_pipe_read(&pipe_reader, STDIN_FILENO, events, 32)
+                            : touch_input_read_fd(touch, touch_fd, events, 32);
+            if (n < 0) {
+                release_holds(&hold, &model, session, hold_owner, now);
+                // The final release must reach the socket before the child exits.
+                qlc_session_step(session, now);
+                desk_cancel_all(&model);
+                desk_speed_touch_cancel(&speed);
+                desk_setup_touch_cancel(&setup);
+                stop = 1;
+                n = 0;
+            }
             for (int i = 0; i < n; i++) {
                 if (events[i].kind == TOUCH_DOWN)
                     desk_lock_contact(&lock, 1);
@@ -1224,7 +1258,20 @@ int main(int argc, char **argv) {
         }
         int dx = 0, dy = 0, dw = -1, dh = -1;
         int damaged = desk_take_damage(&model, &dx, &dy, &dw, &dh);
-        if (damaged || force_flip) {
+        if (damaged)
+            snapshot_pending = 1;
+        if (qt_pipe && ((snapshot_pending && now - last_snapshot_ms >= 50) ||
+                        now - last_snapshot_ms >= 500)) {
+            char *view = desk_view_snapshot(&model, &speed, &setup);
+            if (view) {
+                printf("@STATE %s\n", view);
+                fflush(stdout);
+                free(view);
+                snapshot_pending = 0;
+            }
+            last_snapshot_ms = now;
+        }
+        if (!qt_pipe && (damaged || force_flip)) {
             // A forced flip re-presents the same canvas: the point is the
             // flip, not the paint, and a full repaint on this CPU would cap
             // the rate far below the panel's. A damaged frame paints only
