@@ -52,9 +52,12 @@ Nothing open.
   test check the relevant axes; the final Mac capture also confirmed their
   optical centers to the pixel. A follow-up optical-ink check exposed a
   1.64 px vertical imbalance in those icons, now reduced to 0.36 px; the
-  selected swatch also uses its outline without a check mark. Next: resume
-  the preserved Buildroot build and verify remaining tablet gestures before
-  considering any default-interface change.
+  selected swatch also uses its outline without a check mark. The latest Mac
+  pass puts 12 px of padding around the effects in the shared C layout and
+  aligns the rendered Tempo Show/BPM left edges and BPM/Base centers. The
+  tablet still runs the previous backend build. Next: resume the preserved
+  Buildroot build, check the new layout on the physical panel, and verify
+  remaining tablet gestures before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**
   On 2026-10-21, loopback Art-Net from QLC+ 5.2.2 showed AUTO colour on all
   four 7R wheels in 299/302 steady frames of the tablet's white burst; the

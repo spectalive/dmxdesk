@@ -45,6 +45,16 @@ capture fails by 1.64 px; the corrected one passes at 0.36 px.
 `docs/evidence/qt-desk-selected-color-2026-10-21.png` compares selected and
 unselected red swatches in an isolated Qt render. Selection uses the existing
 outline without a check mark over the color.
+`docs/evidence/qt-effects-padding-2026-10-22.png` is an isolated Qt render
+using the revised C layout coordinates: all seven effects have 12 px between
+their edges and the panel, with the wide fog pad clear of the bottom edge.
+The buttons' touch rectangles use those same coordinates. The tablet backend
+still needs a new build before it will supply the revised layout to Qt.
+`docs/evidence/qt-tempo-alignment-2026-10-22.png` shows the current Mac tempo
+render. `python3 qt/check_tempo_alignment.py /path/to/directo-capture.png`
+checks the visible left edges of Tempo Show and BPM and the shared BPM/Base
+center in a fresh 1024x600 capture; the current render has zero offset on
+both axes.
 
 ## Host checks
 

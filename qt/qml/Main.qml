@@ -218,20 +218,14 @@ Window {
         delegate: ControlTile {
             colorOneShot: !!root.view.colorOneShot
             connected: root.linked
+            bpmText: root.view.dials && root.view.dials.length && root.view.dials[0].known ?
+                     String(root.view.dials[0].bpm) : "--"
         }
     }
     Repeater {
         model: root.controls.filter(c => c.tile === 12)
         delegate: Item {
             x: modelData.x; y: modelData.y; width: modelData.w; height: modelData.h
-            Text {
-                objectName: "align-left:direct-tempo;align-center:direct-tempo-bpm"
-                x: 12; y: 19; width: 82; height: 50
-                text: root.view.dials && root.view.dials.length && root.view.dials[0].known ? root.view.dials[0].bpm : "--"
-                color: "#f5f7fa"; font.pixelSize: 40; font.bold: true
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
             Repeater {
                 model: ["-", "+", "TAP"]
                 delegate: Rectangle {

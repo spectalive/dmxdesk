@@ -31,7 +31,9 @@ int desk_show_holds(const struct show_map *map, const struct map_section *accent
                 continue;
             int slot = laid++, row = slot / PER_ROW;
             int in_row = row == rows - 1 ? last : PER_ROW;
-            int w, x = desk_show_slot(DESK_HITS_X, DESK_HITS_W, in_row, DESK_GAP, slot % PER_ROW, &w);
+            int w, x = desk_show_slot(DESK_HITS_X + DESK_PANEL_PAD,
+                                      DESK_HITS_W - 2 * DESK_PANEL_PAD,
+                                      in_row, DESK_GAP, slot % PER_ROW, &w);
             int h = DESK_HOLD_WIDE_H, y = DESK_HITS_END - DESK_HOLD_WIDE_H;
             if (!wide || row < grid_rows)
                 y = desk_show_slot(DESK_HITS_TOP, grid_room, grid_rows, DESK_GAP, row, &h);

@@ -6,6 +6,7 @@ Rectangle {
     readonly property var control: modelData
     required property bool colorOneShot
     required property bool connected
+    property string bpmText: "--"
     readonly property bool selected: !!control.selected && control.enabled && connected &&
                                      control.tile !== 13 && control.tile !== 14 && control.tile !== 12
     readonly property bool mini: control.tile === 11
@@ -152,18 +153,10 @@ Rectangle {
         y: 77 + (255 - tile.control.level) * (parent.height - 93 - 24) / 255
         color: tile.connected ? "#f5f7fa" : "#adb6c4"
     }
-    Text {
+    TempoTileContent {
         visible: tile.tempo
-        objectName: "align-left:direct-tempo"
-        x: 12; y: 11
-        text: tile.control.label; color: "#adb6c4"
-        font.pixelSize: 10
-    }
-    Text {
-        visible: tile.tempo
-        objectName: "align-center:direct-tempo-bpm"
-        x: 12; y: 70; width: 82
-        text: "BPM BASE"; color: "#adb6c4"; font.pixelSize: 10
-        horizontalAlignment: Text.AlignHCenter
+        anchors.fill: parent
+        label: tile.control.label || ""
+        bpm: tile.bpmText
     }
 }

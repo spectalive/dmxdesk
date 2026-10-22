@@ -123,16 +123,19 @@ int main(void) {
         assert(g && g->tile == (k == 5 ? TILE_FOG : TILE_HOLD) && g->h >= 48 && g->w >= 88);
         assert(g->y == DESK_HITS_TOP + (k / 3) * (g->h + DESK_GAP));
         int col = k % 3, w;
-        assert(g->x == desk_show_slot(hits->x, hits->w, 3, DESK_GAP, col, &w) && g->w == w);
+        assert(g->x == desk_show_slot(hits->x + DESK_PANEL_PAD,
+                                     hits->w - 2 * DESK_PANEL_PAD,
+                                     3, DESK_GAP, col, &w) && g->w == w);
     }
     const struct desk_placement *vert = find(&l, control_named(&map, "HUMO VERT"), 0);
-    assert(vert && vert->tile == TILE_FOG && vert->x == hits->x && vert->w == hits->w);
+    assert(vert && vert->tile == TILE_FOG && vert->x == hits->x + DESK_PANEL_PAD &&
+           vert->w == hits->w - 2 * DESK_PANEL_PAD);
     assert(vert->h == DESK_HOLD_WIDE_H && vert->y + vert->h == DESK_HITS_END);
     // The colour grid is below the modes and the timing selector below effects.
     assert(rig->x == DESK_CONTENT_X && rig->y == DESK_RIG_Y && rig->h == DESK_RIG_H);
     assert(haze->x == hits->x && haze->y == DESK_HAZE_Y && haze->h == DESK_HAZE_H);
     assert(rig->y == room->y + room->h + DESK_GAP);
-    assert(haze->y == DESK_HITS_END + DESK_GAP && haze->y + haze->h == DESK_CONTENT_END);
+    assert(haze->y == DESK_HITS_PANEL_END + DESK_GAP && haze->y + haze->h == DESK_CONTENT_END);
     // HUMO AMBIENTE: OFF a full-height segment at the left, the four rhythms
     // two rows deep beside it, in map order.
     const struct desk_placement *off = find(&l, map.count + 2, 0);
@@ -226,7 +229,8 @@ int main(void) {
         const struct desk_placement *cue = find(&show, accents->first, 0);
         const struct desk_placement *next = find(&show, accents->first + 1, 0);
         assert(cue && cue->tile == TILE_CUE && next && next->tile == TILE_HOLD);
-        assert(cue->y == next->y && cue->x < next->x && cue->x == DESK_HITS_X && cue->y == DESK_HITS_TOP);
+        assert(cue->y == next->y && cue->x < next->x &&
+               cue->x == DESK_HITS_X + DESK_PANEL_PAD && cue->y == DESK_HITS_TOP);
         // Without the tempo, the colour grid still stays below the modes.
         const struct desk_heading *wide = heading_named(&show, 0, "COLOR DEL RIG");
         assert(wide && wide->x == DESK_CONTENT_X && wide->w == DESK_HERO_W);

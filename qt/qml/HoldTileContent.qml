@@ -19,13 +19,13 @@ Item {
 
     Item {
         visible: content.compact
-        x: 8; y: 10; width: parent.width - 16; height: parent.height - 38
+        x: 6; y: 10; width: parent.width - 12; height: parent.height - 38
         DeskIcon {
-            x: 3; y: (parent.height - height) / 2
-            width: 24; height: 24; glyph: content.mark
+            x: 0; y: (parent.height - height) / 2
+            width: 22; height: 22; glyph: content.mark
         }
         Text {
-            x: 36; width: parent.width - 36; height: parent.height
+            x: 26; width: parent.width - 26; height: parent.height
             text: content.control.label || ""
             color: content.ink
             font.family: "Inter"; font.pixelSize: 12; font.bold: true

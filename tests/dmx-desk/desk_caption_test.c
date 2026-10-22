@@ -75,7 +75,7 @@ int main(void) {
     struct font *foot = font_open("fonts/Inter-Regular.ttf", 13);
     assert(state && detail && hold && foot);
     int state_w = (DESK_HERO_W - 6 * DESK_STATE_GAP) / 7;
-    int hold_w = (DESK_HITS_W - 2 * DESK_GAP) / 3;
+    int hold_w = (DESK_HITS_W - 2 * DESK_PANEL_PAD - 2 * DESK_GAP) / 3;
     int states = 0, holds = 0;
     for (int i = 0; i < map.count; i++) {
         const struct map_control *c = &map.control[i];
