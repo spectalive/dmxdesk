@@ -50,14 +50,15 @@ using the revised C layout coordinates: all seven effects have 12 px between
 their edges and the panel, with the wide fog pad clear of the bottom edge.
 The buttons' touch rectangles use those same coordinates. The tablet backend
 still needs a new build before it will supply the revised layout to Qt.
-`docs/evidence/qt-tempo-alignment-2026-10-22.png` shows the current Mac tempo
-render. `python3 qt/check_tempo_alignment.py /path/to/directo-capture.png`
-checks the visible left edges of Tempo Show and BPM and the shared BPM/Base
-center in a fresh 1024x600 capture; the current render has zero offset on
-both axes.
+`docs/evidence/qt-tempo-alignment-2026-10-22.png` records the earlier centered
+BPM Base treatment. Run the pixel check with
+`python3 qt/check_tempo_alignment.py /path/to/directo-capture.png`; it checks
+the visible left edges of Tempo Show, BPM and BPM Base in a fresh 1024x600
+capture. The integrated render has zero offset for both labels.
 `docs/evidence/qt-desk-mac-integrated-2026-10-22.png` shows the full Mac desk
-with the revised effects layout and tempo tile in one window. The installed
-tablet backend still reports the earlier effect rectangles, so this preview
+with three aligned effects rows and the wider BPM numerals in one window.
+All three tempo lines share one visible left edge. The installed tablet
+backend still reports the earlier effect rectangles, so this preview
 uses `tests/qt_layout_preview_bridge.py` to translate those seven rectangles
 and their touches against the mock master. The bridge is only for preview;
 the tablet needs its backend rebuilt to use the new layout directly.

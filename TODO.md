@@ -54,11 +54,12 @@ Nothing open.
   1.64 px vertical imbalance in those icons, now reduced to 0.36 px; the
   selected swatch also uses its outline without a check mark. The latest Mac
   pass puts 12 px of padding around the effects in the shared C layout and
-  aligns the rendered Tempo Show/BPM left edges and BPM/Base centers. The
-  full Mac preview now shows both changes using a tested touch/snapshot bridge
-  for the older installed backend; the screenshot and runtime audit confirm
-  the integrated layout. The tablet still runs the previous backend build.
-  Next: resume the preserved
+  aligns the rendered Tempo Show/BPM left edges. A later Mac capture exposed
+  an incomplete preview translation that left Humo Ya overlapping Humo
+  vertical. The bridge now translates all seven rectangles, tests their row
+  gaps, and the full Mac screenshot shows aligned effects. BPM numerals are
+  wider, and Tempo Show, BPM and BPM Base have the same visible left edge.
+  The tablet still runs the previous backend build. Next: resume the preserved
   Buildroot build, check the new layout on the physical panel, and verify
   remaining tablet gestures before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**

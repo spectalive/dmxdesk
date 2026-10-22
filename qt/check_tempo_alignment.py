@@ -31,10 +31,10 @@ def main() -> int:
         bounds.append((left, right))
         print(f"{name}: {left}..{right} px")
 
-    left_offset = abs(bounds[0][0] - bounds[1][0])
-    center_offset = abs((bounds[1][0] + bounds[1][1] - bounds[2][0] - bounds[2][1]) / 2)
-    print(f"left offset: {left_offset} px; BPM Base center offset: {center_offset:.1f} px")
-    return 0 if left_offset <= 1 and center_offset <= 1 else 1
+    bpm_offset = abs(bounds[0][0] - bounds[1][0])
+    base_offset = abs(bounds[0][0] - bounds[2][0])
+    print(f"BPM left offset: {bpm_offset} px; BPM Base left offset: {base_offset} px")
+    return 0 if bpm_offset <= 1 and base_offset <= 1 else 1
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ Item {
     id: content
     required property string label
     required property string bpm
+    readonly property real bpmStretch: 1.15
 
     Text {
         objectName: "align-left:direct-tempo"
@@ -15,10 +16,9 @@ Item {
     Item {
         id: bpmAxis
         objectName: "align-left:direct-tempo"
-        x: 12; y: 19; width: bpmValue.width; height: 50
+        x: 12; y: 19; width: bpmValue.width * content.bpmStretch; height: 50
         Text {
             id: bpmValue
-            objectName: "align-center:direct-tempo-bpm"
             // Inter's large numerals start two rendered pixels inside the shared axis.
             x: -2; width: implicitWidth; height: parent.height
             text: content.bpm
@@ -26,15 +26,16 @@ Item {
             font.family: "Inter"; font.pixelSize: 40; font.bold: true
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
+            transform: Scale { origin.x: 0; xScale: content.bpmStretch }
         }
     }
     Text {
-        objectName: "align-center:direct-tempo-bpm"
-        x: bpmAxis.x + bpmValue.x + (bpmValue.width - width) / 2; y: 70
-        width: Math.max(implicitWidth, bpmValue.width)
+        objectName: "align-left:direct-tempo"
+        x: bpmAxis.x; y: 70
+        width: implicitWidth
         text: "BPM BASE"
         color: "#adb6c4"
         font.family: "Inter"; font.pixelSize: 10
-        horizontalAlignment: Text.AlignHCenter
+        horizontalAlignment: Text.AlignLeft
     }
 }
