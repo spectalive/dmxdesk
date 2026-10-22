@@ -64,6 +64,9 @@ backend still reports the earlier effect rectangles, so this preview
 uses `tests/qt_layout_preview_bridge.py` to translate those seven rectangles
 and their touches against the mock master. The bridge is only for preview;
 the tablet needs its backend rebuilt to use the new layout directly.
+`docs/evidence/qt-desk-tempo-large-2026-10-22.png` shows the subsequent
+Directo adjustment: 56 px BPM numerals use the freed caption space, with the
+title and number still sharing the same visible left edge.
 
 ## Host checks
 

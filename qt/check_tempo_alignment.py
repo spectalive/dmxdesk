@@ -15,8 +15,8 @@ def main() -> int:
 
     bounds = []
     for name, box in (
-        ("Tempo Show", (545, 75, 650, 97)),
-        ("BPM", (545, 97, 670, 137)),
+        ("Tempo Show", (545, 62, 650, 84)),
+        ("BPM", (545, 84, 680, 149)),
     ):
         pixels = []
         for y in range(box[1], box[3]):

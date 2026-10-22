@@ -60,7 +60,8 @@ Nothing open.
   gaps, and the full Mac screenshot shows aligned effects. BPM numerals are
   wider, and Tempo Show and BPM have the same visible left edge. The redundant
   BPM Base captions were removed from Directo and Ritmo; Directo's title and
-  number now form a vertically centered group, verified in the Mac capture.
+  number now use the freed space for a 56 px numeral display, verified in the
+  Mac capture with zero visible left-edge offset and a clean runtime audit.
   The tablet still runs the previous backend build. Next: resume the preserved
   Buildroot build, check the new layout on the physical panel, and verify
   remaining tablet gestures before considering any default-interface change.
