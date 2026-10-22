@@ -9,6 +9,7 @@
 
 #include "DeskBridge.h"
 #include "DeskAgentControl.h"
+#include "desk_view_audit.h"
 
 int main(int argc, char **argv) {
     QGuiApplication app(argc, argv);
@@ -67,7 +68,9 @@ int main(int argc, char **argv) {
     }
     if (!capture.isEmpty()) {
         QTimer::singleShot(3000, &app, [window, capture] {
-            if (window->grabWindow().save(capture))
+            const bool saved = window->grabWindow().save(capture);
+            const int findings = desk_view_audit(window->contentItem());
+            if (saved && findings == 0)
                 QCoreApplication::quit();
             else
                 QCoreApplication::exit(1);

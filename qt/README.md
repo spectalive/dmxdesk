@@ -99,11 +99,30 @@ per line to its stdin: `TAP x y`, `CAPTURE /absolute/path.png`, or `QUIT`.
 `TOUCH D|M|U|C slot x y` exposes held controls, drags and multiple touch slots.
 `AUDIT` checks visible Qt Text items for overflow or elision and checks tagged
 items for parent centering, shared left or center axes, and mirrored icons.
-It reports `@AGENT AUDIT 0` and `@AGENT ALIGNMENT 0` on a clean page, without
-printing text contents. The alignment test deliberately displaces tempo, OFF,
-and the paired smoke icons to verify that each error is detected. Review a
-fresh screenshot for optical alignment and spacing, which geometry alone
-cannot measure.
+It also inspects the actual ControlTile scene rectangles for overlaps and
+viewport bounds. The Directo effects panel requires seven pads, three aligned
+columns, consistent row sizes, 8 px gaps and 12 px side/bottom margins below
+its header. Hidden or missing pads fail the count check. The panel's audit
+properties describe those constraints independently of the backend snapshots.
+An empty control list fails verification rather than passing an unloaded view.
+
+The combined result is `@AGENT VERIFY 0` on a clean page. `@AGENT AUDIT`,
+`@AGENT ALIGNMENT` and `@AGENT LAYOUT` retain the separate finding counts.
+Both `CAPTURE` and `--capture` run these checks after grabbing the rendered
+frame. They keep the diagnostic image on failure, but the interactive command
+reports an error and `--capture` exits 1. `qt_preview.py --capture` propagates
+that exit code. A saved image alone is not a successful verification.
+
+`ctest` loads the real Main.qml for the corrected and observed broken layouts,
+then changes heights, columns, visibility, bounds, width and scale to confirm
+rejection. A separate process test verifies that the actual `--capture`
+command exits 0 for the corrected layout and 1 for the mixed geometry from
+2026-10-22. The preview bridge tests also run through `ctest`. The alignment
+test deliberately displaces tempo, OFF and the paired smoke icons. Review a
+fresh screenshot and run the optical pixel checks for glyph ink alignment;
+the scene geometry checks do not judge typography or icon artwork.
+The observed failure, negative control and corrected Mac results are recorded
+in `docs/evidence/qt-layout-gate-2026-10-22.txt`.
 To preview a newer C effects layout against an older installed backend, wrap
 the backend command with `tests/qt_layout_preview_bridge.py`. The wrapper
 translates only the seven known effect rectangles and their touch coordinates;

@@ -8,6 +8,14 @@
 
 ### 2026-10
 
+- [x] 2026-10-22 — **Tests:** **Reject invalid Qt captures using rendered control geometry.**
+  The text/axis audit accepted a mixed legacy/current effect layout with
+  overlapping controls. Add rendered bounds, overlap and effect-grid checks
+  to AUDIT and both capture paths; verify rejection using the real Main.qml
+  and the observed 2026-10-22 layout before closing this gap.
+  - Result: Added scene bounds, overlap, effect-grid and completeness checks to AUDIT and both capture modes. Invalid captures now fail, with regression cases loading the real Main.qml.
+  - Evidence: ctest --test-dir output/qt-host-build --output-on-failure: 5/5 passed; the observed mixed layout and seven other invalid scenes are rejected, the capture process exits 1 on the observed failure, and integrated Mac Directo/Efectos/Ritmo audits report VERIFY 0. See docs/evidence/qt-layout-gate-2026-10-22.txt.
+
 - [x] 2026-10-21 — **Connection status stays in the top bar.**
   - Result: A temporary master disconnect now shows a stable "Esperando conexión..." status without covering the controls; a different show still gets the mismatch card.
   - Evidence: `desk_render_test` checks the warning dot, unchanged content and identical connecting/syncing bar; the host suite and 19,764,864-probe geometry audit passed.

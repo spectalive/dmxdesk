@@ -95,7 +95,16 @@ Window {
         border.color: "#7c86d9"
     }
     Rectangle { visible: root.currentTab === 0; x: 16; y: 282; width: 516; height: 302; radius: 16; color: "#14181e" }
-    Rectangle { visible: root.currentTab === 0; x: 540; y: 160; width: 348; height: 264; radius: 16; color: "#14181e" }
+    Rectangle {
+        objectName: "layout-panel:direct-effects"
+        property int auditCount: 7
+        property int auditColumns: 3
+        property int auditGap: 8
+        property int auditInset: 12
+        property int auditHeader: 24
+        visible: root.currentTab === 0
+        x: 540; y: 160; width: 348; height: 264; radius: 16; color: "#14181e"
+    }
     Rectangle { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; radius: 16; color: "#14181e" }
     Rectangle {
         visible: root.currentTab === 0
@@ -216,6 +225,8 @@ Window {
     Repeater {
         model: root.controls
         delegate: ControlTile {
+            id: controlTile
+            objectName: "layout-control:" + (root.currentTab === 0 && controlTile.hold ? "direct-effects" : "page")
             colorOneShot: !!root.view.colorOneShot
             connected: root.linked
             bpmText: root.view.dials && root.view.dials.length && root.view.dials[0].known ?

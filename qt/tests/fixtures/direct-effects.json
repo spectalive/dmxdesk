@@ -1,0 +1,13 @@
+{
+  "page": 0, "pages": [{"tab": 0}], "link": 3,
+  "battery": 100, "wifiBars": 3, "settings": {}, "dials": [],
+  "controls": [
+    {"index": 0, "label": "FLASH", "icon": "bolt", "tile": 7, "enabled": true, "x": 552, "y": 184, "w": 103, "h": 78},
+    {"index": 1, "label": "FLASH LENTO", "icon": "bolt", "tile": 7, "enabled": true, "x": 663, "y": 184, "w": 103, "h": 78},
+    {"index": 2, "label": "FLASH COLOR", "icon": "palette", "tile": 7, "enabled": true, "x": 774, "y": 184, "w": 102, "h": 78},
+    {"index": 3, "label": "STROBO", "icon": "asterisk", "tile": 7, "enabled": true, "x": 552, "y": 270, "w": 103, "h": 78},
+    {"index": 4, "label": "STROBO SUAVE", "icon": "asterisk", "tile": 7, "enabled": true, "x": 663, "y": 270, "w": 103, "h": 78},
+    {"index": 5, "label": "HUMO YA", "icon": "cloud", "tile": 9, "enabled": true, "x": 774, "y": 270, "w": 102, "h": 78},
+    {"index": 6, "label": "HUMO VERT", "icon": "arrow_up", "tile": 9, "enabled": true, "x": 552, "y": 356, "w": 324, "h": 56}
+  ]
+}

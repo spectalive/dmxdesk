@@ -1,0 +1,34 @@
+Qt rendered-layout verification, 2026-10-22
+
+Scope: actual Main.qml ControlTile scene rectangles, independent of the
+backend's layout tests and the preview bridge's expected coordinates.
+
+Negative control before implementation:
+  layout scenario 0: accepted
+  layout scenario 1: unexpected 0 findings
+  ctest -R qt-desk-layout: exit 8
+
+Rendered-layout regression cases after implementation:
+  0 Correct inset layout: accepted, 0 findings.
+  1 Observed mixed legacy/current rectangles: rejected, 9 findings.
+  2 Vertical fog overlapping the second row: rejected, 4 findings.
+  3 One pad with a different height: rejected, 1 finding.
+  4 One column displaced by 3 px: rejected, 1 finding.
+  5 One hidden pad: rejected, 1 finding.
+  6 One pad outside the viewport: rejected, 2 findings.
+  7 Wide fog pad with an incorrect right margin: rejected, 1 finding.
+  8 One pad scaled to 110 percent: rejected, 7 findings.
+
+Capture process regression:
+  Correct layout: image saved, VERIFY 0, process exit 0.
+  Observed mixed layout: diagnostic image saved, overlap reported, exit 1.
+
+Integrated Mac preview using the remote backend against the mock master:
+  Directo: AUDIT 0, ALIGNMENT 0, LAYOUT 0, VERIFY 0, capture accepted.
+  Efectos: AUDIT 0, ALIGNMENT 0, LAYOUT 0, VERIFY 0, capture accepted.
+  Ritmo: AUDIT 0, ALIGNMENT 0, LAYOUT 0, VERIFY 0, capture accepted.
+
+Limit: layout relationships are enforced for the Directo effects panel;
+viewport and overlap checks cover the tagged ControlTile instances on other
+pages. Typography and icon artwork still require the optical pixel checks
+and screenshot review. This is not evidence of a new tablet backend build.
