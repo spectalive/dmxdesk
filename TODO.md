@@ -55,7 +55,10 @@ Nothing open.
   selected swatch also uses its outline without a check mark. The latest Mac
   pass puts 12 px of padding around the effects in the shared C layout and
   aligns the rendered Tempo Show/BPM left edges and BPM/Base centers. The
-  tablet still runs the previous backend build. Next: resume the preserved
+  full Mac preview now shows both changes using a tested touch/snapshot bridge
+  for the older installed backend; the screenshot and runtime audit confirm
+  the integrated layout. The tablet still runs the previous backend build.
+  Next: resume the preserved
   Buildroot build, check the new layout on the physical panel, and verify
   remaining tablet gestures before considering any default-interface change.
 - [~] **Confirm white and colour bursts on the physical rig.**

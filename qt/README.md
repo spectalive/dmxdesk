@@ -55,6 +55,12 @@ render. `python3 qt/check_tempo_alignment.py /path/to/directo-capture.png`
 checks the visible left edges of Tempo Show and BPM and the shared BPM/Base
 center in a fresh 1024x600 capture; the current render has zero offset on
 both axes.
+`docs/evidence/qt-desk-mac-integrated-2026-10-22.png` shows the full Mac desk
+with the revised effects layout and tempo tile in one window. The installed
+tablet backend still reports the earlier effect rectangles, so this preview
+uses `tests/qt_layout_preview_bridge.py` to translate those seven rectangles
+and their touches against the mock master. The bridge is only for preview;
+the tablet needs its backend rebuilt to use the new layout directly.
 
 ## Host checks
 
@@ -65,6 +71,7 @@ cmake -S qt -B output/qt-host-build -DCMAKE_PREFIX_PATH=/path/to/qt
 cmake --build output/qt-host-build
 ctest --test-dir output/qt-host-build --output-on-failure
 tools/test-dmx-desk-host.sh
+python3 tests/qt_layout_preview_bridge_test.py
 ```
 
 `qt/export_icons.py` regenerates the 48 px controls and 80 px trajectory
@@ -96,6 +103,11 @@ printing text contents. The alignment test deliberately displaces tempo, OFF,
 and the paired smoke icons to verify that each error is detected. Review a
 fresh screenshot for optical alignment and spacing, which geometry alone
 cannot measure.
+To preview a newer C effects layout against an older installed backend, wrap
+the backend command with `tests/qt_layout_preview_bridge.py`. The wrapper
+translates only the seven known effect rectangles and their touch coordinates;
+other controls pass through. It is a temporary visual aid until the tablet
+backend is rebuilt.
 Responses start with `@AGENT`. This control channel is opt-in and is never
 enabled by the tablet launcher.
 
