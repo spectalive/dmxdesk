@@ -8,7 +8,7 @@ Item {
 
     Text {
         objectName: "align-left:direct-tempo"
-        x: 12; y: 11
+        x: 12; y: 23
         text: content.label
         color: "#adb6c4"
         font.family: "Inter"; font.pixelSize: 10
@@ -16,7 +16,7 @@ Item {
     Item {
         id: bpmAxis
         objectName: "align-left:direct-tempo"
-        x: 12; y: 19; width: bpmValue.width * content.bpmStretch; height: 50
+        x: 12; y: 31; width: bpmValue.width * content.bpmStretch; height: 50
         Text {
             id: bpmValue
             // Inter's large numerals start two rendered pixels inside the shared axis.
@@ -28,14 +28,5 @@ Item {
             verticalAlignment: Text.AlignVCenter
             transform: Scale { origin.x: 0; xScale: content.bpmStretch }
         }
-    }
-    Text {
-        objectName: "align-left:direct-tempo"
-        x: bpmAxis.x; y: 70
-        width: implicitWidth
-        text: "BPM BASE"
-        color: "#adb6c4"
-        font.family: "Inter"; font.pixelSize: 10
-        horizontalAlignment: Text.AlignLeft
     }
 }

@@ -53,11 +53,13 @@ still needs a new build before it will supply the revised layout to Qt.
 `docs/evidence/qt-tempo-alignment-2026-10-22.png` records the earlier centered
 BPM Base treatment. Run the pixel check with
 `python3 qt/check_tempo_alignment.py /path/to/directo-capture.png`; it checks
-the visible left edges of Tempo Show, BPM and BPM Base in a fresh 1024x600
-capture. The integrated render has zero offset for both labels.
+the visible left edges of Tempo Show and BPM in a fresh 1024x600 capture.
 `docs/evidence/qt-desk-mac-integrated-2026-10-22.png` shows the full Mac desk
 with three aligned effects rows and the wider BPM numerals in one window.
-All three tempo lines share one visible left edge. The installed tablet
+That capture predates removal of the redundant BPM Base caption.
+`docs/evidence/qt-desk-tempo-simple-2026-10-22.png` shows the simplified
+Tempo Show/number group centered vertically, with zero left-edge offset.
+The redundant caption was also removed from Ritmo. The installed tablet
 backend still reports the earlier effect rectangles, so this preview
 uses `tests/qt_layout_preview_bridge.py` to translate those seven rectangles
 and their touches against the mock master. The bridge is only for preview;

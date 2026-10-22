@@ -58,7 +58,9 @@ Nothing open.
   an incomplete preview translation that left Humo Ya overlapping Humo
   vertical. The bridge now translates all seven rectangles, tests their row
   gaps, and the full Mac screenshot shows aligned effects. BPM numerals are
-  wider, and Tempo Show, BPM and BPM Base have the same visible left edge.
+  wider, and Tempo Show and BPM have the same visible left edge. The redundant
+  BPM Base captions were removed from Directo and Ritmo; Directo's title and
+  number now form a vertically centered group, verified in the Mac capture.
   The tablet still runs the previous backend build. Next: resume the preserved
   Buildroot build, check the new layout on the physical panel, and verify
   remaining tablet gestures before considering any default-interface change.

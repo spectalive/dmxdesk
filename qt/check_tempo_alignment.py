@@ -1,4 +1,4 @@
-"""Check the visible Tempo Show, BPM, and BPM Base axes in a Directo capture."""
+"""Check the visible Tempo Show and BPM axes in a Directo capture."""
 
 import argparse
 
@@ -15,9 +15,8 @@ def main() -> int:
 
     bounds = []
     for name, box in (
-        ("Tempo Show", (545, 62, 640, 85)),
-        ("BPM", (545, 82, 650, 124)),
-        ("BPM Base", (545, 125, 650, 142)),
+        ("Tempo Show", (545, 75, 650, 97)),
+        ("BPM", (545, 97, 670, 137)),
     ):
         pixels = []
         for y in range(box[1], box[3]):
@@ -32,9 +31,8 @@ def main() -> int:
         print(f"{name}: {left}..{right} px")
 
     bpm_offset = abs(bounds[0][0] - bounds[1][0])
-    base_offset = abs(bounds[0][0] - bounds[2][0])
-    print(f"BPM left offset: {bpm_offset} px; BPM Base left offset: {base_offset} px")
-    return 0 if bpm_offset <= 1 and base_offset <= 1 else 1
+    print(f"BPM left offset: {bpm_offset} px")
+    return 0 if bpm_offset <= 1 else 1
 
 
 if __name__ == "__main__":
