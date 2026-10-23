@@ -6,6 +6,11 @@ Item {
     required property string bpm
     readonly property real bpmStretch: 1.15
 
+    FontLoader {
+        id: numeralFont
+        source: "fonts/InterDisplay-Bold.ttf"
+    }
+
     Text {
         objectName: "align-left:direct-tempo"
         x: 12; y: 11
@@ -20,10 +25,13 @@ Item {
         Text {
             id: bpmValue
             // Compensate the expanded numerals' leading ink bearing.
-            x: -3; width: implicitWidth; height: parent.height
+            x: -1; width: implicitWidth; height: parent.height
             text: content.bpm
             color: "#f5f7fa"
-            font.family: "Inter"; font.pixelSize: 56; font.bold: true
+            font.family: numeralFont.font.family
+            font.weight: numeralFont.font.weight
+            font.styleName: numeralFont.font.styleName
+            font.pixelSize: 56
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             transform: Scale { origin.x: 0; xScale: content.bpmStretch }

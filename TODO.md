@@ -62,6 +62,9 @@ Nothing open.
   BPM Base captions were removed from Directo and Ritmo; Directo's title and
   number now use the freed space for a 56 px numeral display, verified in the
   Mac capture with zero visible left-edge offset and a clean runtime audit.
+  The BPM now loads its bundled Inter Display Bold face explicitly; after
+  correcting its 2 px leading-edge shift, the fresh optical capture confirms
+  zero offset again.
   The tablet still runs the previous backend build. Next: resume the preserved
   Buildroot build, check the new layout on the physical panel, and verify
   remaining tablet gestures before considering any default-interface change.

@@ -67,6 +67,14 @@ the tablet needs its backend rebuilt to use the new layout directly.
 `docs/evidence/qt-desk-tempo-large-2026-10-22.png` shows the subsequent
 Directo adjustment: 56 px BPM numerals use the freed caption space, with the
 title and number still sharing the same visible left edge.
+`docs/evidence/qt-desk-tempo-bold-2026-10-24.png` shows the BPM using the
+bundled Inter Display Bold face at 56 px. The numeral selects the loaded
+family, weight and style explicitly. The font comes from
+[Inter 4.1](https://github.com/rsms/inter/releases/tag/v4.1), with its SIL Open
+Font License in `qt/qml/fonts/LICENSE-Inter.txt`. Its distinct display family
+keeps this choice scoped to the numeral. The optical check caught a 2 px
+leading-edge shift when the face changed; the corrected capture measures
+both the title and numeral at x=553, with zero offset.
 
 ## Host checks
 
