@@ -8,6 +8,10 @@
 
 ### 2026-10
 
+- [x] 2026-10-24 — **Design:** Render battery charge and balance the Qt Wi-Fi mark.
+  - Result: The battery cell clips to the reported charge, and the Wi-Fi fan uses wider, shallower proportions alongside the existing status icons.
+  - Evidence: ctest --test-dir output/qt-host-build --output-on-failure: 6/6 passed. The rendered-state test rejects the previous empty battery and square Wi-Fi footprint; charge levels -1/0/20/50/100/150 and signal levels 0..3 pass. The integrated Mac capture reports VERIFY 0; see docs/evidence/qt-desk-status-icons-2026-10-24.png.
+
 - [x] 2026-10-22 — **Tests:** **Reject invalid Qt captures using rendered control geometry.**
   The text/axis audit accepted a mixed legacy/current effect layout with
   overlapping controls. Add rendered bounds, overlap and effect-grid checks

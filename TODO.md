@@ -65,6 +65,9 @@ Nothing open.
   The BPM now loads its bundled Inter Display Bold face explicitly; after
   correcting its 2 px leading-edge shift, the fresh optical capture confirms
   zero offset again.
+  The Mac status bar now fills the battery by charge and uses an 18x14 px
+  Wi-Fi fan. Rendered-state tests cover empty, partial and full batteries,
+  unknown charge, clamping and all four signal levels.
   The tablet still runs the previous backend build. Next: resume the preserved
   Buildroot build, check the new layout on the physical panel, and verify
   remaining tablet gestures before considering any default-interface change.

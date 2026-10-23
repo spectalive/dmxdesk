@@ -81,7 +81,7 @@ Window {
         color: root.linked ? "#3ee0aa" : "#d42a2a"
     }
     WifiStatusIcon { x: 777; y: 12; width: 24; height: 24; bars: Math.max(0, Math.min(3, root.view.wifiBars || 0)) }
-    DeskIcon { x: 817; y: 12; width: 24; height: 24; glyph: "battery"; opacity: 0.75 }
+    BatteryStatusIcon { x: 817; y: 12; width: 24; height: 24; level: root.view.battery ?? -1; opacity: 0.75 }
     Text { x: 846; y: 17; width: 57; text: root.view.battery >= 0 ? root.view.battery + "%" : "--"; color: "#adb6c4"; font.pixelSize: 11 }
     DeskIcon { x: 924; y: 12; width: 24; height: 24; glyph: "gear"; opacity: 0.75 }
     DeskIcon { x: 972; y: 12; width: 24; height: 24; glyph: root.view.locked ? "lock" : "lock_open"; opacity: 0.75 }
