@@ -18,7 +18,7 @@ the tablet. Items here are about this repository on its own.
 
 ## Design
 
-- [!] **Choose a concrete visual reference before another Qt redesign.** On 2026-10-24, the owner found the motion pass visually unchanged and rejected the subsequent pastel-panel redesign. The previous dark interface was restored in the Mac window and passed `AUDIT` with `VERIFY 0`. Next: review a specific Rive example with the owner before another appearance pass.
+- [ ] **Choose a concrete visual reference before another Qt redesign.** On 2026-10-24, the owner rejected the pastel-panel pass and requested futuristic examples preserving the current distribution. Three reviewed concepts and the original screenshot are in `docs/design/futuristic-2026-10-24/`. Their control groups are retained, but spacing and idle-state illumination need refinement. The Mac app remains on the restored dark interface (`AUDIT`: `VERIFY 0`). Next: choose Precision Glass, Aerospace Instrument or Stage Console with the owner before another QML appearance pass.
 - [~] **Finish the Qt Quick desk trial on the physical tablet.**
   The Qt surface renders real C desk snapshots on the 1024x600 EGLFS panel;
   its backend has linked to QLC+, and the mock-master test covered tabs,
