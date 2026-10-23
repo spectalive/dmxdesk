@@ -10,6 +10,7 @@
 #include <cstdio>
 
 #include "DeskLayoutTestBridge.h"
+#include "advance_scene.h"
 
 int main(int argc, char **argv) {
     QGuiApplication app(argc, argv);
@@ -35,7 +36,7 @@ int main(int argc, char **argv) {
     for (int scenario = 0; scenario < 6; scenario++) {
         state.insert("battery", levels[scenario]);
         bridge.insert("state", state);
-        app.processEvents();
+        advance_scene(220);
         const QImage frame = window->grabWindow();
         if (frame.size() != QSize(1024, 600))
             return 4;
@@ -54,7 +55,7 @@ int main(int argc, char **argv) {
     for (int bars = 0; bars <= 3; bars++) {
         state.insert("wifiBars", bars);
         bridge.insert("state", state);
-        app.processEvents();
+        advance_scene(180);
         const QImage frame = window->grabWindow();
         QRect bounds;
         int lit = 0;

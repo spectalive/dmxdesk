@@ -56,18 +56,19 @@ Window {
             x: 16 + index * 144; y: 4; width: 136; height: 40; radius: 10
             color: root.currentTab === index ? "#343a46" : "#1b1f27"
             border.color: root.currentTab === index ? "#636a78" : "#1b1f27"
+            Behavior on color { DeskColorMotion {} }
+            Behavior on border.color { DeskColorMotion {} }
             Text {
                 anchors.centerIn: parent; text: modelData
                 color: root.currentTab === index ? "#f5f7fa" : "#adb6c4"
                 font.family: "Inter"; font.pixelSize: 13; font.bold: true
             }
-            Rectangle {
-                visible: root.currentTab === index
-                width: 32; height: 4; radius: 2; color: "#7c86d9"
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom; anchors.bottomMargin: 4
-            }
         }
+    }
+    Rectangle {
+        x: 68 + root.currentTab * 144; y: 36
+        width: 32; height: 4; radius: 2; color: "#7c86d9"
+        Behavior on x { DeskNumberMotion { milliseconds: 220 } }
     }
     Text {
         x: 458; y: 16; width: 290; height: 18
@@ -76,10 +77,7 @@ Window {
         horizontalAlignment: Text.AlignRight; elide: Text.ElideLeft
         font.family: "Inter"; font.pixelSize: 11
     }
-    Rectangle {
-        x: 756; y: 20; width: 8; height: 8; radius: 4
-        color: root.linked ? "#3ee0aa" : "#d42a2a"
-    }
+    ConnectionIndicator { x: 752; y: 16; width: 16; height: 16; linked: root.linked }
     WifiStatusIcon { x: 777; y: 12; width: 24; height: 24; bars: Math.max(0, Math.min(3, root.view.wifiBars || 0)) }
     BatteryStatusIcon { x: 817; y: 12; width: 24; height: 24; level: root.view.battery ?? -1; opacity: 0.75 }
     Text { x: 846; y: 17; width: 57; text: root.view.battery >= 0 ? root.view.battery + "%" : "--"; color: "#adb6c4"; font.pixelSize: 11 }
@@ -93,6 +91,7 @@ Window {
         color: root.roomActive ? "#2e3a7e" : "#14181e"
         border.width: root.roomActive ? 1 : 0
         border.color: "#7c86d9"
+        Behavior on color { DeskColorMotion {} }
     }
     Rectangle { visible: root.currentTab === 0; x: 16; y: 282; width: 516; height: 302; radius: 16; color: "#14181e" }
     Rectangle {
@@ -223,9 +222,12 @@ Window {
     }
 
     Repeater {
-        model: root.controls
+        // Keep tile instances alive across snapshots so motion can settle.
+        model: root.controls.length
         delegate: ControlTile {
             id: controlTile
+            required property int index
+            modelData: root.controls[index] || ({})
             objectName: "layout-control:" + (root.currentTab === 0 && controlTile.hold ? "direct-effects" : "page")
             colorOneShot: !!root.view.colorOneShot
             connected: root.linked
@@ -249,6 +251,11 @@ Window {
         }
     }
     RhythmPage { visible: root.currentTab === 2; dials: root.view.dials || [] }
+    PageReveal {
+        x: 16; y: 48; width: 992; height: 536
+        page: root.view.page ?? 0
+        bank: root.view.bank ?? 0
+    }
 
     SettingsSheet { visible: !!root.settings.open; settings: root.settings }
     Rectangle {

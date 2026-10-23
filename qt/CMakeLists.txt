@@ -35,13 +35,23 @@ if(BUILD_TESTING)
         DESK_TEST_QML="${CMAKE_CURRENT_SOURCE_DIR}/qml/Main.qml")
     add_test(NAME qt-desk-layout COMMAND qt-desk-layout-test)
     set_tests_properties(qt-desk-layout PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software")
-    add_executable(qt-desk-status-icons-test tests/DeskStatusIconsTest.cpp)
+    add_executable(qt-desk-status-icons-test tests/DeskStatusIconsTest.cpp tests/advance_scene.cpp)
     target_link_libraries(qt-desk-status-icons-test PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
     target_compile_definitions(qt-desk-status-icons-test PRIVATE
         DESK_TEST_FIXTURE="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/direct-effects.json"
         DESK_TEST_QML="${CMAKE_CURRENT_SOURCE_DIR}/qml/Main.qml")
     add_test(NAME qt-desk-status-icons COMMAND qt-desk-status-icons-test)
     set_tests_properties(qt-desk-status-icons PROPERTIES
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_SCALE_FACTOR=1")
+    add_executable(qt-desk-motion-test tests/DeskMotionTest.cpp tests/advance_scene.cpp
+        desk_text_audit.cpp desk_alignment_audit.cpp desk_layout_audit.cpp
+        desk_effects_layout_audit.cpp desk_view_audit.cpp)
+    target_link_libraries(qt-desk-motion-test PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
+    target_compile_definitions(qt-desk-motion-test PRIVATE
+        DESK_TEST_FIXTURE="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/direct-effects.json"
+        DESK_TEST_QML="${CMAKE_CURRENT_SOURCE_DIR}/qml/Main.qml")
+    add_test(NAME qt-desk-motion COMMAND qt-desk-motion-test)
+    set_tests_properties(qt-desk-motion PROPERTIES
         ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_SCALE_FACTOR=1")
     add_test(NAME qt-desk-capture-gate COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/../tests/qt_capture_gate_test.py)

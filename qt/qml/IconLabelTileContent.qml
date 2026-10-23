@@ -7,6 +7,8 @@ Item {
     required property string ink
     required property int iconSize
     required property int labelSize
+    property bool active: false
+    property bool pressed: false
 
     Column {
         objectName: "align-x-parent"
@@ -14,10 +16,12 @@ Item {
         x: 3
         y: (parent.height - height) / 2
         spacing: 8
-        DeskIcon {
+        DeskAnimatedIcon {
             width: content.iconSize; height: width
             anchors.horizontalCenter: parent.horizontalCenter
             glyph: content.glyph
+            active: content.active
+            pressed: content.pressed
         }
         Text {
             width: parent.width

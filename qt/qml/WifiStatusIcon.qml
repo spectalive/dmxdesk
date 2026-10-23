@@ -17,6 +17,7 @@ Item {
             fillMode: Image.Stretch
             glyph: "wifi_" + index
             opacity: wifiStatusRoot.bars > 0 && index <= wifiStatusRoot.bars ? 0.75 : 0.23
+            Behavior on opacity { DeskNumberMotion { milliseconds: 140 } }
         }
     }
 }

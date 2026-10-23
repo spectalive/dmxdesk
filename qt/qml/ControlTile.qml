@@ -27,6 +27,8 @@ Rectangle {
         "traj_lissajous", "traj_lissajous_simultaneous", "traj_lissajous_alternate"
     ]
     readonly property bool hold: control.tile === 7 || control.tile === 9
+    readonly property bool pressed: !!control.pressed && control.enabled && connected &&
+                                    !(hold && control.holdProgress >= 1000)
     readonly property bool haze: control.tile === 10 || control.tile === 6
     readonly property bool hazeOff: haze && control.label === "OFF"
     readonly property bool ambientLoop: haze && /^cada\s+\d+\s+min$/i.test(control.label || "")
@@ -43,13 +45,30 @@ Rectangle {
     border.color: panic ? color : selected ? "#7a808c" :
                   control.tile === 9 ? "#3fa88a" : hold ? "#7860c8" : "#39404d"
     opacity: control.enabled && connected ? 1 : 0.6
+    Behavior on color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
+    Behavior on border.color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
+
+    TileActivity {
+        objectName: "tile-activity"
+        anchors.fill: parent
+        pressed: tile.pressed
+        available: tile.connected && tile.control.enabled
+        accent: tile.panic ? "#ffffff" : tile.control.tile === 9 ? "#3ee0aa" :
+                tile.mini && tile.swatches.length ? "#ffffff" : "#a991e8"
+        cornerRadius: tile.radius
+        progress: tile.hold ? tile.control.holdProgress ?? -1 : -1
+    }
 
     Rectangle {
-        visible: tile.selected && !tile.pick && !tile.mini && !tile.master
+        objectName: "selection-marker"
+        visible: opacity > 0 && !tile.pick && !tile.mini && !tile.master
+        opacity: tile.selected ? 1 : 0
         anchors.top: parent.top; anchors.topMargin: 5
         anchors.horizontalCenter: parent.horizontalCenter
-        width: Math.max(18, parent.width - 36); height: 3; radius: 2
+        width: tile.selected ? Math.max(18, parent.width - 36) : 0; height: 3; radius: 2
         color: "#7c86d9"
+        Behavior on width { DeskNumberMotion {} }
+        Behavior on opacity { DeskNumberMotion {} }
     }
     DeskIcon {
         visible: !!tile.control.icon && !tile.ambientLoop && !tile.pick && !tile.stateTile && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo && !tile.trajectory
@@ -67,6 +86,8 @@ Rectangle {
         label: tile.control.label || ""
         ink: tile.ink
         iconSize: 40
+        active: tile.selected
+        pressed: tile.pressed
         labelSize: tile.stateTile && label.indexOf(" ") < 0 && label.length >= 9 ? 10 :
                    tile.stateTile ? 11 : 12
     }
@@ -81,6 +102,7 @@ Rectangle {
         anchors.fill: parent
         control: tile.control
         ink: tile.ink
+        active: tile.selected
     }
     Text {
         visible: !tile.ambientLoop && !tile.pick && !tile.stateTile && !tile.trajectory && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo
@@ -109,6 +131,8 @@ Rectangle {
         anchors.fill: parent
         control: tile.control
         bottomInset: tile.burst ? 12 : 0
+        active: tile.selected
+        pressed: tile.pressed
     }
     StopTileContent {
         visible: tile.panic

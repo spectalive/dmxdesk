@@ -4,16 +4,20 @@ Item {
     id: content
     required property string ink
     required property string accent
+    property bool active: false
+    property bool pressed: false
+    property string prompt: "MANTENER"
 
     Row {
         objectName: "align-x-parent"
         x: (parent.width - implicitWidth) / 2; y: 5
         spacing: 8
-        DeskIcon {
+        DeskAnimatedIcon {
             objectName: "align-mirror:vertical-fog"
             y: 2
             width: 26; height: 26
             glyph: "vertical_fog"
+            active: content.active; pressed: content.pressed
         }
         Text {
             objectName: "align-x-parent"
@@ -25,11 +29,12 @@ Item {
             verticalAlignment: Text.AlignVCenter
             leftPadding: 8
         }
-        DeskIcon {
+        DeskAnimatedIcon {
             objectName: "align-mirror:vertical-fog"
             y: 2
             width: 26; height: 26
             glyph: "vertical_fog"
+            active: content.active; pressed: content.pressed
         }
     }
     Rectangle {
@@ -39,7 +44,7 @@ Item {
         color: content.accent
         Text {
             anchors.centerIn: parent
-            text: "MANTENER"
+            text: content.prompt
             color: "#1b1f27"
             font.family: "Inter"; font.pixelSize: 10; font.bold: true
         }

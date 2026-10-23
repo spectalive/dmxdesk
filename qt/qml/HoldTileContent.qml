@@ -4,25 +4,31 @@ Item {
     id: content
     required property var control
     property int bottomInset: 0
+    property bool active: false
+    property bool pressed: false
     readonly property bool wide: width >= 2 * height
     readonly property bool compact: !wide && height < 90
     readonly property bool verticalFog: wide && control.tile === 9 && control.label === "HUMO VERT"
     readonly property string mark: control.icon || "bolt"
     readonly property string ink: control.enabled ? "#f5f7fa" : "#adb6c4"
     readonly property string accent: control.tile === 9 ? "#3ee0aa" : "#a991e8"
+    readonly property string prompt: control.holdProgress === -2 ? "SIN CONFIRMAR" :
+                                     control.holdProgress >= 1000 ? "SUELTA" : "MANTENER"
 
-    DeskIcon {
+    DeskAnimatedIcon {
         visible: content.wide && !content.verticalFog
         x: 16; y: (parent.height - height) / 2
         width: 25; height: 25; glyph: content.mark
+        active: content.active; pressed: content.pressed
     }
 
     Item {
         visible: content.compact
         x: 6; y: 10; width: parent.width - 12; height: parent.height - 38
-        DeskIcon {
+        DeskAnimatedIcon {
             x: 0; y: (parent.height - height) / 2
             width: 22; height: 22; glyph: content.mark
+            active: content.active; pressed: content.pressed
         }
         Text {
             x: 26; width: parent.width - 26; height: parent.height
@@ -39,7 +45,7 @@ Item {
     Text {
         visible: content.compact
         x: 4; y: parent.height - 27; width: parent.width - 8; height: 18
-        text: "MANTENER"; color: content.accent
+        text: content.prompt; color: content.accent
         font.family: "Inter"; font.pixelSize: 11
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
@@ -54,11 +60,12 @@ Item {
         spacing: 7
         y: (content.height - content.bottomInset - height) / 2
 
-        DeskIcon {
+        DeskAnimatedIcon {
             visible: !content.wide
             width: 25; height: visible ? 25 : 0
             anchors.horizontalCenter: parent.horizontalCenter
             glyph: content.mark
+            active: content.active; pressed: content.pressed
         }
         Text {
             width: parent.width
@@ -76,7 +83,7 @@ Item {
             anchors.horizontalCenter: content.wide ? undefined : parent.horizontalCenter
             Text {
                 anchors.centerIn: parent
-                text: "MANTENER"
+                text: content.prompt
                 color: "#1b1f27"; font.family: "Inter"; font.pixelSize: 10; font.bold: true
             }
         }
@@ -86,5 +93,7 @@ Item {
         anchors.fill: parent
         ink: content.ink
         accent: content.accent
+        active: content.active; pressed: content.pressed
+        prompt: content.prompt
     }
 }

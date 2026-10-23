@@ -15,6 +15,7 @@ Item {
         width: batteryStatusRoot.width * 13 / 24 * batteryStatusRoot.fraction
         height: batteryStatusRoot.height
         clip: true
+        Behavior on width { DeskNumberMotion { milliseconds: batteryStatusRoot.level <= 0 ? 0 : 180 } }
         DeskIcon {
             x: -parent.x
             width: batteryStatusRoot.width

@@ -14,7 +14,7 @@ the tablet. Items here are about this repository on its own.
 
 ## Tests
 
-Nothing open.
+- [ ] **Make the Qt pipe integration map requirement explicit.** On 2026-10-24, the installed backend did not link when the command omitted its map; adding `--map /usr/share/dmxdesk/vibra.desk.json` passed tabs, colour-hit mode, two-finger Stop All and EOF Flash release. Next: expose a map argument in `tests/qt_pipe_integration.py` and preserve redacted backend diagnostics when linking fails.
 
 ## Design
 
@@ -68,6 +68,10 @@ Nothing open.
   The Mac status bar now fills the battery by charge and uses an 18x14 px
   Wi-Fi fan. Rendered-state tests cover empty, partial and full batteries,
   unknown charge, clamping and all four signal levels.
+  Native QML motion now follows press, selection, hold countdown, status and
+  page changes. The Mac pass verified persistent tiles, settled geometry,
+  rapid release, reduced motion and immediate disconnected state; a 100-frame
+  recording passed every capture audit. Tablet fluency still needs measuring.
   The tablet still runs the previous backend build. Next: resume the preserved
   Buildroot build, check the new layout on the physical panel, and verify
   remaining tablet gestures before considering any default-interface change.
