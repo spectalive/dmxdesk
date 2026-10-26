@@ -259,7 +259,7 @@ Window {
                         GradientStop { position: 0.0; color: "#2d375e" }
                         GradientStop { position: 1.0; color: "#151a30" }
                     }
-                    StageChrome { look: "key-tempo"; slice: 18 }
+                    StageChrome { look: "key-tempo"; slice: 22; margin: 12 }
                     Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 14 : 20; font.bold: index !== 2 }
                 }
             }

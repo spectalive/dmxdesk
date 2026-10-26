@@ -5,7 +5,7 @@ import QtQuick
 BorderImage {
     property string look: ""
     property int slice: 22
-    readonly property int margin: 4
+    property int margin: 4
     anchors.fill: parent
     anchors.margins: -margin
     source: look ? Qt.resolvedUrl("chrome/" + look + ".ico") : ""

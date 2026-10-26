@@ -86,9 +86,12 @@ Rectangle {
         opacity: tile.opacity
         StageChrome {
             readonly property bool lit: tile.selected || tile.pressed
+            // Looks sliced from the concept's tile sheet keep a wider glow.
+            margin: tile.bakedGlass ? 12 : 4
             look: tile.mini ? (tile.live && tile.selected ? "swatch-selected" : "swatch") :
                   !tile.live ? "tile-off" : tile.panic ? "fill-panic" :
-                  tile.hold ? (tile.control.tile === 9 ? (lit ? "fill-fog-lit" : "fill-fog") :
+                  tile.hold ? (tile.wideFog ? (lit ? "fill-fog-wide-lit" : "fill-fog-wide") :
+                               tile.control.tile === 9 ? (lit ? "fill-fog-lit" : "fill-fog") :
                                                          (lit ? "fill-hold-lit" : "fill-hold")) :
                   tile.selected ? "fill-selected" : tile.master ? "fill-master" : tile.tempo ? "fill-tempo" :
                   tile.ambientLoop ? "fill-quiet" : "fill-idle"
