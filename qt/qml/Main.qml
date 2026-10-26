@@ -59,14 +59,8 @@ Window {
         delegate: Rectangle {
             id: tab
             x: 16 + index * 144; y: 4; width: 136; height: 40; radius: 10
-            color: root.currentTab === index ? "#363d5c" : "#1b2130"
-            border.color: "transparent"
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: Qt.tint(tab.color, "#14ffffff") }
-                GradientStop { position: 1.0; color: Qt.darker(tab.color, 1.25) }
-            }
-            Behavior on color { DeskColorMotion {} }
-            StageChrome { look: root.currentTab === index ? "key-selected" : "key-dim"; slice: 18 }
+            color: "transparent"
+            StageChrome { look: root.currentTab === index ? "tab-selected" : "tab"; slice: 16; margin: 10 }
             Text {
                 anchors.centerIn: parent; text: modelData
                 color: root.currentTab === index ? "#ffffff" : "#dff4ff"

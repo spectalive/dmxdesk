@@ -30,21 +30,8 @@ Window {
         {name: "tile-sheen", r: 12, depth: 0, rimStrength: 0.001},
         {name: "knob", r: 8, depth: 0, glow: "#8fe8ff", glowStrength: 0.9, rimStrength: 0.001},
         {name: "key", r: 10, depth: 1, rim: "#eef2ff", rimStrength: 1, base: "#8fa8ff", baseStrength: 0.9},
-        {name: "key-dim", r: 10, depth: 1, rim: "#6a7690", rimStrength: 0.9, side: 0.5},
-        {name: "key-selected", r: 10, depth: 1, glow: "#a08cff", glowStrength: 0.9, rim: "#e6e0ff", rimStrength: 1, side: 0.3, base: "#f0d4ff", baseStrength: 1},
-        {name: "key-tempo", r: 10, depth: 1, glow: "#7c6cf0", glowStrength: 0.35, rim: "#7484b8", rimStrength: 1, side: 0.7, base: "#5a50d0", baseStrength: 0.9},
-        // Live tiles: the same rims over their glass fill, so the desk draws one image.
-        {name: "fill-idle", r: 12, fill: "#171c2b", top: "#18ffffff", shade: "#40000000", depth: 1, glow: "#5f7cff", glowStrength: 0.25, rim: "#c4d0ea", rimStrength: 0.95, side: 0.75, base: "#4a7ad0", baseStrength: 1},
-        {name: "fill-quiet", r: 12, fill: "#171c2b", top: "#08ffffff", shade: "#40000000", depth: 1, rim: "#6c7a9c", rimStrength: 1, side: 0.6, base: "#5a74b8", baseStrength: 0.8},
-        {name: "fill-selected", r: 12, fill: "#323a50", top: "#18ffffff", shade: "#40000000", depth: 1, glow: "#8fa0ff", glowStrength: 0.45, rim: "#dfe6ff", rimStrength: 1, side: 0.8, base: "#6f8cff", baseStrength: 1},
-        {name: "fill-master", r: 12, fill: "#1a1f32", top: "#205a6cff", shade: "#40000000", depth: 1, glow: "#8a5cff", glowStrength: 0.85, rim: "#c8d4ff", rimStrength: 1, base: "#a07cff", baseStrength: 1},
-        {name: "fill-tempo", r: 12, fill: "#181e2d", top: "#0affffff", shade: "#18000000", depth: 1, glow: "#5f7cff", glowStrength: 0.25, rim: "#c4d0ea", rimStrength: 0.95, side: 0.75, base: "#4a7ad0", baseStrength: 1},
-        {name: "fill-hold", r: 12, fill: "#18122c", top: "#0cffffff", shade: "#188a5cff", depth: 1, glow: "#6a30ff", glowStrength: 0.6, rim: "#f2e6ff", rimStrength: 1, side: 0.85, base: "#7a50f0", baseStrength: 0.8, innerShade: 0.45},
-        {name: "fill-hold-lit", r: 12, fill: "#18122c", top: "#0cffffff", shade: "#188a5cff", depth: 1, glow: "#7a40ff", glowStrength: 1, rim: "#ffffff", rimStrength: 1, side: 0.95, base: "#9a70ff", baseStrength: 1, innerShade: 0.3},
-        {name: "fill-fog", r: 12, fill: "#062622", top: "#0cffffff", shade: "#382ff0a0", depth: 1, glow: "#10d8a0", glowStrength: 0.6, rim: "#7cf8e0", rimStrength: 1, side: 0.75, base: "#10b080", baseStrength: 0.9, innerShade: 0.45},
-        {name: "fill-fog-lit", r: 12, fill: "#062622", top: "#0cffffff", shade: "#382ff0a0", depth: 1, glow: "#20f0c0", glowStrength: 1, rim: "#b0fff0", rimStrength: 1, side: 0.85, base: "#30e0b0", baseStrength: 1, innerShade: 0.3},
-        {name: "fill-panic", r: 12, fill: "#dc141d", top: "#18ffffff", shade: "#40000000", depth: 1, frame: 0.85, glow: "#ff2a33", glowStrength: 0.5, rim: "#ff8a92", rimStrength: 1, side: 0.8, base: "#ff3a44", baseStrength: 1},
-        {name: "panel", r: 16, panel: true, panelRim: "#34416a", halo: "#4f6cff"},
+        // The live tiles, tabs and the plain panel are cut from the concept's
+        // exported sheets by qt/slice_stage_elements.py instead.
         {name: "panel-effects", r: 16, panel: true, panelRim: "#4b3d9c", halo: "#7c5cff"},
         {name: "panel-haze", r: 16, panel: true, panelRim: "#2c4a6a", halo: "#4f6cff"},
         {name: "panel-lit", r: 16, panel: true, lit: true, panelRim: "#34416a", halo: "#4f6cff"}

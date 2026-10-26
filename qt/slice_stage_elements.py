@@ -1,9 +1,9 @@
 """Slice the Stage Console element sheets into 9-slice ICO looks.
 
 ChatGPT exported the concept's controls as transparent sheets in
-docs/design/futuristic-2026-10-24/elements/: tiles.png holds every tile in
-its own state, rim light and glow but no text, and panels.png the empty group
-panels. Each element is cut out with its glow, scaled to the desk, and
+docs/design/futuristic-2026-10-24/elements/: tiles.png and keys.png hold
+every tile and key in its own state, rim light and glow but no text, and
+panels.png the empty group panels. Each element is cut out with its glow, scaled to the desk, and
 reduced to its corners plus a two-pixel middle that the BorderImage
 stretches. BMP-encoded ICO because the tablet's Qt reads no PNG. Run after
 replacing a sheet or changing a box below.
@@ -23,33 +23,41 @@ SHEETS = [
         "looks": [
             ((43, 81, 219, 258), "fill-idle"),
             ((252, 81, 434, 259), "fill-selected"),
-            ((47, 491, 247, 786), "fill-panic"),
-            ((287, 566, 594, 698), "fill-quiet"),
-            ((1215, 484, 1407, 1003), "fill-master"),
-            ((950, 566, 1181, 692), "key-tempo"),
-        ],
-        "others": [
-            (472, 81, 658, 258), (703, 81, 888, 259), (948, 81, 1135, 259),
-            (1206, 81, 1395, 259), (48, 305, 672, 439), (714, 305, 1404, 440),
-            (628, 523, 778, 771), (811, 567, 932, 692), (47, 855, 561, 994),
-            (593, 856, 1062, 998),
-        ],
-    },
-    {
-        "file": "tiles.png", "scale": 0.38, "margin": 12, "slice": 22,
-        "looks": [
             ((472, 81, 658, 258), "fill-hold"),
             ((703, 81, 888, 259), "fill-hold-lit"),
             ((948, 81, 1135, 259), "fill-fog"),
             ((1206, 81, 1395, 259), "fill-fog-lit"),
             ((48, 305, 672, 439), "fill-fog-wide"),
             ((714, 305, 1404, 440), "fill-fog-wide-lit"),
+            ((47, 491, 247, 786), "fill-panic"),
+            ((287, 566, 594, 698), "fill-quiet"),
+            ((950, 566, 1181, 692), "key-tempo"),
+            ((1215, 484, 1407, 1003), "fill-master"),
         ],
         "others": [
-            (43, 81, 219, 258), (252, 81, 434, 259), (47, 491, 247, 786),
-            (287, 566, 594, 698), (1215, 484, 1407, 1003), (950, 566, 1181, 692),
             (628, 523, 778, 771), (811, 567, 932, 692), (47, 855, 561, 994),
             (593, 856, 1062, 998),
+        ],
+    },
+    {
+        "file": "keys.png", "scale": 0.38, "margin": 12, "slice": 22,
+        "looks": [
+            ((963, 126, 1155, 395), "fill-quiet-selected"),
+        ],
+        "others": [
+            (648, 620, 836, 809), (946, 488, 1172, 823), (78, 259, 460, 386), (516, 259, 891, 388), (1242, 259, 1598, 392),
+            (88, 646, 546, 781), (1309, 570, 1577, 819),
+        ],
+    },
+    {
+        "file": "keys.png", "scale": 0.38, "margin": 10, "slice": 16,
+        "looks": [
+            ((78, 259, 460, 386), "tab"),
+            ((516, 259, 891, 388), "tab-selected"),
+        ],
+        "others": [
+            (963, 126, 1155, 395), (648, 620, 836, 809), (946, 488, 1172, 823),
+            (1242, 259, 1598, 392), (88, 646, 546, 781), (1309, 570, 1577, 819),
         ],
     },
     {
