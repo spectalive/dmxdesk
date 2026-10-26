@@ -26,8 +26,8 @@ Item {
         visible: content.compact
         x: 6; y: 10; width: parent.width - 12; height: parent.height - 38
         DeskAnimatedIcon {
-            x: -3; y: (parent.height - height) / 2
-            width: 28; height: 28; glyph: content.mark
+            x: 1; y: (parent.height - height) / 2
+            width: 20; height: 20; glyph: content.mark
             active: content.active; pressed: content.pressed
         }
         Text {

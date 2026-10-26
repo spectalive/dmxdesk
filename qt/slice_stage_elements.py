@@ -21,7 +21,7 @@ from PIL import Image, ImageEnhance
 # own rim and glow out of a neighbour's crop.
 SHEETS = [
     {
-        "file": "tiles.png", "scale": 0.38, "margin": 12, "slice": 22, "inset": 5,
+        "file": "tiles.png", "scale": 0.38, "margin": 12, "slice": 22, "inset": 5, "halo": 0.25,
         "looks": [
             ((43, 81, 219, 258), "fill-idle"),
             ((252, 81, 434, 259), "fill-selected"),
@@ -42,7 +42,7 @@ SHEETS = [
         ],
     },
     {
-        "file": "keys.png", "scale": 0.38, "margin": 12, "slice": 22, "inset": 5,
+        "file": "keys.png", "scale": 0.38, "margin": 12, "slice": 22, "inset": 5, "tone": 1.5,
         "looks": [
             ((963, 126, 1155, 395), "fill-quiet-selected"),
         ],
@@ -111,6 +111,21 @@ def cut(sheet, body, others, scale, margin, inset):
     return piece.resize(size, Image.LANCZOS)
 
 
+def dim_halo(image, margin, halo):
+    # Scale the glow beyond the tile's bezel; the sheets spill more light into
+    # the gaps than the concept, whose gaps stay nearly black.
+    alpha = image.getchannel("A")
+    pixels = alpha.load()
+    bezel = 2
+    reach = margin - bezel
+    for y in range(image.height):
+        for x in range(image.width):
+            edge = min(x, y, image.width - 1 - x, image.height - 1 - y)
+            if edge < reach:
+                pixels[x, y] = round(pixels[x, y] * halo)
+    image.putalpha(alpha)
+
+
 def fade_edges(image):
     # The sheet's glow runs past the margin; fade it out instead of clipping.
     alpha = image.getchannel("A")
@@ -157,6 +172,7 @@ def main():
         for body, name in group["looks"]:
             others = [box for box in bodies if box != body]
             piece = cut(sheet, body, others, group["scale"], group["margin"], group.get("inset", 0))
+            dim_halo(piece, group["margin"], group.get("halo", 1))
             fade_edges(piece)
             piece = retone(piece, group.get("tone", 1))
             image = compact(piece, group["margin"] + group["slice"])
