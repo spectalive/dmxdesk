@@ -25,4 +25,4 @@ The source Mac window passed its `AUDIT` command with `VERIFY 0`. Every concept 
 file docs/design/futuristic-2026-10-24/*.png
 ```
 
-Next: the owner chooses a direction before another QML appearance change.
+On 2026-10-26 the owner chose Stage Console. The Qt desk now applies its materials without changing geometry: `StageBackdrop`, `StagePanel`, `StageSheen` and `StageGlow` in `qt/qml/`. Idle controls stay dim; violet, teal and red halos mark effects, fog and Parar todo. The Mac capture is `docs/evidence/qt-desk-stage-console-2026-10-26.png`.

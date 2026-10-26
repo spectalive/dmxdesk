@@ -8,6 +8,10 @@
 
 ### 2026-10
 
+- [x] 2026-10-26 — **Design:** **Choose a concrete visual reference before another Qt redesign.** On 2026-10-24, the owner rejected the pastel-panel pass and requested futuristic examples preserving the current distribution. Three reviewed concepts and the original screenshot are in `docs/design/futuristic-2026-10-24/`. Their control groups are retained, but spacing and idle-state illumination need refinement. The Mac app remains on the restored dark interface (`AUDIT`: `VERIFY 0`). Next: choose Precision Glass, Aerospace Instrument or Stage Console with the owner before another QML appearance pass.
+  - Result: Stage Console (concept 3) applied to the Qt desk: ceramic gradients, violet/teal/red rim halos, dimmer idle controls; geometry unchanged.
+  - Evidence: ctest 7/7; qt_preview --capture VERIFY 0 on Directo and Efectos; docs/evidence/qt-desk-stage-console-2026-10-26.png
+
 - [x] 2026-10-24 — **Design:** Animate the Qt desk from its real state.
   - Result: Added native QML press faces, selection marks, settling icons, battery and Wi-Fi transitions, a moving tab indicator and page reveal. Kept tile instances across snapshots and tied hold countdowns to backend progress, with immediate disconnected state and support for reduced motion. Reopened the Mac preview; physical-tablet fluency remains in the Qt trial item.
   - Evidence: ctest --test-dir output/qt-host-build --output-on-failure: 7/7 passed in 15.93 s. The motion regression rejects the previous snapshot replacement. Mock-master pipe integration passed tabs, colour-hit mode, two-finger Stop All and EOF Flash release with an explicit map. All 100 recorded Mac frames passed VERIFY 0; see docs/evidence/qt-desk-motion-2026-10-24.mp4. Final optical checks: BPM left offset 0 px, vertical fog offset 0.53 px.

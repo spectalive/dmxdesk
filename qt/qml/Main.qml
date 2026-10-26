@@ -6,7 +6,7 @@ Window {
     width: 1024
     height: 600
     visible: true
-    color: "#0c0e12"
+    color: "#06070b"
     title: "Vibra Lighting"
 
     readonly property var view: deskBridge.state
@@ -49,15 +49,19 @@ Window {
         }
     }
 
+    StageBackdrop {}
+
     // The three tabs and status use the same panel coordinates as the C desk.
     Repeater {
         model: ["DIRECTO", "EFECTOS", "RITMO"]
         delegate: Rectangle {
             x: 16 + index * 144; y: 4; width: 136; height: 40; radius: 10
-            color: root.currentTab === index ? "#343a46" : "#1b1f27"
-            border.color: root.currentTab === index ? "#636a78" : "#1b1f27"
+            color: root.currentTab === index ? "#26244a" : "#12141f"
+            border.color: root.currentTab === index ? "#8f7cf0" : "#232839"
             Behavior on color { DeskColorMotion {} }
             Behavior on border.color { DeskColorMotion {} }
+            StageSheen { cornerRadius: parent.radius }
+            StageGlow { visible: root.currentTab === index; cornerRadius: parent.radius; tint: "#a08cff"; strength: 0.8 }
             Text {
                 anchors.centerIn: parent; text: modelData
                 color: root.currentTab === index ? "#f5f7fa" : "#adb6c4"
@@ -67,7 +71,7 @@ Window {
     }
     Rectangle {
         x: 68 + root.currentTab * 144; y: 36
-        width: 32; height: 4; radius: 2; color: "#7c86d9"
+        width: 32; height: 4; radius: 2; color: "#a08cff"
         Behavior on x { DeskNumberMotion { milliseconds: 220 } }
     }
     Text {
@@ -85,16 +89,13 @@ Window {
     DeskIcon { x: 972; y: 12; width: 24; height: 24; glyph: root.view.locked ? "lock" : "lock_open"; opacity: 0.75 }
 
     // DIRECTO: the fixed panels carry validated controls from the map.
-    Rectangle {
+    StagePanel {
         visible: root.currentTab === 0
-        x: 16; y: 160; width: 516; height: 114; radius: 16
-        color: root.roomActive ? "#2e3a7e" : "#14181e"
-        border.width: root.roomActive ? 1 : 0
-        border.color: "#7c86d9"
-        Behavior on color { DeskColorMotion {} }
+        x: 16; y: 160; width: 516; height: 114
+        lit: root.roomActive
     }
-    Rectangle { visible: root.currentTab === 0; x: 16; y: 282; width: 516; height: 302; radius: 16; color: "#14181e" }
-    Rectangle {
+    StagePanel { visible: root.currentTab === 0; x: 16; y: 282; width: 516; height: 302 }
+    StagePanel {
         objectName: "layout-panel:direct-effects"
         property int auditCount: 7
         property int auditColumns: 3
@@ -102,9 +103,10 @@ Window {
         property int auditInset: 12
         property int auditHeader: 24
         visible: root.currentTab === 0
-        x: 540; y: 160; width: 348; height: 264; radius: 16; color: "#14181e"
+        x: 540; y: 160; width: 348; height: 264
+        rim: "#4b3d9c"
     }
-    Rectangle { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; radius: 16; color: "#14181e" }
+    StagePanel { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; rim: "#24544c" }
     Rectangle {
         visible: root.currentTab === 0
         x: 40; y: 180; width: 8; height: 8; radius: 4
@@ -166,7 +168,7 @@ Window {
         visible: effectHeading.visible
         x: effectHeading.x + effectHeading.implicitWidth + 12; y: 173
         width: 888 - x; height: 1
-        color: "#39404d"
+        color: "#3a3170"
     }
     Text { visible: root.currentTab === 0; x: 552; y: 444; text: "HUMO AMBIENTE"; color: "#adb6c4"; font.pixelSize: 11 }
 
@@ -176,7 +178,7 @@ Window {
         delegate: Rectangle {
             x: modelData.x; y: modelData.y; width: modelData.w
             height: modelData.h > 0 ? modelData.h : 36; radius: 16
-            color: "#14181e"
+            color: "#10121d"; border.color: "#2b3050"
             Text { x: 12; y: 11; text: modelData.text; color: "#adb6c4"; font.pixelSize: 12 }
         }
     }
@@ -184,8 +186,9 @@ Window {
         model: root.currentTab === 1 ? root.view.families || [] : []
         delegate: Rectangle {
             x: 16; y: 56 + index * 72; width: 124; height: 64; radius: 12
-            color: modelData.page === root.view.page ? "#343a46" : "#1b1f27"
-            border.color: modelData.page === root.view.page ? "#7a808c" : "#39404d"
+            color: modelData.page === root.view.page ? "#26244a" : "#141725"
+            border.color: modelData.page === root.view.page ? "#8f7cf0" : "#2b3050"
+            StageSheen { cornerRadius: parent.radius }
             DeskIcon {
                 x: 12; y: 20; width: 24; height: 24
                 glyph: root.familyIconName(modelData.icon)
@@ -203,8 +206,8 @@ Window {
         delegate: Rectangle {
             visible: modelData.w > 0
             x: modelData.x; y: modelData.y; width: modelData.w; height: modelData.h
-            radius: 10; color: modelData.bank === root.view.bank ? "#343a46" : "#1b1f27"
-            border.color: modelData.bank === root.view.bank ? "#7a808c" : "#39404d"
+            radius: 10; color: modelData.bank === root.view.bank ? "#26244a" : "#141725"
+            border.color: modelData.bank === root.view.bank ? "#8f7cf0" : "#2b3050"
             Text {
                 x: modelData.caption ? 16 : 0; y: 0
                 width: modelData.caption ? 24 : parent.width; height: parent.height
@@ -244,7 +247,8 @@ Window {
                 delegate: Rectangle {
                     x: index === 0 ? parent.width - 204 : index === 1 ? parent.width - 156 : parent.width - 100
                     y: 24; width: index === 2 ? 88 : 44; height: 48; radius: 10
-                    color: "#262c36"; border.color: "#39404d"
+                    color: "#171a2b"; border.color: "#3d3a78"
+                    StageSheen { cornerRadius: parent.radius }
                     Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 12 : 16 }
                 }
             }

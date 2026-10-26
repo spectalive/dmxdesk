@@ -37,17 +37,31 @@ Rectangle {
 
     x: control.x; y: control.y; width: control.w; height: control.h
     radius: mini ? 8 : 12
-    color: mini && swatches.length ? selected ? "#7c86d9" : swatches[0] :
-           panic ? connected && control.enabled ? "#d42a2a" : "#1b1f27" :
-           selected ? "#343a46" : control.tile === 9 ? "#14231f" :
-           hold ? "#1f1b2b" : "#1b1f27"
+    color: mini && swatches.length ? selected ? "#a08cff" : swatches[0] :
+           panic ? connected && control.enabled ? "#e0232c" : "#141725" :
+           selected ? "#26244a" : control.tile === 9 ? "#0d2420" :
+           hold ? "#1a1630" : "#141725"
     border.width: selected && !mini ? 2 : 1
-    border.color: panic ? color : selected ? "#7a808c" :
-                  control.tile === 9 ? "#3fa88a" : hold ? "#7860c8" : "#39404d"
+    border.color: panic ? connected && control.enabled ? "#ff6b6b" : "#2b3050" :
+                  selected ? "#a08cff" :
+                  control.tile === 9 ? "#2fc49a" : hold ? "#6b55c8" :
+                  mini ? "#14000000" : "#2b3050"
     opacity: control.enabled && connected ? 1 : 0.6
     Behavior on color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
     Behavior on border.color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
 
+    StageGlow {
+        visible: tile.connected && tile.control.enabled && (tile.hold || tile.panic || tile.master || tile.selected)
+        tint: tile.panic ? "#ff3b42" : tile.selected && !tile.hold ? "#a08cff" :
+              tile.control.tile === 9 ? "#2fe0aa" : "#8f6cff"
+        cornerRadius: tile.radius
+        strength: tile.selected || tile.pressed ? 1 : tile.panic ? 0.9 : tile.master ? 0.4 : 0.55
+        Behavior on strength { DeskNumberMotion {} }
+    }
+    StageSheen {
+        cornerRadius: tile.radius
+        strength: tile.mini ? 0.5 : tile.panic ? 1.4 : 1
+    }
     TileActivity {
         objectName: "tile-activity"
         anchors.fill: parent
@@ -66,7 +80,7 @@ Rectangle {
         anchors.top: parent.top; anchors.topMargin: 5
         anchors.horizontalCenter: parent.horizontalCenter
         width: tile.selected ? Math.max(18, parent.width - 36) : 0; height: 3; radius: 2
-        color: "#7c86d9"
+        color: "#a08cff"
         Behavior on width { DeskNumberMotion {} }
         Behavior on opacity { DeskNumberMotion {} }
     }
@@ -169,7 +183,8 @@ Rectangle {
     Rectangle {
         visible: tile.master
         x: 16; y: 77; width: parent.width - 32; height: parent.height - 93
-        radius: 8; color: "#0c0e12"
+        radius: 8; color: "#05060a"
+        border.color: "#232839"
     }
     Rectangle {
         visible: tile.master && tile.control.state !== 0
