@@ -6,11 +6,10 @@ Item {
 
     Repeater {
         model: parent.dials
-        delegate: Rectangle {
+        delegate: StagePanel {
             id: card
             property var dial: modelData
-            x: 16 + index * 418; y: 56; width: 410; height: 456; radius: 16
-            color: "#14181e"; border.color: "#39404d"
+            x: 16 + index * 418; y: 56; width: 410; height: 456
             Text {
                 objectName: "align-center:rhythm-" + index
                 x: 16; y: 16; width: 240
@@ -26,7 +25,10 @@ Item {
             }
             Rectangle {
                 x: 274; y: 52; width: 120; height: 48; radius: 10
-                color: "#262c36"; border.color: "#39404d"
+                color: "#151a28"; border.color: "#3a4775"
+                StageWell { cornerRadius: parent.radius }
+                StageSheen { cornerRadius: parent.radius }
+                StageRim { cornerRadius: parent.radius }
                 Text { anchors.centerIn: parent; text: "Tiempo ×" + (card.dial.factorName || "?"); color: "#f5f7fa"; font.pixelSize: 13 }
             }
             Repeater {
@@ -39,8 +41,13 @@ Item {
                 ]
                 delegate: Rectangle {
                     x: modelData.x; y: modelData.y; width: modelData.w; height: modelData.h
-                    radius: 12; color: "#1b1f27"; border.color: "#39404d"
+                    radius: 12; color: "#1a1e33"
+                    border.color: modelData.label === "TAP" ? "#6c5ce8" : "#3a4775"
                     opacity: card.dial.enabled && !card.dial.pending ? 1 : 0.65
+                    StageWell { cornerRadius: parent.radius }
+                    StageGlow { visible: modelData.label === "TAP"; cornerRadius: parent.radius; tint: "#7c6cf0"; strength: 0.45 }
+                    StageSheen { cornerRadius: parent.radius }
+                    StageRim { cornerRadius: parent.radius }
                     Text {
                         anchors.centerIn: parent; text: modelData.label
                         color: "#f5f7fa"; font.pixelSize: 16; font.bold: true
@@ -55,7 +62,11 @@ Item {
     }
     Rectangle {
         x: 16; y: 520; width: 828; height: 64; radius: 12
-        color: "#1b1f27"; border.color: "#39404d"
+        color: "#1a1e33"; border.color: "#6c5ce8"
+        StageWell { cornerRadius: parent.radius }
+        StageGlow { cornerRadius: parent.radius; tint: "#7c6cf0"; strength: 0.45 }
+        StageSheen { cornerRadius: parent.radius }
+        StageRim { cornerRadius: parent.radius }
         Text { anchors.centerIn: parent; text: "TAP AMBOS"; color: "#f5f7fa"; font.pixelSize: 16; font.bold: true }
     }
 }

@@ -13,9 +13,4 @@ Rectangle {
         GradientStop { position: 0.45; color: "#04ffffff" }
         GradientStop { position: 1.0; color: "#38000000" }
     }
-    Rectangle {
-        x: parent.radius; y: 1
-        width: parent.width - 2 * parent.radius; height: 1
-        color: "#2effffff"
-    }
 }

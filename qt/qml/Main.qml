@@ -49,6 +49,8 @@ Window {
         }
     }
 
+    // Bold labels resolve to the semibold face the tablet also ships.
+    FontLoader { source: "fonts/Inter-SemiBold.ttf" }
     StageBackdrop {}
 
     // The three tabs and status use the same panel coordinates as the C desk.
@@ -56,12 +58,14 @@ Window {
         model: ["DIRECTO", "EFECTOS", "RITMO"]
         delegate: Rectangle {
             x: 16 + index * 144; y: 4; width: 136; height: 40; radius: 10
-            color: root.currentTab === index ? "#26244a" : "#12141f"
-            border.color: root.currentTab === index ? "#8f7cf0" : "#232839"
+            color: root.currentTab === index ? "#363d5c" : "#151a28"
+            border.color: root.currentTab === index ? "#a08cff" : "#3a4775"
             Behavior on color { DeskColorMotion {} }
             Behavior on border.color { DeskColorMotion {} }
+            StageWell { cornerRadius: parent.radius }
+            StageGlow { visible: root.currentTab === index; cornerRadius: parent.radius; tint: "#a08cff"; strength: 0.9 }
             StageSheen { cornerRadius: parent.radius }
-            StageGlow { visible: root.currentTab === index; cornerRadius: parent.radius; tint: "#a08cff"; strength: 0.8 }
+            StageRim { cornerRadius: parent.radius; strength: root.currentTab === index ? 1 : 0.6 }
             Text {
                 anchors.centerIn: parent; text: modelData
                 color: root.currentTab === index ? "#f5f7fa" : "#adb6c4"
@@ -71,7 +75,7 @@ Window {
     }
     Rectangle {
         x: 68 + root.currentTab * 144; y: 36
-        width: 32; height: 4; radius: 2; color: "#a08cff"
+        width: 32; height: 4; radius: 2; color: "#8fa0ff"
         Behavior on x { DeskNumberMotion { milliseconds: 220 } }
     }
     Text {
@@ -104,9 +108,9 @@ Window {
         property int auditHeader: 24
         visible: root.currentTab === 0
         x: 540; y: 160; width: 348; height: 264
-        rim: "#4b3d9c"
+        rim: "#4b3d9c"; halo: "#7c5cff"
     }
-    StagePanel { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; rim: "#24544c" }
+    StagePanel { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; rim: "#2c4a6a" }
     Rectangle {
         visible: root.currentTab === 0
         x: 40; y: 180; width: 8; height: 8; radius: 4
@@ -117,7 +121,7 @@ Window {
         visible: root.currentTab === 0
         x: 40; y: 206; width: 240; height: 36
         text: root.view.activeMode || "Sin escena activa"
-        color: root.roomActive ? "#ffffff" : "#adb6c4"
+        color: root.roomActive ? "#ffffff" : "#d6dcea"
         font.family: "Inter"; font.pixelSize: root.roomActive ? 30 : 19; font.bold: true
         verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
     }
@@ -175,10 +179,9 @@ Window {
     // EFECTOS' headings and family rail come from the validated layout.
     Repeater {
         model: root.currentTab === 0 ? [] : root.view.headings || []
-        delegate: Rectangle {
+        delegate: StagePanel {
             x: modelData.x; y: modelData.y; width: modelData.w
-            height: modelData.h > 0 ? modelData.h : 36; radius: 16
-            color: "#10121d"; border.color: "#2b3050"
+            height: modelData.h > 0 ? modelData.h : 36
             Text { x: 12; y: 11; text: modelData.text; color: "#adb6c4"; font.pixelSize: 12 }
         }
     }
@@ -247,9 +250,12 @@ Window {
                 delegate: Rectangle {
                     x: index === 0 ? parent.width - 204 : index === 1 ? parent.width - 156 : parent.width - 100
                     y: 24; width: index === 2 ? 88 : 44; height: 48; radius: 10
-                    color: "#171a2b"; border.color: "#3d3a78"
+                    color: "#1a1e33"; border.color: "#6c5ce8"
+                    StageWell { cornerRadius: parent.radius }
+                    StageGlow { cornerRadius: parent.radius; tint: "#7c6cf0"; strength: 0.45 }
                     StageSheen { cornerRadius: parent.radius }
-                    Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 12 : 16 }
+                    StageRim { cornerRadius: parent.radius }
+                    Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 13 : 20; font.bold: true }
                 }
             }
         }

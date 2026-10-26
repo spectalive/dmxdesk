@@ -37,30 +37,38 @@ Rectangle {
 
     x: control.x; y: control.y; width: control.w; height: control.h
     radius: mini ? 8 : 12
+    readonly property bool wideFog: control.tile === 9 && width >= 2 * height
     color: mini && swatches.length ? selected ? "#a08cff" : swatches[0] :
-           panic ? connected && control.enabled ? "#e0232c" : "#141725" :
-           selected ? "#26244a" : control.tile === 9 ? "#0d2420" :
-           hold ? "#1a1630" : "#141725"
+           panic ? connected && control.enabled ? "#e8161f" : "#151a28" :
+           selected ? "#353d5a" : wideFog ? "#0f3d31" : control.tile === 9 ? "#0b2622" :
+           hold ? "#140f28" : "#151a28"
     border.width: selected && !mini ? 2 : 1
-    border.color: panic ? connected && control.enabled ? "#ff6b6b" : "#2b3050" :
-                  selected ? "#a08cff" :
-                  control.tile === 9 ? "#2fc49a" : hold ? "#6b55c8" :
-                  mini ? "#14000000" : "#2b3050"
+    border.color: panic ? connected && control.enabled ? "#ff5a5a" : "#2a3350" :
+                  selected ? "#8fa0ff" :
+                  control.tile === 9 ? "#2ff0c0" : hold ? "#8a5cff" :
+                  mini ? "#30000000" : "#3a4775"
     opacity: control.enabled && connected ? 1 : 0.6
     Behavior on color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
     Behavior on border.color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
 
+    StageWell { cornerRadius: tile.radius; depth: tile.mini ? 1.4 : 1 }
     StageGlow {
         visible: tile.connected && tile.control.enabled && (tile.hold || tile.panic || tile.master || tile.selected)
-        tint: tile.panic ? "#ff3b42" : tile.selected && !tile.hold ? "#a08cff" :
-              tile.control.tile === 9 ? "#2fe0aa" : "#8f6cff"
+        tint: tile.panic ? "#ff2a33" : tile.selected && !tile.hold ? "#8fa0ff" :
+              tile.control.tile === 9 ? "#2ff0c0" : tile.master ? "#8a5cff" : "#8a5cff"
         cornerRadius: tile.radius
-        strength: tile.selected || tile.pressed ? 1 : tile.panic ? 0.9 : tile.master ? 0.4 : 0.55
+        strength: tile.selected || tile.pressed ? 1 : tile.panic ? 1 : tile.master ? 0.85 : 0.8
         Behavior on strength { DeskNumberMotion {} }
     }
     StageSheen {
         cornerRadius: tile.radius
-        strength: tile.mini ? 0.5 : tile.panic ? 1.4 : 1
+        strength: tile.mini ? 0.5 : tile.panic ? 1.2 : 1
+    }
+    StageRim {
+        cornerRadius: tile.radius
+        light: tile.panic ? "#ffc9c9" : tile.control.tile === 9 ? "#c4fff0" :
+               tile.hold ? "#dccfff" : "#c8d4ff"
+        strength: tile.mini ? 0.55 : tile.connected && tile.control.enabled ? 1 : 0.4
     }
     TileActivity {
         objectName: "tile-activity"
@@ -80,7 +88,7 @@ Rectangle {
         anchors.top: parent.top; anchors.topMargin: 5
         anchors.horizontalCenter: parent.horizontalCenter
         width: tile.selected ? Math.max(18, parent.width - 36) : 0; height: 3; radius: 2
-        color: "#a08cff"
+        color: "#8fa0ff"
         Behavior on width { DeskNumberMotion {} }
         Behavior on opacity { DeskNumberMotion {} }
     }
@@ -183,14 +191,16 @@ Rectangle {
     Rectangle {
         visible: tile.master
         x: 16; y: 77; width: parent.width - 32; height: parent.height - 93
-        radius: 8; color: "#05060a"
-        border.color: "#232839"
+        radius: 8; color: "#07090e"
+        border.color: "#2a3350"
+        Rectangle { x: 6; y: 6; width: parent.width - 12; height: parent.height - 12; radius: 5; color: "#0d1018"; border.color: "#1c2234" }
     }
     Rectangle {
         visible: tile.master && tile.control.state !== 0
         x: 12; width: parent.width - 24; height: 24; radius: 8
         y: 77 + (255 - tile.control.level) * (parent.height - 93 - 24) / 255
         color: tile.connected ? "#f5f7fa" : "#adb6c4"
+        StageGlow { visible: tile.connected; cornerRadius: parent.radius; tint: "#8fe8ff"; strength: 0.9 }
     }
     TempoTileContent {
         visible: tile.tempo
