@@ -21,7 +21,7 @@ Item {
     Rectangle {
         anchors.centerIn: parent
         width: 8; height: 8; radius: 4
-        color: indicator.linked ? "#3ee0aa" : "#d42a2a"
+        color: indicator.linked ? "#3cfde6" : "#d42a2a"
         Behavior on color { DeskColorMotion {} }
     }
 }

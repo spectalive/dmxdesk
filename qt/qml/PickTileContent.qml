@@ -62,7 +62,7 @@ Item {
             visible: !!content.control.detail
             width: parent.width; height: visible ? implicitHeight : 0
             text: content.control.detail || ""
-            color: "#adb6c4"
+            color: "#dbeafc"
             font.family: "Inter"; font.pixelSize: 10
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight

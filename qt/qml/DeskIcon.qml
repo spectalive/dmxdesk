@@ -11,7 +11,7 @@ Image {
         "◒": "half_bottom", "◓": "half_top", "▦": "grid"
     })
     source: glyph ? Qt.resolvedUrl("icons/" +
-                                   (names[glyph.replace("️", "")] || glyph) + ".png") : ""
+                                   (names[glyph.replace("️", "")] || glyph) + ".ico") : ""
     fillMode: Image.PreserveAspectFit
     smooth: true
     sourceSize.width: glyph.startsWith("traj_") ? 80 : 48

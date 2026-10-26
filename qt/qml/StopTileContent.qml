@@ -19,7 +19,7 @@ Item {
         }
         Text {
             width: parent.width; text: content.control.detail || ""
-            color: "#ffd2cc"
+            color: "#ffffff"
             font.family: "Inter"; font.pixelSize: 10
             horizontalAlignment: Text.AlignHCenter
         }

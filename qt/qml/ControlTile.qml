@@ -33,14 +33,14 @@ Rectangle {
     readonly property bool hazeOff: haze && control.label === "OFF"
     readonly property bool ambientLoop: haze && /^cada\s+\d+\s+min$/i.test(control.label || "")
     readonly property var swatches: control.swatches || []
-    readonly property string ink: control.enabled && connected ? "#f5f7fa" : "#adb6c4"
+    readonly property string ink: control.enabled && connected ? "#f5f7fa" : "#dbeafc"
 
     x: control.x; y: control.y; width: control.w; height: control.h
     radius: mini ? 8 : 12
     readonly property bool wideFog: control.tile === 9 && width >= 2 * height
     color: mini && swatches.length ? selected ? "#a08cff" : swatches[0] :
            panic ? connected && control.enabled ? "#e8161f" : "#151a28" :
-           selected ? "#353d5a" : wideFog ? "#0f3d31" : control.tile === 9 ? "#0b2622" :
+           selected ? "#353d5a" : wideFog ? "#03452f" : control.tile === 9 ? "#0b2622" :
            hold ? "#140f28" : "#151a28"
     border.width: selected && !mini ? 2 : 1
     border.color: panic ? connected && control.enabled ? "#ff5a5a" : "#2a3350" :
@@ -51,32 +51,22 @@ Rectangle {
     Behavior on color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
     Behavior on border.color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
 
-    StageWell { cornerRadius: tile.radius; depth: tile.mini ? 1.4 : 1 }
-    StageGlow {
-        visible: tile.connected && tile.control.enabled && (tile.hold || tile.panic || tile.master || tile.selected)
-        tint: tile.panic ? "#ff2a33" : tile.selected && !tile.hold ? "#8fa0ff" :
-              tile.control.tile === 9 ? "#2ff0c0" : tile.master ? "#8a5cff" : "#8a5cff"
-        cornerRadius: tile.radius
-        strength: tile.selected || tile.pressed ? 1 : tile.panic ? 1 : tile.master ? 0.85 : 0.8
-        Behavior on strength { DeskNumberMotion {} }
-    }
-    StageSheen {
-        cornerRadius: tile.radius
-        strength: tile.mini ? 0.5 : tile.panic ? 1.2 : 1
-    }
-    StageRim {
-        cornerRadius: tile.radius
-        light: tile.panic ? "#ffc9c9" : tile.control.tile === 9 ? "#c4fff0" :
-               tile.hold ? "#dccfff" : "#c8d4ff"
-        strength: tile.mini ? 0.55 : tile.connected && tile.control.enabled ? 1 : 0.4
+    StageChrome {
+        readonly property bool live: tile.connected && tile.control.enabled
+        readonly property bool lit: tile.selected || tile.pressed
+        look: tile.mini ? (live && tile.selected ? "swatch-selected" : "swatch") :
+              !live ? "tile-off" : tile.panic ? "tile-panic" :
+              tile.hold ? (tile.control.tile === 9 ? (lit ? "tile-fog-lit" : "tile-fog") :
+                                                     (lit ? "tile-hold-lit" : "tile-hold")) :
+              tile.selected ? "tile-selected" : tile.master ? "tile-master" : "tile-idle"
     }
     TileActivity {
         objectName: "tile-activity"
         anchors.fill: parent
         pressed: tile.pressed
         available: tile.connected && tile.control.enabled
-        accent: tile.panic ? "#ffffff" : tile.control.tile === 9 ? "#3ee0aa" :
-                tile.mini && tile.swatches.length ? "#ffffff" : "#a991e8"
+        accent: tile.panic ? "#ffffff" : tile.control.tile === 9 ? "#3cfde6" :
+                tile.mini && tile.swatches.length ? "#ffffff" : "#c4b4ff"
         cornerRadius: tile.radius
         progress: tile.hold ? tile.control.holdProgress ?? -1 : -1
     }
@@ -177,7 +167,7 @@ Rectangle {
         visible: tile.master
         objectName: "align-x-parent"
         x: 0; y: 12; width: parent.width
-        text: "MASTER"; color: "#adb6c4"; font.pixelSize: 11
+        text: "MASTER"; color: "#dbeafc"; font.pixelSize: 11
         horizontalAlignment: Text.AlignHCenter
     }
     Text {
@@ -199,8 +189,8 @@ Rectangle {
         visible: tile.master && tile.control.state !== 0
         x: 12; width: parent.width - 24; height: 24; radius: 8
         y: 77 + (255 - tile.control.level) * (parent.height - 93 - 24) / 255
-        color: tile.connected ? "#f5f7fa" : "#adb6c4"
-        StageGlow { visible: tile.connected; cornerRadius: parent.radius; tint: "#8fe8ff"; strength: 0.9 }
+        color: tile.connected ? "#f5f7fa" : "#dbeafc"
+        StageChrome { visible: tile.connected; look: "knob"; slice: 8 }
     }
     TempoTileContent {
         visible: tile.tempo

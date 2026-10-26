@@ -10,8 +10,8 @@ Item {
     readonly property bool compact: !wide && height < 90
     readonly property bool verticalFog: wide && control.tile === 9 && control.label === "HUMO VERT"
     readonly property string mark: control.icon || "bolt"
-    readonly property string ink: control.enabled ? "#f5f7fa" : "#adb6c4"
-    readonly property string accent: control.tile === 9 ? "#3ee0aa" : "#a991e8"
+    readonly property string ink: control.enabled ? "#f5f7fa" : "#dbeafc"
+    readonly property string accent: control.tile === 9 ? "#3cfde6" : "#c4b4ff"
     readonly property string prompt: control.holdProgress === -2 ? "SIN CONFIRMAR" :
                                      control.holdProgress >= 1000 ? "SUELTA" : "MANTENER"
 

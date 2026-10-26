@@ -13,7 +13,7 @@ Item {
             Text {
                 objectName: "align-center:rhythm-" + index
                 x: 16; y: 16; width: 240
-                text: modelData.caption; color: "#adb6c4"
+                text: modelData.caption; color: "#dbeafc"
                 font.pixelSize: 12; font.bold: true
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -26,9 +26,7 @@ Item {
             Rectangle {
                 x: 274; y: 52; width: 120; height: 48; radius: 10
                 color: "#151a28"; border.color: "#3a4775"
-                StageWell { cornerRadius: parent.radius }
-                StageSheen { cornerRadius: parent.radius }
-                StageRim { cornerRadius: parent.radius }
+                StageChrome { look: "key"; slice: 18 }
                 Text { anchors.centerIn: parent; text: "Tiempo ×" + (card.dial.factorName || "?"); color: "#f5f7fa"; font.pixelSize: 13 }
             }
             Repeater {
@@ -44,10 +42,7 @@ Item {
                     radius: 12; color: "#1a1e33"
                     border.color: modelData.label === "TAP" ? "#6c5ce8" : "#3a4775"
                     opacity: card.dial.enabled && !card.dial.pending ? 1 : 0.65
-                    StageWell { cornerRadius: parent.radius }
-                    StageGlow { visible: modelData.label === "TAP"; cornerRadius: parent.radius; tint: "#7c6cf0"; strength: 0.45 }
-                    StageSheen { cornerRadius: parent.radius }
-                    StageRim { cornerRadius: parent.radius }
+                    StageChrome { look: modelData.label === "TAP" ? "tile-tap" : "tile-idle" }
                     Text {
                         anchors.centerIn: parent; text: modelData.label
                         color: "#f5f7fa"; font.pixelSize: 16; font.bold: true
@@ -56,17 +51,14 @@ Item {
             }
             Text {
                 x: 16; y: 148; width: 370; text: card.dial.note || ""
-                color: "#adb6c4"; font.pixelSize: 11; elide: Text.ElideRight
+                color: "#dbeafc"; font.pixelSize: 11; elide: Text.ElideRight
             }
         }
     }
     Rectangle {
         x: 16; y: 520; width: 828; height: 64; radius: 12
         color: "#1a1e33"; border.color: "#6c5ce8"
-        StageWell { cornerRadius: parent.radius }
-        StageGlow { cornerRadius: parent.radius; tint: "#7c6cf0"; strength: 0.45 }
-        StageSheen { cornerRadius: parent.radius }
-        StageRim { cornerRadius: parent.radius }
+        StageChrome { look: "tile-tap" }
         Text { anchors.centerIn: parent; text: "TAP AMBOS"; color: "#f5f7fa"; font.pixelSize: 16; font.bold: true }
     }
 }

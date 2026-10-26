@@ -62,13 +62,10 @@ Window {
             border.color: root.currentTab === index ? "#a08cff" : "#3a4775"
             Behavior on color { DeskColorMotion {} }
             Behavior on border.color { DeskColorMotion {} }
-            StageWell { cornerRadius: parent.radius }
-            StageGlow { visible: root.currentTab === index; cornerRadius: parent.radius; tint: "#a08cff"; strength: 0.9 }
-            StageSheen { cornerRadius: parent.radius }
-            StageRim { cornerRadius: parent.radius; strength: root.currentTab === index ? 1 : 0.6 }
+            StageChrome { look: root.currentTab === index ? "key-selected" : "key-dim"; slice: 18 }
             Text {
                 anchors.centerIn: parent; text: modelData
-                color: root.currentTab === index ? "#f5f7fa" : "#adb6c4"
+                color: root.currentTab === index ? "#f5f7fa" : "#dbeafc"
                 font.family: "Inter"; font.pixelSize: 13; font.bold: true
             }
         }
@@ -81,14 +78,14 @@ Window {
     Text {
         x: 458; y: 16; width: 290; height: 18
         text: root.linked ? (root.view.activeMode ? root.view.activeMode + " · Enlazado" : "Enlazado") : "Esperando conexión..."
-        color: root.linked ? "#adb6c4" : "#d42a2a"
+        color: root.linked ? "#dbeafc" : "#d42a2a"
         horizontalAlignment: Text.AlignRight; elide: Text.ElideLeft
         font.family: "Inter"; font.pixelSize: 11
     }
     ConnectionIndicator { x: 752; y: 16; width: 16; height: 16; linked: root.linked }
     WifiStatusIcon { x: 777; y: 12; width: 24; height: 24; bars: Math.max(0, Math.min(3, root.view.wifiBars || 0)) }
     BatteryStatusIcon { x: 817; y: 12; width: 24; height: 24; level: root.view.battery ?? -1; opacity: 0.75 }
-    Text { x: 846; y: 17; width: 57; text: root.view.battery >= 0 ? root.view.battery + "%" : "--"; color: "#adb6c4"; font.pixelSize: 11 }
+    Text { x: 846; y: 17; width: 57; text: root.view.battery >= 0 ? root.view.battery + "%" : "--"; color: "#dbeafc"; font.pixelSize: 11 }
     DeskIcon { x: 924; y: 12; width: 24; height: 24; glyph: "gear"; opacity: 0.75 }
     DeskIcon { x: 972; y: 12; width: 24; height: 24; glyph: root.view.locked ? "lock" : "lock_open"; opacity: 0.75 }
 
@@ -96,7 +93,7 @@ Window {
     StagePanel {
         visible: root.currentTab === 0
         x: 16; y: 160; width: 516; height: 114
-        lit: root.roomActive
+        look: root.roomActive ? "panel-lit" : "panel"
     }
     StagePanel { visible: root.currentTab === 0; x: 16; y: 282; width: 516; height: 302 }
     StagePanel {
@@ -108,15 +105,15 @@ Window {
         property int auditHeader: 24
         visible: root.currentTab === 0
         x: 540; y: 160; width: 348; height: 264
-        rim: "#4b3d9c"; halo: "#7c5cff"
+        look: "panel-effects"
     }
-    StagePanel { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; rim: "#2c4a6a" }
+    StagePanel { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; look: "panel-haze" }
     Rectangle {
         visible: root.currentTab === 0
         x: 40; y: 180; width: 8; height: 8; radius: 4
-        color: root.linked ? "#3ee0aa" : "#d42a2a"
+        color: root.linked ? "#3cfde6" : "#d42a2a"
     }
-    Text { visible: root.currentTab === 0; x: 56; y: 174; text: "ESTADO ACTUAL"; color: root.roomActive ? "#d6daf8" : "#adb6c4"; font.pixelSize: 11 }
+    Text { visible: root.currentTab === 0; x: 56; y: 174; text: "ESTADO ACTUAL"; color: root.roomActive ? "#e6f2ff" : "#dbeafc"; font.pixelSize: 11 }
     Text {
         visible: root.currentTab === 0
         x: 40; y: 206; width: 240; height: 36
@@ -130,7 +127,7 @@ Window {
         x: 40; y: 244; width: 240; height: 20
         text: root.roomActive && root.activeState ? root.activeState.detail || "" :
               root.linked ? "Selecciona un modo" : ""
-        color: "#d6daf8"; font.family: "Inter"; font.pixelSize: 12
+        color: "#e6f2ff"; font.family: "Inter"; font.pixelSize: 12
         verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
     }
     Repeater {
@@ -143,12 +140,12 @@ Window {
             x: 294; y: 180 + index * 25; width: 215; height: 24
             Text {
                 x: 0; y: 0; width: 57; height: parent.height
-                text: modelData.label; color: "#d6daf8"; font.pixelSize: 11
+                text: modelData.label; color: "#e6f2ff"; font.pixelSize: 11
                 font.family: "Inter"; verticalAlignment: Text.AlignVCenter
             }
             Text {
                 x: 65; y: 0; width: parent.width - 65; height: parent.height
-                text: modelData.value; color: "#d6daf8"; font.pixelSize: 11
+                text: modelData.value; color: "#e6f2ff"; font.pixelSize: 11
                 font.family: "Inter"; verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
             }
@@ -159,14 +156,14 @@ Window {
         x: 28; y: 296; width: 320
         text: root.view.activeColor && root.view.activeColor !== "—" ?
               "COLOR DEL RIG · " + root.view.activeColor.toUpperCase() : "COLOR DEL RIG"
-        color: "#adb6c4"; font.pixelSize: 11; elide: Text.ElideRight
+        color: "#dbeafc"; font.pixelSize: 11; elide: Text.ElideRight
     }
     Text {
         id: effectHeading
         visible: root.currentTab === 0
         x: 552; y: 166
         text: "EFECTOS · MIENTRAS PULSES"
-        color: "#adb6c4"; font.pixelSize: 11
+        color: "#dbeafc"; font.pixelSize: 11
     }
     Rectangle {
         visible: effectHeading.visible
@@ -174,7 +171,7 @@ Window {
         width: 888 - x; height: 1
         color: "#3a3170"
     }
-    Text { visible: root.currentTab === 0; x: 552; y: 444; text: "HUMO AMBIENTE"; color: "#adb6c4"; font.pixelSize: 11 }
+    Text { visible: root.currentTab === 0; x: 552; y: 444; text: "HUMO AMBIENTE"; color: "#dbeafc"; font.pixelSize: 11 }
 
     // EFECTOS' headings and family rail come from the validated layout.
     Repeater {
@@ -182,7 +179,7 @@ Window {
         delegate: StagePanel {
             x: modelData.x; y: modelData.y; width: modelData.w
             height: modelData.h > 0 ? modelData.h : 36
-            Text { x: 12; y: 11; text: modelData.text; color: "#adb6c4"; font.pixelSize: 12 }
+            Text { x: 12; y: 11; text: modelData.text; color: "#dbeafc"; font.pixelSize: 12 }
         }
     }
     Repeater {
@@ -191,7 +188,7 @@ Window {
             x: 16; y: 56 + index * 72; width: 124; height: 64; radius: 12
             color: modelData.page === root.view.page ? "#26244a" : "#141725"
             border.color: modelData.page === root.view.page ? "#8f7cf0" : "#2b3050"
-            StageSheen { cornerRadius: parent.radius }
+            StageChrome { look: "tile-sheen" }
             DeskIcon {
                 x: 12; y: 20; width: 24; height: 24
                 glyph: root.familyIconName(modelData.icon)
@@ -251,10 +248,7 @@ Window {
                     x: index === 0 ? parent.width - 204 : index === 1 ? parent.width - 156 : parent.width - 100
                     y: 24; width: index === 2 ? 88 : 44; height: 48; radius: 10
                     color: "#1a1e33"; border.color: "#6c5ce8"
-                    StageWell { cornerRadius: parent.radius }
-                    StageGlow { cornerRadius: parent.radius; tint: "#7c6cf0"; strength: 0.45 }
-                    StageSheen { cornerRadius: parent.radius }
-                    StageRim { cornerRadius: parent.radius }
+                    StageChrome { look: "key-tempo"; slice: 18 }
                     Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 13 : 20; font.bold: true }
                 }
             }
@@ -279,7 +273,7 @@ Window {
         color: "#343a46"
         Rectangle { x: 16; y: 17; width: 4; height: 82; color: "#d42a2a" }
         Text { x: 24; y: 25; width: 480; height: 32; text: "Otro show cargado en el Mac"; color: "#f5f7fa"; font.pixelSize: 17; horizontalAlignment: Text.AlignHCenter }
-        Text { x: 24; y: 66; width: 480; height: 24; text: "Controles desactivados"; color: "#adb6c4"; font.pixelSize: 13; horizontalAlignment: Text.AlignHCenter }
+        Text { x: 24; y: 66; width: 480; height: 24; text: "Controles desactivados"; color: "#dbeafc"; font.pixelSize: 13; horizontalAlignment: Text.AlignHCenter }
     }
     Rectangle {
         visible: !!root.view.locked; x: 16; y: 544; width: 872; height: 40; radius: 10

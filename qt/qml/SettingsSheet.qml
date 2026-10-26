@@ -19,7 +19,7 @@ Item {
         delegate: Rectangle {
             x: modelData.x; y: 112; width: 404; height: 364; radius: 20
             color: "#1b1f27"; border.color: "#39404d"
-            Text { x: 16; y: 13; text: modelData.title; color: "#adb6c4"; font.pixelSize: 14 }
+            Text { x: 16; y: 13; text: modelData.title; color: "#dbeafc"; font.pixelSize: 14 }
             Text { x: 16; y: 53; width: 372; text: modelData.current; color: "#f5f7fa"; font.pixelSize: 13; elide: Text.ElideRight }
         }
     }
@@ -46,17 +46,17 @@ Item {
     }
     Rectangle {
         x: 32; y: 412; width: 372; height: 48; radius: 12
-        color: "#262c36"; border.color: "#adb6c4"
+        color: "#262c36"; border.color: "#dbeafc"
         Text { anchors.centerIn: parent; text: settings.wifiBusy ? "Buscando..." : "Buscar redes"; color: "#f5f7fa"; font.pixelSize: 13 }
     }
     Rectangle {
         x: 444; y: 412; width: 178; height: 48; radius: 12
-        color: "#262c36"; border.color: "#adb6c4"
+        color: "#262c36"; border.color: "#dbeafc"
         Text { anchors.centerIn: parent; text: settings.masterBusy ? "Parar" : "Buscar QLC+"; color: "#f5f7fa"; font.pixelSize: 13 }
     }
     Rectangle {
         x: 638; y: 412; width: 178; height: 48; radius: 12
-        color: "#0c0e12"; border.color: "#adb6c4"
+        color: "#0c0e12"; border.color: "#dbeafc"
         Text { anchors.centerIn: parent; text: "Escribir IP"; color: "#f5f7fa"; font.pixelSize: 13 }
     }
     Rectangle {
@@ -67,7 +67,7 @@ Item {
             Rectangle {
                 width: parent.width * Math.max(0, Math.min(1,
                        (settings.brightness - 8) / Math.max(1, settings.brightnessMax - 8)))
-                height: parent.height; radius: 8; color: "#adb6c4"
+                height: parent.height; radius: 8; color: "#dbeafc"
             }
         }
     }
@@ -79,20 +79,20 @@ Item {
     Rectangle {
         visible: !!settings.confirmOpen
         x: 172; y: 200; width: 500; height: 220; radius: 20
-        color: "#262c36"; border.color: "#adb6c4"
+        color: "#262c36"; border.color: "#dbeafc"
         Text { x: 24; y: 28; text: "¿Unirse a " + settings.confirmSsid + "?"; color: "#f5f7fa"; font.pixelSize: 18 }
         Text { x: 24; y: 78; width: 450; wrapMode: Text.WordWrap
                text: "La tablet perderá la conexión al cambiar de red; el show sigue en el Mac."
-               color: "#adb6c4"; font.pixelSize: 12 }
+               color: "#dbeafc"; font.pixelSize: 12 }
         Text { x: 24; y: 116; text: settings.confirmOpenNetwork ? "Red abierta: sin clave." : "La clave queda en la tablet."
-               color: "#adb6c4"; font.pixelSize: 12 }
+               color: "#dbeafc"; font.pixelSize: 12 }
         Text { x: 26; y: 177; text: "Cancelar"; color: "#f5f7fa"; font.pixelSize: 14 }
         Text { x: 379; y: 177; text: "Unirse"; color: "#f5f7fa"; font.pixelSize: 14 }
     }
     Rectangle {
         visible: !!settings.keyboardOpen
         x: 0; y: 48; width: 844; height: 552; color: "#0c0e12"
-        Text { x: 16; y: 16; text: settings.keyboardTitle || ""; color: "#adb6c4"; font.pixelSize: 14 }
+        Text { x: 16; y: 16; text: settings.keyboardTitle || ""; color: "#dbeafc"; font.pixelSize: 14 }
         Rectangle {
             x: 16; y: 56; width: 812; height: 48; radius: 12; color: "#1b1f27"
             Text { x: 16; anchors.verticalCenter: parent.verticalCenter; color: "#f5f7fa"; font.pixelSize: 16

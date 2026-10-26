@@ -15,7 +15,7 @@ Item {
         objectName: "align-left:direct-tempo"
         x: 12; y: 11
         text: content.label
-        color: "#adb6c4"
+        color: "#dbeafc"
         font.family: "Inter"; font.pixelSize: 10
     }
     Item {
