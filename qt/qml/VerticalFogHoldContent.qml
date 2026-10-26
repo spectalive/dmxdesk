@@ -24,7 +24,7 @@ Item {
             width: 124; height: 26
             text: "HUMO VERTICAL"
             color: content.ink
-            font.family: "Inter"; font.pixelSize: 13; font.bold: true
+            font.family: "Inter"; font.pixelSize: 14
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             leftPadding: 8

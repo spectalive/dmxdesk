@@ -34,7 +34,7 @@ Item {
             x: 28; width: parent.width - 28; height: parent.height
             text: content.control.label || ""
             color: content.ink
-            font.family: "Inter"; font.pixelSize: 12; font.bold: true
+            font.family: "Inter"; font.pixelSize: 13
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WordWrap
@@ -71,7 +71,7 @@ Item {
             width: parent.width
             text: content.control.label || ""
             color: content.ink
-            font.family: "Inter"; font.pixelSize: 13; font.bold: true
+            font.family: "Inter"; font.pixelSize: 13
             horizontalAlignment: content.wide ? Text.AlignLeft : Text.AlignHCenter
             wrapMode: Text.WordWrap
             maximumLineCount: 2

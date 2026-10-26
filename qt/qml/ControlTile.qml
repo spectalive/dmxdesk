@@ -44,9 +44,9 @@ Rectangle {
            hold ? "#1f1739" : "#171c2b"
     // Glass fill: the live colour, lit at the top and shaded at the base;
     // effects stay deep and pick up their own light from below.
-    readonly property color glassTop: Qt.tint(color, mini ? "#45ffffff" : hold ? "#0cffffff" : master ? "#305a6cff" : tempo ? "#0affffff" :
+    readonly property color glassTop: Qt.tint(color, mini ? "#1cffffff" : hold ? "#0cffffff" : master ? "#305a6cff" : tempo ? "#0affffff" :
                                                      ambientLoop ? "#08ffffff" : "#26ffffff")
-    readonly property color glassBase: Qt.tint(color, mini ? "#14000000" : control.tile === 9 ? "#382ff0a0" :
+    readonly property color glassBase: Qt.tint(color, mini ? "#00000000" : control.tile === 9 ? "#382ff0a0" :
                                                       hold ? "#188a5cff" : panic ? "#28000000" : tempo ? "#18000000" : "#40000000")
     gradient: Gradient {
         GradientStop { position: 0.0; color: tile.glassTop }
