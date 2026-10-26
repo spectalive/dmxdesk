@@ -132,14 +132,18 @@ def retone(image, tone):
 
 
 def compact(image, corner):
+    # The stretched middle is the average of the element's whole middle span,
+    # not one column of it, so its glass shading does not band.
     side = 2 * corner + 2
     out = Image.new("RGBA", (side, side))
-    xs = [(0, 0), (corner, image.width // 2 - 1), (corner + 2, image.width - corner)]
-    ys = [(0, 0), (corner, image.height // 2 - 1), (corner + 2, image.height - corner)]
-    widths = [corner, 2, corner]
-    for (dx, sx), w in zip(xs, widths):
-        for (dy, sy), h in zip(ys, widths):
-            out.paste(image.crop((sx, sy, sx + w, sy + h)), (dx, dy))
+    middle_w = image.width - 2 * corner
+    middle_h = image.height - 2 * corner
+    xs = [(0, 0, corner, corner), (corner, corner, middle_w, 2), (corner + 2, image.width - corner, corner, corner)]
+    ys = [(0, 0, corner, corner), (corner, corner, middle_h, 2), (corner + 2, image.height - corner, corner, corner)]
+    for dx, sx, sw, w in xs:
+        for dy, sy, sh, h in ys:
+            block = image.crop((sx, sy, sx + sw, sy + sh)).resize((w, h), Image.BOX)
+            out.paste(block, (dx, dy))
     return out
 
 

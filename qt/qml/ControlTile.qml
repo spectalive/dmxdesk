@@ -93,7 +93,7 @@ Rectangle {
                   tile.hold ? (tile.wideFog ? (lit ? "fill-fog-wide-lit" : "fill-fog-wide") :
                                tile.control.tile === 9 ? (lit ? "fill-fog-lit" : "fill-fog") :
                                                          (lit ? "fill-hold-lit" : "fill-hold")) :
-                  tile.selected ? (tile.ambientLoop ? "fill-quiet-selected" : "fill-selected") : tile.master ? "fill-master" : tile.tempo ? "fill-tempo" :
+                  tile.selected ? (tile.haze ? "fill-quiet-selected" : "fill-selected") : tile.master ? "fill-master" : tile.tempo ? "fill-tempo" :
                   tile.ambientLoop ? "fill-quiet" : "fill-idle"
         }
     }
