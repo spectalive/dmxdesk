@@ -5,13 +5,17 @@
 #include "desk_show_place.h"
 #include "desk_show_slot.h"
 
+// The haze panel keeps 8 px under its tiles so two rows stay 48 px tall
+// inside the shorter DIRECTO column (stage console concept, 2026-10-26).
+#define HAZE_BOTTOM_PAD DESK_GAP
+
 int desk_show_haze(const struct map_section *haze, int section, int haze_off,
                    int page, int x, struct desk_layout *out) {
     if (desk_show_panel(out, page, x, DESK_HAZE_Y, DESK_HAZE_W, DESK_HAZE_H, haze->title, section,
                         DESK_PANEL_PLAIN) != 0)
         return -1;
     int x0 = x + DESK_PANEL_PAD, y0 = DESK_HAZE_Y + DESK_PANEL_TOP;
-    int w = DESK_HAZE_W - 2 * DESK_PANEL_PAD, h = DESK_HAZE_H - DESK_PANEL_TOP - DESK_PANEL_PAD;
+    int w = DESK_HAZE_W - 2 * DESK_PANEL_PAD, h = DESK_HAZE_H - DESK_PANEL_TOP - HAZE_BOTTOM_PAD;
     if (haze_off >= 0) {
         if (desk_show_place(out, haze_off, page, x0, y0, DESK_HAZE_OFF_W, h, TILE_SEGMENT) != 0)
             return -1;

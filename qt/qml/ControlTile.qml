@@ -48,15 +48,20 @@ Rectangle {
         GradientStop { position: 0.55; color: tile.color }
         GradientStop { position: 1.0; color: Qt.tint(tile.color, tile.mini ? "#14000000" : "#40000000") }
     }
-    border.width: selected && !mini || hold && connected && control.enabled ? 2 : 1
-    border.color: panic ? connected && control.enabled ? "#ff5a5a" : "#2a3350" :
-                  selected ? "#9aa8e0" :
-                  control.tile === 9 ? "#2ff0c0" : hold ? "#8a5cff" :
-                  mini ? "#30000000" : "#3a4775"
+    // The baked rim draws every edge.
+    border.width: 0
     opacity: control.enabled && connected ? 1 : 0.6
     Behavior on color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
-    Behavior on border.color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
 
+    // A swatch lights the recess around it in its own colour.
+    Rectangle {
+        visible: tile.mini && tile.swatches.length > 0
+        z: -1
+        anchors.fill: parent; anchors.margins: -3
+        radius: tile.radius + 3
+        color: tile.color
+        opacity: 0.3
+    }
     StageChrome {
         readonly property bool live: tile.connected && tile.control.enabled
         readonly property bool lit: tile.selected || tile.pressed
@@ -64,7 +69,8 @@ Rectangle {
               !live ? "tile-off" : tile.panic ? "tile-panic" :
               tile.hold ? (tile.control.tile === 9 ? (lit ? "tile-fog-lit" : "tile-fog") :
                                                      (lit ? "tile-hold-lit" : "tile-hold")) :
-              tile.selected ? "tile-selected" : tile.master ? "tile-master" : "tile-idle"
+              tile.selected ? "tile-selected" : tile.master ? "tile-master" :
+              tile.ambientLoop ? "tile-quiet" : "tile-idle"
     }
     TileActivity {
         objectName: "tile-activity"

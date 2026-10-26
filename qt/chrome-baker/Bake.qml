@@ -14,24 +14,25 @@ Window {
 
     // look: name, r: radius, pass: "halo" | "face" | "panel", plus component settings.
     readonly property var looks: [
-        {name: "tile-idle", r: 12, depth: 1, glow: "#5f7cff", glowStrength: 0.3, rim: "#eef2ff", rimStrength: 1, base: "#8fa8ff", baseStrength: 0.9},
+        {name: "tile-idle", r: 12, depth: 1, glow: "#5f7cff", glowStrength: 0.25, rim: "#c4d0ea", rimStrength: 0.95, side: 0.75, base: "#4a7ad0", baseStrength: 1},
+        {name: "tile-quiet", r: 12, depth: 1, rim: "#6c7a9c", rimStrength: 1, side: 0.6, base: "#5a74b8", baseStrength: 0.8},
         {name: "tile-off", r: 12, depth: 1, rim: "#c8d4ff", rimStrength: 0.4, base: "#6f8cff", baseStrength: 0.3},
-        {name: "tile-selected", r: 12, depth: 1, glow: "#8fa0ff", glowStrength: 0.45, rim: "#dfe6ff", rimStrength: 1, base: "#8fa0ff", baseStrength: 1},
-        {name: "tile-hold", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 0.8, rim: "#dccfff", rimStrength: 1, base: "#a07cff", baseStrength: 1},
-        {name: "tile-hold-lit", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 1, rim: "#e6dcff", rimStrength: 1, base: "#b090ff", baseStrength: 1},
-        {name: "tile-fog", r: 12, depth: 1, glow: "#2ff0c0", glowStrength: 0.8, rim: "#c4fff0", rimStrength: 1, base: "#2ff0c0", baseStrength: 1},
-        {name: "tile-fog-lit", r: 12, depth: 1, glow: "#2ff0c0", glowStrength: 1, rim: "#d8fff6", rimStrength: 1, base: "#5fffd8", baseStrength: 1},
-        {name: "tile-panic", r: 12, depth: 1, glow: "#ff2a33", glowStrength: 1, rim: "#ffc9c9", rimStrength: 1, base: "#ff6a6a", baseStrength: 0.8},
+        {name: "tile-selected", r: 12, depth: 1, glow: "#8fa0ff", glowStrength: 0.45, rim: "#dfe6ff", rimStrength: 1, side: 0.8, base: "#6f8cff", baseStrength: 1},
+        {name: "tile-hold", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 0.8, rim: "#efe4ff", rimStrength: 1, side: 0.75, base: "#4a2aa0", baseStrength: 0.9},
+        {name: "tile-hold-lit", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 1, rim: "#f4ecff", rimStrength: 1, side: 0.85, base: "#6a44d0", baseStrength: 1},
+        {name: "tile-fog", r: 12, depth: 1, glow: "#2ff0c0", glowStrength: 0.8, rim: "#4cf6d8", rimStrength: 1, side: 0.6, base: "#0a9870", baseStrength: 0.9},
+        {name: "tile-fog-lit", r: 12, depth: 1, glow: "#2ff0c0", glowStrength: 1, rim: "#8cffe8", rimStrength: 1, side: 0.75, base: "#1ac090", baseStrength: 1},
+        {name: "tile-panic", r: 12, depth: 1, glow: "#ff2a33", glowStrength: 1, rim: "#ffd0d8", rimStrength: 1, side: 0.6, base: "#ff5a62", baseStrength: 0.8},
         {name: "tile-master", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 0.85, rim: "#c8d4ff", rimStrength: 1, base: "#a07cff", baseStrength: 1},
         {name: "tile-tap", r: 12, depth: 1, glow: "#7c6cf0", glowStrength: 0.45, rim: "#c8d4ff", rimStrength: 1, base: "#8f7cff", baseStrength: 1},
-        {name: "swatch", r: 8, depth: 1, frame: 0.7, rim: "#ffffff", rimStrength: 0.6, base: "#ffffff", baseStrength: 0.35},
-        {name: "swatch-selected", r: 8, depth: 1, frame: 0.7, glow: "#8fa0ff", glowStrength: 1, rim: "#ffffff", rimStrength: 0.7, base: "#ffffff", baseStrength: 0.4},
+        {name: "swatch", r: 8, depth: 1, frame: 0.3, inset: 1.5, rim: "#ffffff", rimStrength: 0.9, side: 0.3, base: "#ffffff", baseStrength: 0.3},
+        {name: "swatch-selected", r: 8, depth: 1, frame: 0.3, inset: 1.5, glow: "#8fa0ff", glowStrength: 1, rim: "#ffffff", rimStrength: 0.9, side: 0.6, base: "#ffffff", baseStrength: 0.4},
         {name: "tile-sheen", r: 12, depth: 0, rimStrength: 0.001},
         {name: "knob", r: 8, depth: 0, glow: "#8fe8ff", glowStrength: 0.9, rimStrength: 0.001},
         {name: "key", r: 10, depth: 1, rim: "#eef2ff", rimStrength: 1, base: "#8fa8ff", baseStrength: 0.9},
-        {name: "key-dim", r: 10, depth: 1, rim: "#c8d4ff", rimStrength: 0.6, base: "#2fd0c0", baseStrength: 0.6},
-        {name: "key-selected", r: 10, depth: 1, glow: "#a08cff", glowStrength: 0.9, rim: "#e6e0ff", rimStrength: 1, base: "#a08cff", baseStrength: 1},
-        {name: "key-tempo", r: 10, depth: 1, glow: "#7c6cf0", glowStrength: 0.45, rim: "#c8d4ff", rimStrength: 1, base: "#8f7cff", baseStrength: 1},
+        {name: "key-dim", r: 10, depth: 1, rim: "#6a7690", rimStrength: 0.9, side: 0.5},
+        {name: "key-selected", r: 10, depth: 1, glow: "#a08cff", glowStrength: 0.9, rim: "#e6e0ff", rimStrength: 1, side: 0.3, base: "#f0d4ff", baseStrength: 1},
+        {name: "key-tempo", r: 10, depth: 1, glow: "#7c6cf0", glowStrength: 0.35, rim: "#7484b8", rimStrength: 1, side: 0.7, base: "#5a50d0", baseStrength: 0.9},
         {name: "panel", r: 16, panel: true, panelRim: "#34416a", halo: "#4f6cff"},
         {name: "panel-effects", r: 16, panel: true, panelRim: "#4b3d9c", halo: "#7c5cff"},
         {name: "panel-haze", r: 16, panel: true, panelRim: "#2c4a6a", halo: "#4f6cff"},
@@ -72,6 +73,8 @@ Window {
             StageSheen { visible: canvas.look.name === "tile-sheen"; cornerRadius: canvas.look.r }
             StageRim {
                 cornerRadius: canvas.look.r; light: canvas.look.rim || "#c8d4ff"; strength: canvas.look.rimStrength || 1
+                side: canvas.look.side || 0
+                inset: canvas.look.inset || 0
                 base: canvas.look.base || "transparent"; baseStrength: canvas.look.baseStrength || 0
             }
         }

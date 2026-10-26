@@ -196,7 +196,7 @@ int main(void) {
     const struct desk_control *stop = by_kind(&model, DESK_STOP_ALL);
     assert(stop && stop->enabled && stop->widget_id == map.stop_all_widget);
     const struct desk_placement *sp = desk_placement_of(&model, (int)(stop - model.control));
-    assert(sp && sp->y == DESK_PANIC_Y);
+    assert(sp && sp->y == DESK_DIRECT_PANIC_Y);    // SHOW is DIRECTO
     assert(strcmp(stop->detail, "1.0 s fade") == 0);
     const struct desk_control *master = by_kind(&model, DESK_MASTER);
     // Known from the snapshot: the console carries the slider's level.

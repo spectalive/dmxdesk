@@ -4,8 +4,8 @@ import QtQuick
 Rectangle {
     anchors.fill: parent
     gradient: Gradient {
-        GradientStop { position: 0.0; color: "#161a28" }
-        GradientStop { position: 0.4; color: "#12151e" }
-        GradientStop { position: 1.0; color: "#0c0e14" }
+        GradientStop { position: 0.0; color: "#0e121c" }
+        GradientStop { position: 0.4; color: "#0b0f17" }
+        GradientStop { position: 1.0; color: "#080a10" }
     }
 }

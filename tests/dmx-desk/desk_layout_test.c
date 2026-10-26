@@ -39,6 +39,12 @@ static int inside(const struct desk_placement *p, const struct desk_heading *h) 
            p->y >= h->y + DESK_PANEL_PAD && p->y + p->h <= h->y + h->h - DESK_PANEL_PAD;
 }
 
+// HUMO AMBIENTE keeps only DESK_GAP under its tiles so both rows stay 48 px.
+static int inside_haze(const struct desk_placement *p, const struct desk_heading *h) {
+    return p->x >= h->x + DESK_PANEL_PAD && p->x + p->w <= h->x + h->w - DESK_PANEL_PAD &&
+           p->y >= h->y + DESK_PANEL_PAD && p->y + p->h <= h->y + h->h - DESK_GAP;
+}
+
 static int in_panel(const struct desk_layout *l, const struct desk_heading *h) {
     int n = 0;
     for (int i = 0; i < l->placements; i++)
@@ -135,16 +141,16 @@ int main(void) {
     assert(rig->x == DESK_CONTENT_X && rig->y == DESK_RIG_Y && rig->h == DESK_RIG_H);
     assert(haze->x == hits->x && haze->y == DESK_HAZE_Y && haze->h == DESK_HAZE_H);
     assert(rig->y == room->y + room->h + DESK_GAP);
-    assert(haze->y == DESK_HITS_PANEL_END + DESK_GAP && haze->y + haze->h == DESK_CONTENT_END);
+    assert(haze->y == DESK_HITS_PANEL_END + DESK_GAP && haze->y + haze->h == DESK_DIRECT_END);
     // HUMO AMBIENTE: OFF a full-height segment at the left, the four rhythms
     // two rows deep beside it, in map order.
     const struct desk_placement *off = find(&l, map.count + 2, 0);
     const char *rhythms[] = { "cada 1 min", "cada 2 min", "cada 4 min", "cada 8 min" };
-    assert(off && off->tile == TILE_SEGMENT && inside(off, haze) && off->x == haze->x + DESK_PANEL_PAD);
-    assert(off->y == haze->y + DESK_PANEL_TOP && off->y + off->h == haze->y + haze->h - DESK_PANEL_PAD);
+    assert(off && off->tile == TILE_SEGMENT && inside_haze(off, haze) && off->x == haze->x + DESK_PANEL_PAD);
+    assert(off->y == haze->y + DESK_PANEL_TOP && off->y + off->h == haze->y + haze->h - DESK_GAP);
     for (int k = 0; k < 4; k++) {
         const struct desk_placement *seg = find(&l, control_named(&map, rhythms[k]), 0);
-        assert(seg && seg->tile == TILE_SEGMENT && inside(seg, haze) && seg->h >= 48 && seg->w >= 96);
+        assert(seg && seg->tile == TILE_SEGMENT && inside_haze(seg, haze) && seg->h >= 48 && seg->w >= 96);
         assert(seg->x >= off->x + off->w + DESK_GAP);
         assert(k % 2 == 0 ? seg->x == off->x + off->w + DESK_GAP
                           : seg->x + seg->w == haze->x + haze->w - DESK_PANEL_PAD);

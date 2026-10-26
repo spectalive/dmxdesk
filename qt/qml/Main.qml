@@ -59,9 +59,8 @@ Window {
         delegate: Rectangle {
             x: 16 + index * 144; y: 4; width: 136; height: 40; radius: 10
             color: root.currentTab === index ? "#363d5c" : "#151a28"
-            border.color: root.currentTab === index ? "#a08cff" : "#3a4775"
+            border.color: "transparent"
             Behavior on color { DeskColorMotion {} }
-            Behavior on border.color { DeskColorMotion {} }
             StageChrome { look: root.currentTab === index ? "key-selected" : "key-dim"; slice: 18 }
             Text {
                 anchors.centerIn: parent; text: modelData
@@ -96,7 +95,7 @@ Window {
         x: 16; y: 160; width: 516; height: 114
         look: root.roomActive ? "panel-lit" : "panel"
     }
-    StagePanel { visible: root.currentTab === 0; x: 16; y: 282; width: 516; height: 302 }
+    StagePanel { visible: root.currentTab === 0; x: 16; y: 282; width: 516; height: 294 }
     StagePanel {
         objectName: "layout-panel:direct-effects"
         property int auditCount: 7
@@ -105,10 +104,10 @@ Window {
         property int auditInset: 12
         property int auditHeader: 24
         visible: root.currentTab === 0
-        x: 540; y: 160; width: 348; height: 264
+        x: 540; y: 160; width: 348; height: 260
         look: "panel-effects"
     }
-    StagePanel { visible: root.currentTab === 0; x: 540; y: 432; width: 348; height: 152; look: "panel-haze" }
+    StagePanel { visible: root.currentTab === 0; x: 540; y: 428; width: 348; height: 148; look: "panel-haze" }
     Rectangle {
         visible: root.currentTab === 0
         x: 40; y: 180; width: 8; height: 8; radius: 4
@@ -172,7 +171,7 @@ Window {
         width: 888 - x; height: 1
         color: "#3a3170"
     }
-    Text { visible: root.currentTab === 0; x: 552; y: 444; text: "HUMO AMBIENTE"; color: "#dbeafc"; font.pixelSize: 11 }
+    Text { visible: root.currentTab === 0; x: 552; y: 440; text: "HUMO AMBIENTE"; color: "#dbeafc"; font.pixelSize: 11 }
 
     // EFECTOS' headings and family rail come from the validated layout.
     Repeater {
@@ -248,7 +247,7 @@ Window {
                 delegate: Rectangle {
                     x: index === 0 ? parent.width - 204 : index === 1 ? parent.width - 156 : parent.width - 100
                     y: 24; width: index === 2 ? 88 : 44; height: 48; radius: 10
-                    color: "#1a1e33"; border.color: "#6c5ce8"
+                    color: "#1a1e33"; border.color: "transparent"
                     StageChrome { look: "key-tempo"; slice: 18 }
                     Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 13 : 20; font.bold: true }
                 }

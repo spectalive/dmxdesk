@@ -41,6 +41,10 @@
 #define DESK_MASTER_TILE_H 372
 #define DESK_PANIC_Y 440
 #define DESK_PANIC_H 144
+// DIRECTO ends its panels and the stop 8 px higher than the other pages.
+#define DESK_DIRECT_END 576
+#define DESK_DIRECT_PANIC_Y 437
+#define DESK_DIRECT_PANIC_H (DESK_DIRECT_END - DESK_DIRECT_PANIC_Y)
 
 // EFECTOS: one target per family down the left, at most 64 tall, and the
 // family's page in what is left of the content.
@@ -79,13 +83,13 @@
 #define DESK_HITS_W (DESK_CONTENT_X + DESK_CONTENT_W - DESK_HITS_X)
 #define DESK_HITS_Y 160
 #define DESK_HITS_TOP 184
-#define DESK_HITS_PANEL_END 424
+#define DESK_HITS_PANEL_END 420
 #define DESK_HITS_END (DESK_HITS_PANEL_END - DESK_PANEL_PAD)
 #define DESK_HOLD_WIDE_H 56
 #define DESK_RIG_Y 282
-#define DESK_RIG_H (DESK_CONTENT_END - DESK_RIG_Y)
-#define DESK_HAZE_Y 432
-#define DESK_HAZE_H (DESK_CONTENT_END - DESK_HAZE_Y)
+#define DESK_RIG_H (DESK_DIRECT_END - DESK_RIG_Y)
+#define DESK_HAZE_Y 428
+#define DESK_HAZE_H (DESK_DIRECT_END - DESK_HAZE_Y)
 #define DESK_HAZE_W DESK_HITS_W
 #define DESK_HAZE_OFF_W 60
 #define DESK_TEMPO_X DESK_HITS_X
