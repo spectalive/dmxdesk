@@ -10,8 +10,8 @@ Item {
     anchors.fill: parent
     z: -1
     Repeater {
-        model: [{spread: 1, alpha: 0.7, line: 1}, {spread: 3, alpha: 0.32, line: 2},
-                {spread: 6, alpha: 0.14, line: 3}, {spread: 10, alpha: 0.05, line: 4}]
+        model: [{spread: 1, alpha: 0.7, line: 1}, {spread: 2.5, alpha: 0.4, line: 2},
+                {spread: 4, alpha: 0.16, line: 2}]
         delegate: Rectangle {
             anchors.fill: parent
             anchors.margins: -modelData.spread

@@ -6,6 +6,8 @@ Rectangle {
     readonly property var control: modelData
     required property bool colorOneShot
     required property bool connected
+    // Where the ring, fill and baked look are drawn; see TileGlassLayers.
+    required property TileGlassLayers glassLayers
     property string bpmText: "--"
     readonly property bool selected: !!control.selected && control.enabled && connected &&
                                      control.tile !== 13 && control.tile !== 14 && control.tile !== 12
@@ -38,44 +40,59 @@ Rectangle {
     x: control.x; y: control.y; width: control.w; height: control.h
     radius: mini ? 8 : 12
     readonly property bool wideFog: control.tile === 9 && width >= 2 * height
-    color: mini && swatches.length ? selected ? "#a08cff" : swatches[0] :
+    // Live tiles take their glass from the baked look; only swatches, whose
+    // colour is live, and disabled tiles draw their own fill.
+    readonly property bool live: connected && control.enabled
+    readonly property bool bakedGlass: live && !mini
+    color: "transparent"
+    property color fill: mini && swatches.length ? selected ? "#a08cff" : swatches[0] :
            panic ? connected && control.enabled ? "#dc141d" : "#151a28" :
            selected ? "#323a50" : master ? "#1a1f32" : tempo ? "#181e2d" : wideFog ? "#062420" : control.tile === 9 ? "#062622" :
            hold ? "#18122c" : "#171c2b"
     // Glass fill: the live colour, lit at the top and shaded at the base;
     // effects stay deep and pick up their own light from below.
-    readonly property color glassTop: Qt.tint(color, mini ? "#1cffffff" : hold ? "#0cffffff" : master ? "#205a6cff" : tempo ? "#0affffff" :
-                                                     ambientLoop ? "#08ffffff" : "#18ffffff")
-    readonly property color glassBase: Qt.tint(color, mini ? "#00000000" : control.tile === 9 ? "#382ff0a0" :
-                                                      hold ? "#188a5cff" : panic ? "#40000000" : tempo ? "#18000000" : "#40000000")
-    gradient: Gradient {
-        GradientStop { position: 0.0; color: tile.glassTop }
-        GradientStop { position: 0.55; color: tile.color }
-        GradientStop { position: 1.0; color: tile.glassBase }
-    }
-    // The baked rim draws every edge.
-    border.width: 0
+    readonly property color glassTop: Qt.tint(fill, mini ? "#1cffffff" : hold ? "#0cffffff" : master ? "#205a6cff" : tempo ? "#0affffff" :
+                                                    ambientLoop ? "#08ffffff" : "#18ffffff")
+    readonly property color glassBase: Qt.tint(fill, mini ? "#00000000" : control.tile === 9 ? "#382ff0a0" :
+                                                     hold ? "#188a5cff" : panic ? "#40000000" : tempo ? "#18000000" : "#40000000")
     opacity: control.enabled && connected ? 1 : 0.6
-    Behavior on color { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
+    Behavior on fill { DeskColorMotion { milliseconds: tile.panic ? 0 : 160 } }
 
     // A swatch lights the recess around it in its own colour.
     Rectangle {
-        visible: tile.mini && tile.swatches.length > 0
-        z: -1
-        anchors.fill: parent; anchors.margins: -3
+        parent: tile.glassLayers.rings
+        visible: tile.visible && tile.mini && tile.swatches.length > 0
+        x: tile.x - 3; y: tile.y - 3; width: tile.width + 6; height: tile.height + 6
         radius: tile.radius + 3
-        color: tile.color
-        opacity: 0.3
+        color: tile.fill
+        opacity: 0.3 * tile.opacity
     }
-    StageChrome {
-        readonly property bool live: tile.connected && tile.control.enabled
-        readonly property bool lit: tile.selected || tile.pressed
-        look: tile.mini ? (live && tile.selected ? "swatch-selected" : "swatch") :
-              !live ? "tile-off" : tile.panic ? "tile-panic" :
-              tile.hold ? (tile.control.tile === 9 ? (lit ? "tile-fog-lit" : "tile-fog") :
-                                                     (lit ? "tile-hold-lit" : "tile-hold")) :
-              tile.selected ? "tile-selected" : tile.master ? "tile-master" :
-              tile.ambientLoop ? "tile-quiet" : "tile-idle"
+    Rectangle {
+        parent: tile.glassLayers.fills
+        visible: tile.visible && !tile.bakedGlass
+        x: tile.x; y: tile.y; width: tile.width; height: tile.height
+        radius: tile.radius
+        opacity: tile.opacity
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: tile.glassTop }
+            GradientStop { position: 0.55; color: tile.fill }
+            GradientStop { position: 1.0; color: tile.glassBase }
+        }
+    }
+    Item {
+        parent: tile.glassLayers.looks
+        visible: tile.visible
+        x: tile.x; y: tile.y; width: tile.width; height: tile.height
+        opacity: tile.opacity
+        StageChrome {
+            readonly property bool lit: tile.selected || tile.pressed
+            look: tile.mini ? (tile.live && tile.selected ? "swatch-selected" : "swatch") :
+                  !tile.live ? "tile-off" : tile.panic ? "fill-panic" :
+                  tile.hold ? (tile.control.tile === 9 ? (lit ? "fill-fog-lit" : "fill-fog") :
+                                                         (lit ? "fill-hold-lit" : "fill-hold")) :
+                  tile.selected ? "fill-selected" : tile.master ? "fill-master" : tile.tempo ? "fill-tempo" :
+                  tile.ambientLoop ? "fill-quiet" : "fill-idle"
+        }
     }
     TileActivity {
         objectName: "tile-activity"

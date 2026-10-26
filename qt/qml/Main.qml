@@ -229,6 +229,7 @@ Window {
         }
     }
 
+    TileGlassLayers { id: tileGlass; anchors.fill: parent }
     Repeater {
         // Keep tile instances alive across snapshots so motion can settle.
         model: root.controls.length
@@ -239,6 +240,7 @@ Window {
             objectName: "layout-control:" + (root.currentTab === 0 && controlTile.hold ? "direct-effects" : "page")
             colorOneShot: !!root.view.colorOneShot
             connected: root.linked
+            glassLayers: tileGlass
             bpmText: root.view.dials && root.view.dials.length && root.view.dials[0].known ?
                      String(root.view.dials[0].bpm) : "--"
         }

@@ -15,7 +15,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-MARGIN = 16
+MARGIN = 4
 SUPERSAMPLE = 4
 
 

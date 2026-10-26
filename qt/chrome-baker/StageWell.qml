@@ -15,7 +15,7 @@ Item {
         color: Qt.rgba(0, 0, 0, well.frame)
     }
     Repeater {
-        model: [{spread: 5, offset: 3, alpha: 0.18}, {spread: 3, offset: 2, alpha: 0.35}, {spread: 1.5, offset: 1, alpha: 0.6}]
+        model: [{spread: 3, offset: 1, alpha: 0.25}, {spread: 2, offset: 1, alpha: 0.4}, {spread: 1, offset: 0.5, alpha: 0.6}]
         delegate: Rectangle {
             x: -modelData.spread; y: -modelData.spread + modelData.offset
             width: well.width + 2 * modelData.spread; height: well.height + 2 * modelData.spread
