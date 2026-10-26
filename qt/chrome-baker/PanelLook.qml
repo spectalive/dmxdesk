@@ -14,6 +14,6 @@ Rectangle {
         GradientStop { position: 1.0; color: panel.lit ? "#15163a" : "#10151e" }
     }
     StageWell { cornerRadius: panel.radius; depth: 0.9 }
-    StageGlow { cornerRadius: panel.radius; tint: panel.lit ? "#7c6cf0" : panel.halo; strength: 0.25 }
+    StageGlow { cornerRadius: panel.radius; tint: panel.lit ? "#7c6cf0" : panel.halo; strength: 0.1 }
     StageRim { cornerRadius: panel.radius; light: "#b8c4dc"; strength: 0.55; side: 0.6; base: "#4a6aa8"; baseStrength: 0.6 }
 }

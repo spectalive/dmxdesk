@@ -1,11 +1,12 @@
 import QtQuick
 
-// Window floor: blue-black slate with a faint violet wash towards the top.
+// Window floor: blue-black slate lit faintly from the left.
 Rectangle {
     anchors.fill: parent
     gradient: Gradient {
-        GradientStop { position: 0.0; color: "#0e121c" }
-        GradientStop { position: 0.4; color: "#0b0f17" }
-        GradientStop { position: 1.0; color: "#080a10" }
+        orientation: Gradient.Horizontal
+        GradientStop { position: 0.0; color: "#181c26" }
+        GradientStop { position: 0.45; color: "#0d1119" }
+        GradientStop { position: 1.0; color: "#090c15" }
     }
 }

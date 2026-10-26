@@ -69,9 +69,8 @@ Window {
             StageChrome { look: root.currentTab === index ? "key-selected" : "key-dim"; slice: 18 }
             Text {
                 anchors.centerIn: parent; text: modelData
-                color: root.currentTab === index ? "#f5f7fa" : "#dbeafc"
+                color: root.currentTab === index ? "#ffffff" : "#dff4ff"
                 font.family: "Inter"; font.pixelSize: 13
-                font.weight: root.currentTab === index ? Font.DemiBold : Font.Normal
             }
         }
     }

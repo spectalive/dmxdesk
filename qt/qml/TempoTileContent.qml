@@ -32,6 +32,8 @@ Item {
             font.weight: numeralFont.font.weight
             font.styleName: numeralFont.font.styleName
             font.pixelSize: 56
+            // A soft halo like the concept's lit numerals, without a blur pass.
+            style: Text.Outline; styleColor: "#40dfe8ff"
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             transform: Scale { origin.x: 0; xScale: content.bpmStretch }
