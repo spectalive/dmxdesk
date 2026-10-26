@@ -12,14 +12,16 @@ from pathlib import Path
 
 from PIL import Image, ImageEnhance
 
-# Per sheet: the scale to the desk, the glow kept outside each body at the
+# Per sheet: the scale to the desk, how far inside each sheet body the desk's
+# edge falls (the sheets draw a dark bezel outside the rim light, where the
+# concept puts the rim on the edge), the glow kept outside each body at the
 # desk's scale, the corner size, a brightness factor where the sheet's glass or
 # light is weaker or stronger than the concept's, the bodies (left, top, right, bottom) with
 # the look each becomes, and the sheet's unused bodies, which only keep their
 # own rim and glow out of a neighbour's crop.
 SHEETS = [
     {
-        "file": "tiles.png", "scale": 0.38, "margin": 12, "slice": 22,
+        "file": "tiles.png", "scale": 0.38, "margin": 12, "slice": 22, "inset": 5,
         "looks": [
             ((43, 81, 219, 258), "fill-idle"),
             ((252, 81, 434, 259), "fill-selected"),
@@ -40,7 +42,7 @@ SHEETS = [
         ],
     },
     {
-        "file": "keys.png", "scale": 0.38, "margin": 12, "slice": 22,
+        "file": "keys.png", "scale": 0.38, "margin": 12, "slice": 22, "inset": 5,
         "looks": [
             ((963, 126, 1155, 395), "fill-quiet-selected"),
         ],
@@ -71,7 +73,7 @@ SHEETS = [
         ],
     },
     {
-        "file": "panels.png", "scale": 0.625, "margin": 12, "slice": 22, "tone": 0.7,
+        "file": "panels.png", "scale": 0.625, "margin": 12, "slice": 22, "tone": 0.7, "inset": 4,
         "looks": [((884, 114, 1529, 256), "fill-tempo")],
         "others": [
             (32, 116, 855, 259), (867, 294, 1353, 626), (31, 662, 842, 846),
@@ -89,18 +91,19 @@ def distance(x, y, box):
     return dx * dx + dy * dy
 
 
-def cut(sheet, body, others, scale, margin):
+def cut(sheet, body, others, scale, margin, inset):
     # Keep only the pixels nearer this element than any other, so a
     # neighbour's rim or glow never lands in the crop.
-    pad = round(margin / scale)
     left, top, right, bottom = body
+    left, top, right, bottom = left + inset, top + inset, right - inset, bottom - inset
+    pad = round(margin / scale)
     piece = sheet.crop((left - pad, top - pad, right + pad, bottom + pad))
     alpha = piece.getchannel("A")
     pixels = alpha.load()
     for y in range(piece.height):
         for x in range(piece.width):
             sx, sy = x + left - pad, y + top - pad
-            own = distance(sx, sy, body)
+            own = distance(sx, sy, (left, top, right, bottom))
             if own and any(distance(sx, sy, box) < own for box in others):
                 pixels[x, y] = 0
     piece.putalpha(alpha)
@@ -149,7 +152,7 @@ def main():
         bodies = [box for box, _ in group["looks"]] + group["others"]
         for body, name in group["looks"]:
             others = [box for box in bodies if box != body]
-            piece = cut(sheet, body, others, group["scale"], group["margin"])
+            piece = cut(sheet, body, others, group["scale"], group["margin"], group.get("inset", 0))
             fade_edges(piece)
             piece = retone(piece, group.get("tone", 1))
             image = compact(piece, group["margin"] + group["slice"])
