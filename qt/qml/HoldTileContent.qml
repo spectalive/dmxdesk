@@ -26,15 +26,15 @@ Item {
         visible: content.compact
         x: 6; y: 10; width: parent.width - 12; height: parent.height - 38
         DeskAnimatedIcon {
-            x: 0; y: (parent.height - height) / 2
-            width: 25; height: 25; glyph: content.mark
+            x: -3; y: (parent.height - height) / 2
+            width: 28; height: 28; glyph: content.mark
             active: content.active; pressed: content.pressed
         }
         Text {
             x: 28; width: parent.width - 28; height: parent.height
             text: content.control.label || ""
             color: content.ink
-            font.family: "Inter"; font.pixelSize: 13
+            font.family: "Inter"; font.pixelSize: 12
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WordWrap
