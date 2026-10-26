@@ -122,16 +122,17 @@ Window {
         visible: root.currentTab === 0
         x: 40; y: 206; width: 240; height: 36
         text: root.view.activeMode || "Sin escena activa"
-        color: root.roomActive ? "#ffffff" : "#d6dcea"
-        font.family: "Inter"; font.pixelSize: root.roomActive ? 30 : 19; font.bold: true
+        color: root.roomActive ? "#ffffff" : "#dfe3ff"
+        font.family: "Inter"; font.pixelSize: root.roomActive ? 30 : 20; font.bold: root.roomActive
+        style: Text.Outline; styleColor: "#307c6cf0"
         verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
     }
     Text {
         visible: root.currentTab === 0
-        x: 40; y: 244; width: 240; height: 20
+        x: 40; y: 242; width: 240; height: 20
         text: root.roomActive && root.activeState ? root.activeState.detail || "" :
               root.linked ? "Selecciona un modo" : ""
-        color: "#e6f2ff"; font.family: "Inter"; font.pixelSize: 12
+        color: "#eef1f6"; font.family: "Inter"; font.pixelSize: 12
         verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
     }
     Repeater {
