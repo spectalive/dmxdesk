@@ -27,7 +27,7 @@ Item {
             width: parent.width
             text: content.label
             color: content.ink
-            font.family: "Inter"; font.pixelSize: content.labelSize; font.weight: Font.DemiBold
+            font.family: "Inter"; font.pixelSize: content.labelSize; font.weight: Font.Normal
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
             maximumLineCount: 2

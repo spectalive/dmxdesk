@@ -100,14 +100,15 @@ static void place(struct cursor *cur, int control, int x, int y, enum desk_tile 
     p->tile = tile;
 }
 
-static void chrome(struct cursor *cur, int master, int panic, int panic_y, int panic_h) {
+static void chrome(struct cursor *cur, int master, int panic, int master_h, int panic_y,
+                   int panic_h) {
     if (cur->out->placements + 2 > DESK_MAX_PLACEMENTS) {
         cur->failed = 1;
         return;
     }
     struct desk_placement *m = &cur->out->placement[cur->out->placements++];
     *m = (struct desk_placement){ master, cur->page, cur->bank, DESK_MASTER_TILE_X,
-                                  DESK_MASTER_TILE_Y, DESK_MASTER_TILE_W, DESK_MASTER_TILE_H,
+                                  DESK_MASTER_TILE_Y, DESK_MASTER_TILE_W, master_h,
                                   TILE_MASTER };
     struct desk_placement *p = &cur->out->placement[cur->out->placements++];
     *p = (struct desk_placement){ panic, cur->page, cur->bank, DESK_MASTER_TILE_X,
@@ -121,7 +122,7 @@ static void next_bank(struct cursor *cur, int master, int panic) {
         cur->failed = 1;
         return;
     }
-    chrome(cur, master, panic, DESK_PANIC_Y, DESK_PANIC_H);
+    chrome(cur, master, panic, DESK_MASTER_TILE_H, DESK_PANIC_Y, DESK_PANIC_H);
 }
 
 static void heading(struct cursor *cur, const char *text, int part, int parts, int section) {
@@ -213,7 +214,7 @@ static void lay_page(struct cursor *cur, const struct show_map *map, int page,
     cur->bank = 0;
     cur->y = CONTENT_Y;
     cur->bank_end = bank_end;
-    chrome(cur, master, panic, DESK_PANIC_Y, DESK_PANIC_H);
+    chrome(cur, master, panic, DESK_MASTER_TILE_H, DESK_PANIC_Y, DESK_PANIC_H);
     const struct map_page *p = &map->page[page];
     for (int s = 0; s < p->sections; s++) {
         const struct map_section *sec = &p->section[s];
@@ -278,7 +279,8 @@ int desk_layout_resolve(const struct show_map *map, int master, int panic, int h
         if (page == live) {
             struct cursor cur = { out, page, 0, CONTENT_Y, CONTENT_END, 0, DESK_CONTENT_X,
                                   DESK_CONTENT_W, 0 };
-            chrome(&cur, master, panic, DESK_DIRECT_PANIC_Y, DESK_DIRECT_PANIC_H);
+            chrome(&cur, master, panic, DESK_DIRECT_MASTER_H, DESK_DIRECT_PANIC_Y,
+                   DESK_DIRECT_PANIC_H);
             if (cur.failed || desk_show_compose(map, page, haze_off, tempo, out) != 0)
                 return -1;
             out->banks[page] = 1;
@@ -306,7 +308,7 @@ int desk_layout_resolve(const struct show_map *map, int master, int panic, int h
         int page = map->pages;
         struct cursor cur = { out, page, 0, CONTENT_Y, CONTENT_END, 0, DESK_CONTENT_X,
                               DESK_CONTENT_W, 0 };
-        chrome(&cur, master, panic, DESK_PANIC_Y, DESK_PANIC_H);
+        chrome(&cur, master, panic, DESK_MASTER_TILE_H, DESK_PANIC_Y, DESK_PANIC_H);
         if (cur.failed)
             return -1;
         out->banks[page] = 1;

@@ -57,9 +57,14 @@ Window {
     Repeater {
         model: ["DIRECTO", "EFECTOS", "RITMO"]
         delegate: Rectangle {
+            id: tab
             x: 16 + index * 144; y: 4; width: 136; height: 40; radius: 10
-            color: root.currentTab === index ? "#363d5c" : "#151a28"
+            color: root.currentTab === index ? "#363d5c" : "#1b2130"
             border.color: "transparent"
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.tint(tab.color, "#14ffffff") }
+                GradientStop { position: 1.0; color: Qt.darker(tab.color, 1.25) }
+            }
             Behavior on color { DeskColorMotion {} }
             StageChrome { look: root.currentTab === index ? "key-selected" : "key-dim"; slice: 18 }
             Text {
@@ -247,9 +252,13 @@ Window {
                 delegate: Rectangle {
                     x: index === 0 ? parent.width - 204 : index === 1 ? parent.width - 156 : parent.width - 100
                     y: 24; width: index === 2 ? 88 : 44; height: 48; radius: 10
-                    color: "#1a1e33"; border.color: "transparent"
+                    border.color: "transparent"
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: "#2d375e" }
+                        GradientStop { position: 1.0; color: "#151a30" }
+                    }
                     StageChrome { look: "key-tempo"; slice: 18 }
-                    Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 13 : 20; font.bold: true }
+                    Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 14 : 20; font.bold: index !== 2 }
                 }
             }
         }

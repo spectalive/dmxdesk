@@ -45,6 +45,8 @@
 #define DESK_DIRECT_END 576
 #define DESK_DIRECT_PANIC_Y 437
 #define DESK_DIRECT_PANIC_H (DESK_DIRECT_END - DESK_DIRECT_PANIC_Y)
+// Its master ends level with the effects panel beside it.
+#define DESK_DIRECT_MASTER_H (DESK_HITS_PANEL_END - DESK_MASTER_TILE_Y)
 
 // EFECTOS: one target per family down the left, at most 64 tall, and the
 // family's page in what is left of the content.

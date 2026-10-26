@@ -40,13 +40,18 @@ Rectangle {
     readonly property bool wideFog: control.tile === 9 && width >= 2 * height
     color: mini && swatches.length ? selected ? "#a08cff" : swatches[0] :
            panic ? connected && control.enabled ? "#e8161f" : "#151a28" :
-           selected ? "#323a50" : wideFog ? "#07362b" : control.tile === 9 ? "#0a2a25" :
-           hold ? "#1c1440" : "#171c2b"
-    // Glass fill: the live colour, lit at the top and shaded at the base.
+           selected ? "#323a50" : master ? "#1f253b" : tempo ? "#181e2d" : wideFog ? "#062420" : control.tile === 9 ? "#062622" :
+           hold ? "#1f1739" : "#171c2b"
+    // Glass fill: the live colour, lit at the top and shaded at the base;
+    // effects stay deep and pick up their own light from below.
+    readonly property color glassTop: Qt.tint(color, mini ? "#45ffffff" : hold ? "#0cffffff" : master ? "#305a6cff" : tempo ? "#0affffff" :
+                                                     ambientLoop ? "#08ffffff" : "#26ffffff")
+    readonly property color glassBase: Qt.tint(color, mini ? "#14000000" : control.tile === 9 ? "#382ff0a0" :
+                                                      hold ? "#188a5cff" : panic ? "#28000000" : tempo ? "#18000000" : "#40000000")
     gradient: Gradient {
-        GradientStop { position: 0.0; color: Qt.tint(tile.color, tile.mini ? "#45ffffff" : "#26ffffff") }
+        GradientStop { position: 0.0; color: tile.glassTop }
         GradientStop { position: 0.55; color: tile.color }
-        GradientStop { position: 1.0; color: Qt.tint(tile.color, tile.mini ? "#14000000" : "#40000000") }
+        GradientStop { position: 1.0; color: tile.glassBase }
     }
     // The baked rim draws every edge.
     border.width: 0
