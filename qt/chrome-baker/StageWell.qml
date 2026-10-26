@@ -5,8 +5,15 @@ Item {
     id: well
     property real cornerRadius: 12
     property real depth: 1
+    property real frame: 0
     anchors.fill: parent
     z: -2
+    Rectangle {
+        visible: well.frame > 0
+        x: -4; y: -4; width: well.width + 8; height: well.height + 8
+        radius: well.cornerRadius + 4
+        color: Qt.rgba(0, 0, 0, well.frame)
+    }
     Repeater {
         model: [{spread: 5, offset: 3, alpha: 0.18}, {spread: 3, offset: 2, alpha: 0.35}, {spread: 1.5, offset: 1, alpha: 0.6}]
         delegate: Rectangle {

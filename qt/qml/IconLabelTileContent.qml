@@ -15,7 +15,7 @@ Item {
         width: parent.width - 6
         x: 3
         y: (parent.height - height) / 2
-        spacing: 8
+        spacing: 6
         DeskAnimatedIcon {
             width: content.iconSize; height: width
             anchors.horizontalCenter: parent.horizontalCenter

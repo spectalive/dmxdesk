@@ -18,7 +18,7 @@ the tablet. Items here are about this repository on its own.
 
 ## Design
 
-- [ ] **Measure the Stage Console theme on the tablet.** On 2026-10-26, Directo and Efectos took the Stage Console treatment (gradient sheens and three-ring halos per lit control); the Mac preview passes `VERIFY 0` but EGLFS frame time on the TAQ-102 is unmeasured. Next: run the Qt trial on the tablet, hold Flash and switch tabs, and compare frame pacing with the previous flat surface.
+- [~] **Make the Stage Console theme fluent on the tablet.** On 2026-10-26 the live-drawn layers rendered at 54 ms per frame on the TAQ-102 (flat surface: 2 ms). Baking each look into a 9-slice ICO cut render time to 7 ms p50, but frames still arrive every 41 ms p50 (flat: 18 ms) because the GPU is still busy at swap (32 ms). Measured with `/data/qt-full/taps/drive.sh` (render timing plus injected tab taps; logs `perf-flat.log`, `perf-stage.log`, `perf-baked.log`). The Mac look comes first (owner, 2026-10-26). Next: find what redraws continuously while idle, then cut overdraw from halo margins and the gradient fills.
 - [~] **Finish the Qt Quick desk trial on the physical tablet.**
   The Qt surface renders real C desk snapshots on the 1024x600 EGLFS panel;
   its backend has linked to QLC+, and the mock-master test covered tabs,

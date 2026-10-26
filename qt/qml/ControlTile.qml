@@ -40,11 +40,17 @@ Rectangle {
     readonly property bool wideFog: control.tile === 9 && width >= 2 * height
     color: mini && swatches.length ? selected ? "#a08cff" : swatches[0] :
            panic ? connected && control.enabled ? "#e8161f" : "#151a28" :
-           selected ? "#353d5a" : wideFog ? "#03452f" : control.tile === 9 ? "#0b2622" :
-           hold ? "#140f28" : "#151a28"
-    border.width: selected && !mini ? 2 : 1
+           selected ? "#323a50" : wideFog ? "#07362b" : control.tile === 9 ? "#0a2a25" :
+           hold ? "#1c1440" : "#171c2b"
+    // Glass fill: the live colour, lit at the top and shaded at the base.
+    gradient: Gradient {
+        GradientStop { position: 0.0; color: Qt.tint(tile.color, tile.mini ? "#45ffffff" : "#26ffffff") }
+        GradientStop { position: 0.55; color: tile.color }
+        GradientStop { position: 1.0; color: Qt.tint(tile.color, tile.mini ? "#14000000" : "#40000000") }
+    }
+    border.width: selected && !mini || hold && connected && control.enabled ? 2 : 1
     border.color: panic ? connected && control.enabled ? "#ff5a5a" : "#2a3350" :
-                  selected ? "#8fa0ff" :
+                  selected ? "#9aa8e0" :
                   control.tile === 9 ? "#2ff0c0" : hold ? "#8a5cff" :
                   mini ? "#30000000" : "#3a4775"
     opacity: control.enabled && connected ? 1 : 0.6
@@ -97,7 +103,7 @@ Rectangle {
                tile.trajectoryNames[tile.control.trajectory] : tile.control.icon || ""
         label: tile.control.label || ""
         ink: tile.ink
-        iconSize: 40
+        iconSize: 44
         active: tile.selected
         pressed: tile.pressed
         labelSize: tile.stateTile && label.indexOf(" ") < 0 && label.length >= 9 ? 10 :
@@ -118,16 +124,17 @@ Rectangle {
     }
     Text {
         visible: !tile.ambientLoop && !tile.pick && !tile.stateTile && !tile.trajectory && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo
+        readonly property bool centred: tile.hazeOff || !tile.control.icon
         objectName: tile.hazeOff ? "align-x-parent" : ""
-        x: tile.hazeOff ? 0 : tile.panic ? 5 : (tile.control.icon ? 46 : 8)
-        width: tile.hazeOff ? parent.width : parent.width - x - 5
+        x: centred ? 0 : tile.panic ? 5 : 46
+        width: centred ? parent.width : parent.width - x - 5
         y: (parent.height - height) / 2
         text: tile.control.label === "Insert Prism" ? "Insertar prisma" : tile.control.label || ""
         color: tile.ink
         font.family: "Inter"
         font.pixelSize: 12
         font.bold: tile.panic
-        horizontalAlignment: tile.hazeOff || tile.panic ? Text.AlignHCenter : Text.AlignLeft
+        horizontalAlignment: centred || tile.panic ? Text.AlignHCenter : Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         wrapMode: Text.WordWrap
         maximumLineCount: 2

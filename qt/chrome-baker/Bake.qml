@@ -14,24 +14,24 @@ Window {
 
     // look: name, r: radius, pass: "halo" | "face" | "panel", plus component settings.
     readonly property var looks: [
-        {name: "tile-idle", r: 12, depth: 1, rim: "#c8d4ff", rimStrength: 1},
-        {name: "tile-off", r: 12, depth: 1, rim: "#c8d4ff", rimStrength: 0.4},
-        {name: "tile-selected", r: 12, depth: 1, glow: "#8fa0ff", glowStrength: 1, rim: "#c8d4ff", rimStrength: 1},
-        {name: "tile-hold", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 0.8, inner: "#8a5cff", rim: "#dccfff", rimStrength: 1},
-        {name: "tile-hold-lit", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 1, inner: "#8a5cff", rim: "#dccfff", rimStrength: 1},
-        {name: "tile-fog", r: 12, depth: 1, glow: "#2ff0c0", glowStrength: 0.8, inner: "#2ff0c0", rim: "#c4fff0", rimStrength: 1},
-        {name: "tile-fog-lit", r: 12, depth: 1, glow: "#2ff0c0", glowStrength: 1, inner: "#2ff0c0", rim: "#c4fff0", rimStrength: 1},
-        {name: "tile-panic", r: 12, depth: 1, glow: "#ff2a33", glowStrength: 1, sheen: 1.2, inner: "#ff8080", rim: "#ffc9c9", rimStrength: 1},
-        {name: "tile-master", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 0.85, rim: "#c8d4ff", rimStrength: 1},
-        {name: "tile-tap", r: 12, depth: 1, glow: "#7c6cf0", glowStrength: 0.45, rim: "#c8d4ff", rimStrength: 1},
-        {name: "swatch", r: 8, depth: 1.4, sheen: 0.5, rim: "#c8d4ff", rimStrength: 0.55},
-        {name: "swatch-selected", r: 8, depth: 1.4, glow: "#8fa0ff", glowStrength: 1, sheen: 0.5, rim: "#c8d4ff", rimStrength: 0.55},
+        {name: "tile-idle", r: 12, depth: 1, glow: "#5f7cff", glowStrength: 0.3, rim: "#eef2ff", rimStrength: 1, base: "#8fa8ff", baseStrength: 0.9},
+        {name: "tile-off", r: 12, depth: 1, rim: "#c8d4ff", rimStrength: 0.4, base: "#6f8cff", baseStrength: 0.3},
+        {name: "tile-selected", r: 12, depth: 1, glow: "#8fa0ff", glowStrength: 0.45, rim: "#dfe6ff", rimStrength: 1, base: "#8fa0ff", baseStrength: 1},
+        {name: "tile-hold", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 0.8, rim: "#dccfff", rimStrength: 1, base: "#a07cff", baseStrength: 1},
+        {name: "tile-hold-lit", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 1, rim: "#e6dcff", rimStrength: 1, base: "#b090ff", baseStrength: 1},
+        {name: "tile-fog", r: 12, depth: 1, glow: "#2ff0c0", glowStrength: 0.8, rim: "#c4fff0", rimStrength: 1, base: "#2ff0c0", baseStrength: 1},
+        {name: "tile-fog-lit", r: 12, depth: 1, glow: "#2ff0c0", glowStrength: 1, rim: "#d8fff6", rimStrength: 1, base: "#5fffd8", baseStrength: 1},
+        {name: "tile-panic", r: 12, depth: 1, glow: "#ff2a33", glowStrength: 1, rim: "#ffc9c9", rimStrength: 1, base: "#ff6a6a", baseStrength: 0.8},
+        {name: "tile-master", r: 12, depth: 1, glow: "#8a5cff", glowStrength: 0.85, rim: "#c8d4ff", rimStrength: 1, base: "#a07cff", baseStrength: 1},
+        {name: "tile-tap", r: 12, depth: 1, glow: "#7c6cf0", glowStrength: 0.45, rim: "#c8d4ff", rimStrength: 1, base: "#8f7cff", baseStrength: 1},
+        {name: "swatch", r: 8, depth: 1, frame: 0.7, rim: "#ffffff", rimStrength: 0.6, base: "#ffffff", baseStrength: 0.35},
+        {name: "swatch-selected", r: 8, depth: 1, frame: 0.7, glow: "#8fa0ff", glowStrength: 1, rim: "#ffffff", rimStrength: 0.7, base: "#ffffff", baseStrength: 0.4},
         {name: "tile-sheen", r: 12, depth: 0, rimStrength: 0.001},
-        {name: "knob", r: 8, depth: 0, glow: "#8fe8ff", glowStrength: 0.9, sheen: 0.001, rimStrength: 0.001},
-        {name: "key", r: 10, depth: 1, rim: "#c8d4ff", rimStrength: 1},
-        {name: "key-dim", r: 10, depth: 1, rim: "#c8d4ff", rimStrength: 0.6},
-        {name: "key-selected", r: 10, depth: 1, glow: "#a08cff", glowStrength: 0.9, rim: "#c8d4ff", rimStrength: 1},
-        {name: "key-tempo", r: 10, depth: 1, glow: "#7c6cf0", glowStrength: 0.45, rim: "#c8d4ff", rimStrength: 1},
+        {name: "knob", r: 8, depth: 0, glow: "#8fe8ff", glowStrength: 0.9, rimStrength: 0.001},
+        {name: "key", r: 10, depth: 1, rim: "#eef2ff", rimStrength: 1, base: "#8fa8ff", baseStrength: 0.9},
+        {name: "key-dim", r: 10, depth: 1, rim: "#c8d4ff", rimStrength: 0.6, base: "#2fd0c0", baseStrength: 0.6},
+        {name: "key-selected", r: 10, depth: 1, glow: "#a08cff", glowStrength: 0.9, rim: "#e6e0ff", rimStrength: 1, base: "#a08cff", baseStrength: 1},
+        {name: "key-tempo", r: 10, depth: 1, glow: "#7c6cf0", glowStrength: 0.45, rim: "#c8d4ff", rimStrength: 1, base: "#8f7cff", baseStrength: 1},
         {name: "panel", r: 16, panel: true, panelRim: "#34416a", halo: "#4f6cff"},
         {name: "panel-effects", r: 16, panel: true, panelRim: "#4b3d9c", halo: "#7c5cff"},
         {name: "panel-haze", r: 16, panel: true, panelRim: "#2c4a6a", halo: "#4f6cff"},
@@ -57,7 +57,7 @@ Window {
             id: halo
             visible: root.current.pass === "halo"
             x: root.margin; y: root.margin; width: canvas.inner; height: canvas.inner
-            StageWell { cornerRadius: canvas.look.r; depth: canvas.look.depth ?? 1 }
+            StageWell { cornerRadius: canvas.look.r; depth: canvas.look.depth ?? 1; frame: canvas.look.frame || 0 }
             StageGlow {
                 visible: !!canvas.look.glow
                 tint: canvas.look.glow || "transparent"
@@ -69,9 +69,11 @@ Window {
             id: face
             visible: root.current.pass === "face"
             x: root.margin; y: root.margin; width: canvas.inner; height: canvas.inner
-            StageSheen { cornerRadius: canvas.look.r; strength: canvas.look.sheen || 1 }
-            StageInnerGlow { visible: !!canvas.look.inner; tint: canvas.look.inner || "transparent"; cornerRadius: canvas.look.r }
-            StageRim { cornerRadius: canvas.look.r; light: canvas.look.rim || "#c8d4ff"; strength: canvas.look.rimStrength || 1 }
+            StageSheen { visible: canvas.look.name === "tile-sheen"; cornerRadius: canvas.look.r }
+            StageRim {
+                cornerRadius: canvas.look.r; light: canvas.look.rim || "#c8d4ff"; strength: canvas.look.rimStrength || 1
+                base: canvas.look.base || "transparent"; baseStrength: canvas.look.baseStrength || 0
+            }
         }
         PanelLook {
             visible: root.current.pass === "panel"

@@ -66,7 +66,8 @@ Window {
             Text {
                 anchors.centerIn: parent; text: modelData
                 color: root.currentTab === index ? "#f5f7fa" : "#dbeafc"
-                font.family: "Inter"; font.pixelSize: 13; font.bold: true
+                font.family: "Inter"; font.pixelSize: 13
+                font.weight: root.currentTab === index ? Font.DemiBold : Font.Normal
             }
         }
     }
@@ -84,10 +85,10 @@ Window {
     }
     ConnectionIndicator { x: 752; y: 16; width: 16; height: 16; linked: root.linked }
     WifiStatusIcon { x: 777; y: 12; width: 24; height: 24; bars: Math.max(0, Math.min(3, root.view.wifiBars || 0)) }
-    BatteryStatusIcon { x: 817; y: 12; width: 24; height: 24; level: root.view.battery ?? -1; opacity: 0.75 }
+    BatteryStatusIcon { x: 817; y: 12; width: 24; height: 24; level: root.view.battery ?? -1 }
     Text { x: 846; y: 17; width: 57; text: root.view.battery >= 0 ? root.view.battery + "%" : "--"; color: "#dbeafc"; font.pixelSize: 11 }
-    DeskIcon { x: 924; y: 12; width: 24; height: 24; glyph: "gear"; opacity: 0.75 }
-    DeskIcon { x: 972; y: 12; width: 24; height: 24; glyph: root.view.locked ? "lock" : "lock_open"; opacity: 0.75 }
+    DeskIcon { x: 924; y: 12; width: 24; height: 24; glyph: "gear" }
+    DeskIcon { x: 972; y: 12; width: 24; height: 24; glyph: root.view.locked ? "lock" : "lock_open" }
 
     // DIRECTO: the fixed panels carry validated controls from the map.
     StagePanel {

@@ -15,5 +15,5 @@ Rectangle {
     }
     StageWell { cornerRadius: panel.radius; depth: 0.9 }
     StageGlow { cornerRadius: panel.radius; tint: panel.lit ? "#7c6cf0" : panel.halo; strength: 0.4 }
-    StageRim { cornerRadius: panel.radius; light: "#9fb2ff"; strength: 0.8 }
+    StageRim { cornerRadius: panel.radius; light: "#9fb2ff"; strength: 0.8; base: "#5a7cff"; baseStrength: 0.7 }
 }
