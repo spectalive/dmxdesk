@@ -14,8 +14,8 @@ Item {
         objectName: "align-x-parent"
         width: parent.width - 6
         x: 3
-        y: (parent.height - height) / 2
-        spacing: 6
+        y: (parent.height - height) / 2 - 1
+        spacing: 4
         DeskAnimatedIcon {
             width: content.iconSize; height: width
             anchors.horizontalCenter: parent.horizontalCenter

@@ -13,7 +13,7 @@ Item {
         Text {
             width: parent.width; text: "PARAR\nTODO"
             color: content.ink
-            font.family: "Inter"; font.pixelSize: 17
+            font.family: "Inter"; font.pixelSize: 15
             horizontalAlignment: Text.AlignHCenter
             lineHeight: 1.1
         }
