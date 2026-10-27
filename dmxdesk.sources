@@ -37,6 +37,17 @@ core/ws_client.c
 core/send_queue.c
 core/desk_toggle_queue.c
 core/desk_release_hook.c
+core/desk_apply_speed_echo.c
+core/desk_apply_frame.c
+core/desk_send_speed.c
+core/desk_send_hold.c
+core/desk_release_holds.c
+core/desk_send_tagged.c
+core/desk_toggle_drain.c
+core/desk_send_action.c
+core/desk_link_of.c
+core/desk_link_word.c
+core/desk_in_gear.c
 core/desk_action_log.c
 core/http_fetch.c
 platform/linux-fb/status.c

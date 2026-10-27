@@ -60,6 +60,16 @@
 #include "desk_tab_page.h"
 #include "desk_toggle_queue.h"
 #include "desk_release_hook.h"
+#include "desk_apply_frame.h"
+#include "desk_send_speed.h"
+#include "desk_send_hold.h"
+#include "desk_release_holds.h"
+#include "desk_send_tagged.h"
+#include "desk_toggle_drain.h"
+#include "desk_send_action.h"
+#include "desk_link_of.h"
+#include "desk_link_word.h"
+#include "desk_in_gear.h"
 #include "desk_view.h"
 #include "display_power.h"
 #include "font.h"
@@ -136,190 +146,14 @@ static void dump_ppm(const struct canvas *c, const char *path) {
     fclose(f);
 }
 
-// The dial's echo, logged with its clock beside the frame that asked for it.
-static void desk_apply_speed_echo(struct desk_speed *speed, int widget_id, int ms, int factor, int64_t now) {
-    desk_speed_apply(speed, widget_id, ms, factor, now);
-    fprintf(stderr, "speed: echo %d|SPEED_STATE|%d|%d at %lld\n", widget_id, ms, factor, (long long)now);
-}
 
-static void apply_frame(struct desk_model *model, struct desk_speed *speed, const char *frame,
-                        int64_t now) {
-    struct qlc_msg msg;
-    if (qlc_decode(frame, strlen(frame), &msg) != 0)
-        return;
-    switch (msg.kind) {
-    case QLC_FUNCTION:
-        desk_apply_function(model, msg.function_id, msg.running);
-        break;
-    case QLC_GRAND_MASTER:
-        desk_apply_master(model, msg.value);
-        break;
-    case QLC_SPEED_STATE:
-        desk_apply_speed_echo(speed, msg.widget_id, msg.value, msg.factor, now);
-        break;
-    default:
-        break;
-    }
-}
 
-// A speed frame, logged with its clock so touch-to-echo can be read off the
-// log: the tap's down edge is the frame's time, the echo is the push's.
-static void send_speed(struct qlc_session *session, struct speed_action action, int64_t now) {
-    char frame[64];
-    int n = -1;
-    switch (action.kind) {
-    case SPEED_ACT_TIME:
-    case SPEED_ACT_TIME_BOTH:
-        n = qlc_encode_speed_ms(frame, sizeof frame, action.widget_id, action.ms);
-        break;
-    case SPEED_ACT_FACTOR:
-        n = qlc_encode_speed_factor(frame, sizeof frame, action.widget_id, action.factor);
-        break;
-    case SPEED_ACT_NONE:
-        return;
-    }
-    if (n > 0 && qlc_session_send(session, frame) == 0)
-        fprintf(stderr, "speed: sent %s at %lld\n", frame, (long long)now);
-    if (action.kind == SPEED_ACT_TIME_BOTH && action.widget_id2 >= 0) {
-        n = qlc_encode_speed_ms(frame, sizeof frame, action.widget_id2, action.ms2);
-        if (n > 0 && qlc_session_send(session, frame) == 0)
-            fprintf(stderr, "speed: sent %s at %lld\n", frame, (long long)now);
-    }
-}
 
-// A hold's frame: 255 on contact, 0 on release, cap or cancel; logged with
-// its clock so a stuck output can be read off the log.
-// Bursts sit in the hold model under a namespace of their own, so a
-// function id never collides with a Flash button's widget id.
-static void send_hold(struct desk_hold *hold, struct qlc_session *session, struct hold_action ha,
-                      int64_t now) {
-    if (ha.widget_id < 0)
-        return;
-    char frame[64];
-    int n = ha.widget_id >= BURST_BASE
-          ? qlc_encode_function_status(frame, sizeof frame, ha.widget_id - BURST_BASE, ha.on)
-          : qlc_encode_flash(frame, sizeof frame, ha.widget_id, ha.on);
-    if (n > 0 && qlc_session_send(session, frame) == 0) {
-        fprintf(stderr, "hold: sent %s at %lld\n", frame, (long long)now);
-        return;
-    }
-    fprintf(stderr, "hold: could not send %s at %lld\n", frame, (long long)now);
-    // A release that did not go out is still owed: the output may be on.
-    if (!ha.on)
-        desk_hold_unsent(hold, ha.widget_id);
-}
 
-// Every hold released at once: a lock, a page change, the surface opening,
-// a blank. The hold owners are forgotten and the tiles repainted idle.
-static void release_holds(struct desk_hold *hold, struct desk_model *model, struct qlc_session *session,
-                          int *owner, int64_t now) {
-    struct hold_action out[MAP_MAX_CONTROLS];
-    int n = desk_hold_release_all(hold, now, out, MAP_MAX_CONTROLS);
-    for (int k = 0; k < n; k++)
-        send_hold(hold, session, out[k], now);
-    for (int s = 0; s < TOUCH_MAX_SLOTS; s++) {
-        if (owner[s] >= 0)
-            desk_set_hold_progress(model, owner[s], -1, 0);
-        owner[s] = -1;
-    }
-}
 
-// A frame refused because the link went down between the touch and the send
-// is dropped, never kept: a toggle sent late is a second toggle.
-static void send_tagged(struct qlc_session *session, const char *tag, const char *frame, int64_t now) {
-    if (qlc_session_send(session, frame) == 0)
-        desk_action_log_sent(tag, frame, now);
-    else
-        desk_action_log_dropped(tag, frame, "link down");
-}
 
-// A toggle whose 200 ms slot has come: sent now, or dropped if the link went
-// down while it waited in the queue.
-static void toggle_drain(struct qlc_session *session, struct desk_toggle_queue *toggles, int64_t now) {
-    if (!desk_toggle_queue_slot_open(toggles, now))
-        return;
-    char frame[64];
-    if (!desk_toggle_queue_pop(toggles, frame, sizeof frame))
-        return;
-    desk_toggle_queue_mark_slot(toggles, now);
-    send_tagged(session, "toggle", frame, now);
-}
 
-// One gesture, one frame. A toggle is queued so two struck in the same engine
-// tick cannot both land before either one's effect is read back (2026-09-26:
-// AUTO plus a colour pick of the same solo frame left the pick's colour
-// stopped with RGB at 0 while AUTO ran); stop-all and the master go at once.
-// A pick released in its solo frame is followed, one slot later, by the hook
-// the room state runs there (desk_release_hook), queued like any toggle.
-static void send_action(struct qlc_session *session, struct desk_toggle_queue *toggles,
-                        struct desk_model *model, const struct show_map *map,
-                        struct desk_action action, int64_t now) {
-    char frame[64];
-    int n = -1;
-    switch (action.kind) {
-    case DESK_ACT_TOGGLE: {
-        int hook = desk_release_hook(model, map, action.widget_id);
-        n = qlc_encode_toggle(frame, sizeof frame, action.widget_id);
-        if (n <= 0)
-            return;
-        if (desk_toggle_queue_push(toggles, frame) != 0) {
-            desk_action_log_dropped("toggle", frame, "queue full");
-            return;
-        }
-        desk_note_sent(model, action.widget_id, now);
-        if (hook < 0 || qlc_encode_toggle(frame, sizeof frame, hook) <= 0)
-            return;
-        if (desk_toggle_queue_push(toggles, frame) != 0) {
-            desk_action_log_dropped("toggle", frame, "queue full");
-            return;
-        }
-        // Both stay pending until QLC+ answers: a second tap before then is
-        // not a second release, and the hook is not pressed off again.
-        desk_note_sent(model, hook, now);
-        return;
-    }
-    case DESK_ACT_HAZE_OFF:
-        n = qlc_encode_function_status(frame, sizeof frame, action.widget_id, 0);
-        if (n <= 0)
-            return;
-        while (desk_toggle_queue_push(toggles, frame) != 0) {
-            char waiting[64];
-            if (!desk_toggle_queue_pop(toggles, waiting, sizeof waiting))
-                return;
-            desk_action_log_dropped("toggle", waiting, "haze off priority");
-        }
-        return;
-    case DESK_ACT_MASTER:
-        n = qlc_encode_grand_master(frame, sizeof frame, action.value);
-        break;
-    case DESK_ACT_STOP_ALL:
-        n = qlc_encode_stop_all(frame, sizeof frame, action.widget_id);
-        if (n > 0) {
-            // A toggle still waiting for its slot would land after the stop
-            // and start something again: stop-all empties the queue first.
-            char waiting[64];
-            while (desk_toggle_queue_pop(toggles, waiting, sizeof waiting))
-                desk_action_log_dropped("toggle", waiting, "stop-all");
-            send_tagged(session, "stop", frame, now);
-        }
-        return;
-    case DESK_ACT_NONE:
-        return;
-    }
-    if (n > 0)
-        qlc_session_send(session, frame);
-}
 
-// A retry every second and a half is one state to the operator, not a
-// banner flipping between two words; the link is down only without a master.
-static enum desk_link desk_link_of(enum qlc_link link, int have_master) {
-    switch (link) {
-    case QLC_READY:      return DESK_LINK_READY;
-    case QLC_FETCHING:   return DESK_LINK_SYNCING;
-    case QLC_CONNECTING: return DESK_LINK_CONNECTING;
-    default:             return have_master ? DESK_LINK_CONNECTING : DESK_LINK_DOWN;
-    }
-}
 
 // One `key=value` line out of a STATUS reply.
 static void status_field(const char *reply, const char *key, char *out, size_t cap) {
@@ -374,18 +208,7 @@ static void mark_known(struct desk_setup *setup, const struct wifi_scan *scan) {
     desk_setup_set_scan(setup, scan, known);
 }
 
-static const char *link_word_of(enum qlc_link link) {
-    switch (link) {
-    case QLC_READY:      return "Linked";
-    case QLC_FETCHING:   return "Reading the show";
-    case QLC_CONNECTING: return "Connecting";
-    default:             return "Not linked";
-    }
-}
 
-static int in_gear(int x, int y) {
-    return desk_rect_contains(desk_view_gear(), x, y);
-}
 
 // The bar's status is read once a second; only a change repaints.
 static int status_changed(const struct status *a, const struct status *b) {
@@ -692,7 +515,7 @@ int main(int argc, char **argv) {
             desk_speed_touch_cancel(&speed);
             desk_setup_touch_cancel(&setup);
             desk_input_cancel_all(&input);
-            release_holds(&hold, &model, session, hold_owner, now);
+            desk_release_holds(&hold, &model, session, hold_owner, now);
             gear_slot = setup_slot = speed_slot = -1;
             if (setup.open) {
                 desk_setup_close(&setup);
@@ -725,7 +548,7 @@ int main(int argc, char **argv) {
             int n = qt_pipe ? desk_pipe_read(&pipe_reader, STDIN_FILENO, events, 32)
                             : touch_input_read_fd(touch, touch_fd, events, 32);
             if (n < 0) {
-                release_holds(&hold, &model, session, hold_owner, now);
+                desk_release_holds(&hold, &model, session, hold_owner, now);
                 // The final release must reach the socket before the child exits.
                 qlc_session_step(session, now);
                 desk_cancel_all(&model);
@@ -754,18 +577,18 @@ int main(int argc, char **argv) {
                 // The gear: a tap opens or closes the settings surface, when
                 // the surface is allowed at all.
                 if (slot >= 0 && slot < TOUCH_MAX_SLOTS) {
-                    if (events[i].kind == TOUCH_DOWN && in_gear(x, y) && desk_lock_allows(&lock)) {
+                    if (events[i].kind == TOUCH_DOWN && desk_in_gear(x, y) && desk_lock_allows(&lock)) {
                         gear_slot = slot;
                         continue;
                     }
                     if (slot == gear_slot) {
                         if (events[i].kind == TOUCH_UP || events[i].kind == TOUCH_CANCEL) {
                             gear_slot = -1;
-                            if (events[i].kind == TOUCH_UP && in_gear(x, y)) {
+                            if (events[i].kind == TOUCH_UP && desk_in_gear(x, y)) {
                                 // A modal transition: every gesture under it ends.
                                 desk_cancel_all(&model);
                                 desk_input_cancel_all(&input);
-                                release_holds(&hold, &model, session, hold_owner, now);
+                                desk_release_holds(&hold, &model, session, hold_owner, now);
                                 desk_speed_touch_cancel(&speed);
                                 desk_speed_reset_taps(&speed);
                                 speed_slot = -1;
@@ -888,7 +711,7 @@ int main(int argc, char **argv) {
                         // A release after the lock fires nothing.
                         struct speed_action sa = desk_speed_touch_up(&speed, x, y, now_ms());
                         if (desk_lock_allows(&lock))
-                            send_speed(session, sa, now);
+                            desk_send_speed(session, sa, now);
                         speed_slot = -1;
                     } else if (events[i].kind == TOUCH_CANCEL) {
                         desk_speed_touch_cancel(&speed);
@@ -903,7 +726,7 @@ int main(int argc, char **argv) {
                     if (events[i].kind == TOUCH_UP || events[i].kind == TOUCH_CANCEL) {
                         struct desk_control *hc = &model.control[ci];
                         if ((hc->kind == DESK_HOLD || hc->kind == DESK_BURST) && hc->hold_index >= 0)
-                            send_hold(&hold, session, desk_hold_release(&hold, hc->hold_index, slot, now), now);
+                            desk_send_hold(&hold, session, desk_hold_release(&hold, hc->hold_index, slot, now), now);
                         desk_set_hold_progress(&model, ci, -1, 0);
                         hold_owner[slot] = -1;
                     }
@@ -917,7 +740,7 @@ int main(int argc, char **argv) {
                         if (hc->enabled && hc->hold_index >= 0 && model.link == DESK_LINK_READY) {
                             struct hold_action ha = desk_hold_press(&hold, hc->hold_index, slot, now);
                             if (ha.widget_id >= 0) {
-                                send_hold(&hold, session, ha, now);
+                                desk_send_hold(&hold, session, ha, now);
                                 hold_owner[slot] = ci;
                                 desk_set_hold_progress(&model, ci, 0, 1);
                             }
@@ -932,7 +755,7 @@ int main(int argc, char **argv) {
                         desk_speed_tempo_tap_rect(tp->x, tp->y, tp->w, tp->h, &tx, &ty, &tw, &th);
                         if (x >= tx && x < tx + tw && y >= ty && y < ty + th) {
                             int64_t at = events[i].t > 0 ? (int64_t)(events[i].t * 1000.0) : now;
-                            send_speed(session, desk_speed_direct(&speed, 0, SPEED_T_TAP, now_ms(), at), now);
+                            desk_send_speed(session, desk_speed_direct(&speed, 0, SPEED_T_TAP, now_ms(), at), now);
                             hold_owner[slot] = ci;      // the release is consumed, the target reads pressed
                             desk_set_hold_progress(&model, ci, -1, 1);
                         } else {
@@ -941,9 +764,9 @@ int main(int argc, char **argv) {
                                                            (enum speed_target)step, &tx, &ty, &tw, &th);
                                 if (x < tx || x >= tx + tw || y < ty || y >= ty + th)
                                     continue;
-                                send_speed(session, desk_speed_direct(&speed, 0,
-                                                                       (enum speed_target)step,
-                                                                       now_ms(), now), now);
+                                desk_send_speed(session, desk_speed_direct(&speed, 0,
+                                                                            (enum speed_target)step,
+                                                                            now_ms(), now), now);
                                 hold_owner[slot] = ci;
                                 break;
                             }
@@ -958,7 +781,7 @@ int main(int argc, char **argv) {
                     if (changed) {
                         desk_cancel_all(&model);
                         desk_input_cancel_all(&input);
-                        release_holds(&hold, &model, session, hold_owner, now);
+                        desk_release_holds(&hold, &model, session, hold_owner, now);
                         desk_speed_touch_cancel(&speed);
                         desk_speed_reset_taps(&speed);
                         speed_slot = -1;
@@ -1008,7 +831,7 @@ int main(int argc, char **argv) {
                         // reach a target while this one rests on the card.
                         if (speed.capture != SPEED_T_NONE)
                             speed_slot = slot;
-                        send_speed(session, sa, now);
+                        desk_send_speed(session, sa, now);
                         continue;
                     }
                     break;
@@ -1024,13 +847,13 @@ int main(int argc, char **argv) {
                     desk_touch_cancel(&model, events[i].slot);
                     break;
                 }
-                send_action(session, &toggles, &model, &map, action, now);
+                desk_send_action(session, &toggles, &model, &map, action, now);
             }
         }
 
         // A toggle held in the spacing queue since an earlier iteration,
         // whose slot has now come.
-        toggle_drain(session, &toggles, now);
+        desk_toggle_drain(session, &toggles, now);
 
         phase_at = loop_trace("touch-input", phase_at);
         // The supplicant's events: a scan's end fills the card; every line
@@ -1131,7 +954,7 @@ int main(int argc, char **argv) {
             console = fresh;
             // A finger on a hit while the model is rebuilt: its release goes
             // out now, from the model that knows it, or the output stays on.
-            release_holds(&hold, &model, session, hold_owner, now);
+            desk_release_holds(&hold, &model, session, hold_owner, now);
             enabled = desk_rebuild_model(&model, &map, &console, &layout);
             desk_build_holds(&hold, &model, hold_owner);
             if (showmap_mismatch(&map, &console))
@@ -1143,7 +966,7 @@ int main(int argc, char **argv) {
         }
         char frame[4096];
         while (qlc_session_recv(session, frame, sizeof frame) == 1)
-            apply_frame(&model, &speed, frame, now);
+            desk_apply_frame(&model, &speed, frame, now);
         desk_set_link(&model, desk_link_of(link, conf.master[0] != '\0'));
         desk_speed_set_link(&speed, link == QLC_READY, now);
         desk_speed_tick(&speed, now);
@@ -1157,19 +980,19 @@ int main(int argc, char **argv) {
             desk_speed_reset_taps(&speed);
             desk_speed_touch_cancel(&speed);
             speed_slot = -1;
-            release_holds(&hold, &model, session, hold_owner, now);
+            desk_release_holds(&hold, &model, session, hold_owner, now);
         }
         // Holds: the cap, the link, the owed releases, the tiles' countdown.
         {
             struct hold_action out[MAP_MAX_CONTROLS];
             int n = desk_hold_tick(&hold, now, out, MAP_MAX_CONTROLS);
             for (int k = 0; k < n; k++)
-                send_hold(&hold, session, out[k], now);
+                desk_send_hold(&hold, session, out[k], now);
             desk_hold_set_link(&hold, link == QLC_READY);
             if (link == QLC_READY) {
                 n = desk_hold_owed(&hold, out, MAP_MAX_CONTROLS);
                 for (int k = 0; k < n; k++)
-                    send_hold(&hold, session, out[k], now);
+                    desk_send_hold(&hold, session, out[k], now);
             }
             // A hold whose release is still owed shows it: the output may be on.
             for (int i = 0; i < model.count; i++) {
@@ -1210,8 +1033,8 @@ int main(int argc, char **argv) {
                     : link == QLC_CONNECTING ? "connecting" : "down", last_reason);
         }
 
-        if (setup.open && strcmp(setup.link_word, link_word_of(link)) != 0) {
-            snprintf(setup.link_word, sizeof setup.link_word, "%s", link_word_of(link));
+        if (setup.open && strcmp(setup.link_word, desk_link_word(link)) != 0) {
+            snprintf(setup.link_word, sizeof setup.link_word, "%s", desk_link_word(link));
             setup.dirty = 1;
         }
 
