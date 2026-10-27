@@ -118,8 +118,3 @@ void status_read(struct status *st) {
                          (int64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000);
     loop_trace("status_power_read_at", started);
 }
-
-int status_wifi_bars(const struct status *st) {
-    if (!st->have_wifi) return 0;
-    return st->level >= -55 ? 3 : st->level >= -70 ? 2 : 1;
-}

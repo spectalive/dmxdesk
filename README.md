@@ -47,7 +47,8 @@ SHA-256, checkout HEAD, map SHA-256) that an image ships beside the map.
 ## Layout
 
     core/               the portable desk, in C: session, /vc.json, the map,
-                        layout, painting, fonts, settings and the master search
+                        layout, painting, fonts, settings, the master search
+                        and the loop itself (desk_run)
     platform/linux-fb/  the Linux framebuffer device: DRM presentation, evdev
                         touch, power key, backlight, battery and Wi-Fi, and main
     dmxdesk.sources     every source the executable links, core and platform
@@ -57,6 +58,17 @@ SHA-256, checkout HEAD, map SHA-256) that an image ships beside the map.
     tools/              host test runner, dependency fetchers, QLC+ probe, icon
                         and mockup generators
     docs/design/        mockups and frames of the desk's design
+
+The loop is the same on every machine. `core/desk_run.c` turns a
+`struct desk_app` (`core/desk_app.h`: the show, the models, who owns which
+finger, the settings surface, the session) through a `struct desk_platform`
+(`core/desk_platform.h`): a table of the device calls the desk needs - a
+clock, a wait, touches in, the power key, the display, the services behind the
+settings surface, the bar's facts, and the frame out. `platform/linux-fb/`
+fills that table (`linux_desk_*.c`) and `main` there only parses arguments,
+opens the devices and calls `desk_run`; a second backend fills its own table
+and reuses the loop unchanged. `tests/dmx-desk/desk_run_test.c` drives the
+loop through a scripted platform with no Linux under it.
 
 ## Building
 
