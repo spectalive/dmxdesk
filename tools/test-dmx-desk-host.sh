@@ -26,6 +26,15 @@ ln -sf "$CJSON_DIR/cJSON.h" "$out/include/cjson/cJSON.h"
 	-o "$out/cJSON.o"
 cd "$here"
 fail=0
+# The core must build without the platform: nothing in core/ may include a
+# header from platform/.
+core_fail=0
+for c in "$here"/core/*.c; do
+    "$CC" -std=gnu99 -Wall -Wextra -Werror -fsyntax-only \
+        -I "$here/core" -I "$out/include" "$c" || core_fail=1
+done
+if [ "$core_fail" = 0 ]; then echo "PASS core_without_platform"
+else echo "FAIL core_without_platform"; fail=1; fi
 for t in "$here"/tests/dmx-desk/*_test.c; do
     name=$(basename "$t" .c)
     srcs=$(sed -n 's|^// SOURCES: ||p' "$t")
@@ -35,9 +44,12 @@ for t in "$here"/tests/dmx-desk/*_test.c; do
     if [ "$(sed -n 's|^// OPTIMIZE: ||p' "$t")" = 2 ]; then
         set -- -O2
     fi
-    for s in $srcs; do set -- "$@" "$here/src/$s"; done
+    for s in $srcs; do
+        if [ -f "$here/core/$s" ]; then set -- "$@" "$here/core/$s"
+        else set -- "$@" "$here/platform/linux-fb/$s"; fi
+    done
     if "$CC" -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined \
-        -I "$here/src" -I "$here/tests/dmx-desk" -I "$out/include" \
+        -I "$here/core" -I "$here/platform/linux-fb" -I "$here/tests/dmx-desk" -I "$out/include" \
         -o "$out/$name" "$t" "$@" "$out/cJSON.o" -lm && "$out/$name"; then
         echo "PASS $name"
     else

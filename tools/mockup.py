@@ -15,7 +15,7 @@ HERE = Path(__file__).resolve().parent.parent
 FONTS = HERE / "fonts"
 W, H, S = 1024, 600, 2  # panel, supersample
 
-# Palette, as src/desk_layout.h has it: one dark ground, the panels and
+# Palette, as core/desk_layout.h has it: one dark ground, the panels and
 # tiles a step lighter each, a keyline, ink, muted, the selected look for
 # "the master says running" (a frosted fill in a brighter hairline with a
 # calm indigo bar), the hero's deep indigo, green for a live link, red for

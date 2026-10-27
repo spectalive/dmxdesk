@@ -11,7 +11,7 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "status.h"
+#include "status_read.h"
 #include "loop_trace.h"
 
 static int read_line(const char *path, char *out, size_t n) {

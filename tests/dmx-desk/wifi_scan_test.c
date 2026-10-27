@@ -1,4 +1,4 @@
-// SOURCES: wifi_scan.c
+// SOURCES: wifi_scan.c wifi_scan_joinable.c
 // The real scan table from the tablet on 2026-09-12, plus the cases the
 // venue will throw at it: duplicates, a hidden network, an enterprise one.
 #include <assert.h>

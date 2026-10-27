@@ -9,7 +9,7 @@
 
 #include "desk_model.h"
 #include "desk_view.h"
-#include "touch_input.h"
+#include "touch_event.h"
 
 enum desk_target { TARGET_NONE, TARGET_RAIL, TARGET_BANK, TARGET_LOCK, TARGET_CONTENT,
                    TARGET_FAMILY };

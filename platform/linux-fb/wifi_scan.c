@@ -94,7 +94,3 @@ int wifi_scan_parse(const char *text, size_t len, struct wifi_scan *out) {
     qsort(out->network, (size_t)out->count, sizeof out->network[0], compare_level);
     return out->count;
 }
-
-int wifi_scan_joinable(enum wifi_security security) {
-    return security == WIFI_OPEN || security == WIFI_PSK;
-}

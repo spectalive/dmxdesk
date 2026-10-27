@@ -89,7 +89,7 @@ python3 tests/qt_layout_preview_bridge_test.py
 ```
 
 `qt/export_icons.py` regenerates the 48 px controls and 80 px trajectory
-assets from `src/icon_data.h`.
+assets from `core/icon_data.h`.
 It needs Pillow only when the artwork is regenerated; Qt needs no Python at
 runtime. The app loads `qt/qml/Main.qml` from disk, so QML can be iterated
 without relinking the executable.

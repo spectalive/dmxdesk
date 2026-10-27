@@ -1,2 +1,2 @@
 #include "hooks.h"
-#include "../../../src/keyboard_paint.c"
+#include "../../../core/keyboard_paint.c"

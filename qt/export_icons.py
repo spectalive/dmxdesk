@@ -20,7 +20,7 @@ def load_vectors(root):
 
 def main():
     root = Path(__file__).resolve().parents[1]
-    source = (root / "src/icon_data.h").read_text()
+    source = (root / "core/icon_data.h").read_text()
     output = root / "qt/qml/icons"
     output.mkdir(parents=True, exist_ok=True)
     vectors = load_vectors(root)

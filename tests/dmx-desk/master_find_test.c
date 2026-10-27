@@ -29,7 +29,7 @@ static int probe_fcntl(int fd, int command, int argument);
 #define close probe_close
 #define poll probe_poll
 #define fcntl probe_fcntl
-#include "../../src/master_find.c"
+#include "../../core/master_find.c"
 #undef socket
 #undef connect
 #undef close

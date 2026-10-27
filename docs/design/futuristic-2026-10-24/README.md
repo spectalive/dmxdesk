@@ -27,7 +27,7 @@ file docs/design/futuristic-2026-10-24/*.png
 
 On 2026-10-26 the owner chose Stage Console, and the Qt desk was brought to it region by region against the concept scaled to 1024x600.
 
-- Geometry: DIRECTO now ends its panels and Parar todo at 576 (`DESK_DIRECT_*` in `src/desk_layout.h`), the rig rows sit on the concept's 73 px pitch, the master ends level with the effects panel, and the haze rows keep the 48 px touch minimum with an 8 px bottom pad. The backend owns these rectangles, so touch follows the drawing.
+- Geometry: DIRECTO now ends its panels and Parar todo at 576 (`DESK_DIRECT_*` in `core/desk_layout.h`), the rig rows sit on the concept's 73 px pitch, the master ends level with the effects panel, and the haze rows keep the 48 px touch minimum with an 8 px bottom pad. The backend owns these rectangles, so touch follows the drawing.
 - Materials: every decoration is baked once by `qt/bake_stage_chrome.py` from `qt/chrome-baker/` into 9-slice ICO images (`qt/qml/chrome/`) and drawn as one `StageChrome` per control. Each look sets a rim that fades from the top edge to a per-look side level and a coloured base light, and may add a halo, a recess frame or a dark inner line. Live colours stay in QML: the glass gradient on each tile, and a ring in each swatch's own colour.
 - Type and icons: labels follow the concept's regular weight, and the icon set is drawn from `tools/icons.py` vectors at 48 px.
 

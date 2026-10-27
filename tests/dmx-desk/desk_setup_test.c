@@ -1,4 +1,4 @@
-// SOURCES: desk_setup_read_found.c desk_setup.c desk_brightness_track.c desk_brightness_level_at.c desk_setup_row_hit.c desk_setup_page_hit.c keyboard.c wifi_scan.c desk_conf.c desk_view.c
+// SOURCES: desk_setup_read_found.c desk_setup.c desk_brightness_track.c desk_brightness_level_at.c desk_setup_row_hit.c desk_setup_page_hit.c keyboard.c wifi_scan.c wifi_scan_joinable.c desk_conf.c desk_view.c
 // The settings surface as a model: a tap on a network asks for its key, the
 // key goes to a confirmation and out as one join action; a found master is
 // one tap; the fader moves brightness; nothing fires while a job runs.

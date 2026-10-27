@@ -7,7 +7,7 @@
 #define DESK_SETUP_H
 
 #include "keyboard.h"
-#include "wifi_scan.h"
+#include "wifi_network.h"
 
 #define SETUP_HOST_MAX 128
 #define SETUP_FOUND_MAX 16

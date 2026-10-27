@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#include "touch_input.h"
+#include "touch_event.h"
 
 struct desk_pipe_reader {
     char data[4096];

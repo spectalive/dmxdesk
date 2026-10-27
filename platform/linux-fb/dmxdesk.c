@@ -73,7 +73,7 @@
 #include "desk_heartbeat_ms.h"
 #include "showmap.h"
 #include "showmap_validate.h"
-#include "status.h"
+#include "status_read.h"
 #include "loop_trace.h"
 #include "touch_flip.h"
 #include "touch_input.h"

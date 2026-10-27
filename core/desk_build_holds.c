@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include "desk_burst_base.h"
-#include "touch_input.h"
+#include "touch_event.h"
 
 // Bursts, including fog, use the master's duration with no local cooldown;
 // validated light holds use three seconds. A failed registration must paint

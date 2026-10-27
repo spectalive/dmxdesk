@@ -1,2 +1,2 @@
 #include "hooks.h"
-#include "../../../src/desk_paint_selected.c"
+#include "../../../core/desk_paint_selected.c"

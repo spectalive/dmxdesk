@@ -28,7 +28,7 @@ deadlines matched to their `burstMs` values.
 
 It was written for, and is shipped on, a Denver TAQ-102 tablet (1024x600 LVDS
 panel, Silead touchscreen) by [spectalive/taq102](https://github.com/spectalive/taq102),
-which cross-compiles it with Buildroot. The defaults in `src/dmxdesk.c` (map
+which cross-compiles it with Buildroot. The defaults in `platform/linux-fb/dmxdesk.c` (map
 under `/etc/taq102/`, settings under `/data/`, fonts under
 `/usr/share/fonts/taq102`) are that appliance's; the map, the master and the
 input devices can be given on the command line:
@@ -46,7 +46,11 @@ SHA-256, checkout HEAD, map SHA-256) that an image ships beside the map.
 
 ## Layout
 
-    src/                the desk, in C; src/dmxdesk.sources lists what it links
+    core/               the portable desk, in C: session, /vc.json, the map,
+                        layout, painting, fonts, settings and the master search
+    platform/linux-fb/  the Linux framebuffer device: DRM presentation, evdev
+                        touch, power key, backlight, battery and Wi-Fi, and main
+    dmxdesk.sources     every source the executable links, core and platform
     tests/dmx-desk/     host tests, one program per *_test.c; fixtures/ and audit/
     show/               the Vibra desk map
     fonts/              Inter, the typeface the tests measure text with (OFL-1.1)
@@ -73,8 +77,8 @@ mkdir -p output/include/cjson output/include/stb
 cp tools/vendor/cjson/cJSON.h output/include/cjson/
 cp tools/vendor/stb/stb_truetype.h output/include/stb/
 cc -O2 -w -c tools/vendor/cjson/cJSON.c -o output/cJSON.o
-cc -std=gnu99 -Wall -Wextra -Werror -O2 -Isrc -Ioutput/include $(pkg-config --cflags libdrm) \
-    -o output/dmxdesk $(sed 's|^|src/|' src/dmxdesk.sources) output/cJSON.o \
+cc -std=gnu99 -Wall -Wextra -Werror -O2 -Icore -Iplatform/linux-fb -Ioutput/include \
+    $(pkg-config --cflags libdrm) -o output/dmxdesk $(cat dmxdesk.sources) output/cJSON.o \
     $(pkg-config --libs libdrm) -lm -pthread
 ```
 
@@ -93,7 +97,7 @@ tools/test-dmx-desk-host.sh
 
 Each `tests/dmx-desk/*_test.c` names the sources it links in its
 `// SOURCES:` line; the runner builds and runs every one and exits non-zero if
-any fails. On a Linux host six of them do not pass yet (see `TODO.md`).
+any fails. On a Linux host six of them do not pass yet (see `TODO.md`). Before them it compiles every `core/` source with only `core/` on the include path (`core_without_platform`), so a core file that reaches for a platform header fails the run.
 
 ## Licence
 

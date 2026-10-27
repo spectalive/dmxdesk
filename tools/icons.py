@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """The desk's icons, drawn as vectors at 4x and rasterised into 8-bit alpha
-bitmaps the painter blends in any colour. Regenerate `src/icon_data.h`:
+bitmaps the painter blends in any colour. Regenerate `core/icon_data.h`:
 
-    python3 tools/icons.py > src/icon_data.h
+    python3 tools/icons.py > core/icon_data.h
 
 An 18 px optical square leaves 3 px breathing room inside the 24 px grid;
 a 2 px stroke stays legible on the tablet without overpowering the text.

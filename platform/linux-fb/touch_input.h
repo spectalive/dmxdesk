@@ -1,24 +1,8 @@
 #ifndef TOUCH_INPUT_H
 #define TOUCH_INPUT_H
 
+#include "touch_event.h"
 #include "touch_flip.h"
-
-enum touch_kind {
-    TOUCH_DOWN,
-    TOUCH_MOVE,
-    TOUCH_UP,
-    TOUCH_CANCEL,
-};
-
-struct touch_event {
-    enum touch_kind kind;
-    int slot;
-    float x;
-    float y;
-    double t;
-};
-
-#define TOUCH_MAX_SLOTS 10
 
 struct touch_raw {
     unsigned short type;
