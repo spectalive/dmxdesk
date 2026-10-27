@@ -8,6 +8,10 @@
 
 ### 2026-10
 
+- [x] 2026-10-27 — **Core:** **Take the desk's event loop out of `platform/linux-fb/dmxdesk.c`.** After the 2026-10-27 split and the move of the session actions into `core/` (`b0db25f`), `main` is still about 1180 lines that interleave the desk's own flow (snapshot rebuilds, gestures to actions, the setup surface, holds, repaint and damage) with the device calls (DRM present, evdev, power key, backlight, wpa_supplicant). Next: define a small platform interface (touch events in, a frame out, power and network status) and move the loop body into a core `desk_run` driven through it, so a second platform such as SDL reuses it unchanged; this is the first step of the multi-backend work.
+  - Result: core/desk_run.c turns struct desk_app through struct desk_platform; linux-fb fills the table with linux_desk_* ops and main only opens devices and calls desk_run.
+  - Evidence: d128041. Host suite 53/53 units PASS (core_without_platform, new desk_run_test with a scripted platform); Qt ctest 7/7; Buildroot ARM cross-build -Werror clean; --qt-pipe run against the mock master sends identical frames and states to the previous build.
+
 - [x] 2026-10-26 — **Design:** **Choose a concrete visual reference before another Qt redesign.** On 2026-10-24, the owner rejected the pastel-panel pass and requested futuristic examples preserving the current distribution. Three reviewed concepts and the original screenshot are in `docs/design/futuristic-2026-10-24/`. Their control groups are retained, but spacing and idle-state illumination need refinement. The Mac app remains on the restored dark interface (`AUDIT`: `VERIFY 0`). Next: choose Precision Glass, Aerospace Instrument or Stage Console with the owner before another QML appearance pass.
   - Result: Stage Console (concept 3) applied to the Qt desk: ceramic gradients, violet/teal/red rim halos, dimmer idle controls; geometry unchanged.
   - Evidence: ctest 7/7; qt_preview --capture VERIFY 0 on Directo and Efectos; docs/evidence/qt-desk-stage-console-2026-10-26.png
