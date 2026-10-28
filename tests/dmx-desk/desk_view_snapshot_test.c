@@ -1,4 +1,4 @@
-// SOURCES: desk_view_snapshot.c keyboard.c desk_view_pager.c desk_pager_label.c desk_trajectory_of.c desk_room_summary.c desk_rig_name.c speed_factor.c
+// SOURCES: desk_view_snapshot.c keyboard.c desk_view_pager.c desk_pager_label.c desk_pager_bank_caption.c desk_pager_caption.c canvas.c canvas_blend.c font.c desk_trajectory_of.c desk_room_summary.c desk_rig_name.c speed_factor.c
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -112,6 +112,29 @@ int main(void) {
     controls = cJSON_GetObjectItem(root, "controls");
     assert(cJSON_IsTrue(cJSON_GetObjectItem(root, "mismatch")));
     assert(cJSON_IsFalse(cJSON_GetObjectItem(cJSON_GetArrayItem(controls, 0), "enabled")));
+    cJSON_Delete(root);
+    free(line);
+
+    // A section continued on the next bank names its part on both, and a bank
+    // holding two sections names both: Vibra's Color page read 1 AUTO,
+    // 2 ELEGIR, 3 GOLPES, 4 GOLPES in the Qt pager (2026-10-28).
+    model.layout.headings = 3;
+    model.layout.heading[0] = (struct desk_heading){.page=1,.bank=0,.section=0,.part=1,.parts=1};
+    strcpy(model.layout.heading[0].text, "AUTO");
+    model.layout.heading[1] = (struct desk_heading){.page=1,.bank=0,.section=1,.part=1,.parts=2};
+    strcpy(model.layout.heading[1].text, "GOLPES");
+    model.layout.heading[2] = (struct desk_heading){.page=1,.bank=1,.section=1,.part=2,.parts=2};
+    strcpy(model.layout.heading[2].text, "GOLPES");
+    line = desk_view_snapshot(&model, &speed, &setup);
+    assert(line);
+    root = cJSON_Parse(line);
+    assert(root);
+    cJSON *pager = cJSON_GetObjectItem(root, "pager");
+    assert(cJSON_GetArraySize(pager) == 2);
+    assert(strcmp(cJSON_GetObjectItem(cJSON_GetArrayItem(pager, 0), "caption")->valuestring,
+                  "AUTO + GOLPES 1/2") == 0);
+    assert(strcmp(cJSON_GetObjectItem(cJSON_GetArrayItem(pager, 1), "caption")->valuestring,
+                  "GOLPES 2/2") == 0);
     cJSON_Delete(root);
     free(line);
     return 0;

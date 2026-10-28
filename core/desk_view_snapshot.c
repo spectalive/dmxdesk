@@ -1,5 +1,6 @@
 #include "desk_view_snapshot.h"
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,7 +9,7 @@
 
 #include "desk_view.h"
 #include "desk_room_summary.h"
-#include "desk_pager_label.h"
+#include "desk_pager_bank_caption.h"
 #include "desk_trajectory_of.h"
 #include "speed_factor.h"
 
@@ -75,8 +76,12 @@ char *desk_view_snapshot(const struct desk_model *model,
             cJSON_AddNumberToObject(entry, "y", rect.y);
             cJSON_AddNumberToObject(entry, "w", rect.w);
             cJSON_AddNumberToObject(entry, "h", rect.h);
-            cJSON_AddStringToObject(entry, "caption",
-                                    desk_pager_label(&model->layout, model->page, i));
+            // Every section on the bank, each split one with its part: a long
+            // section continued over two banks read "GOLPES" twice (2026-10-28).
+            // Qt fits the line to its own label, so no width is spent here.
+            char caption[DESK_PAGER_BANK_CAPTION_MAX];
+            desk_pager_bank_caption(model, NULL, model->page, i, INT_MAX, caption);
+            cJSON_AddStringToObject(entry, "caption", caption);
             cJSON_AddItemToArray(pager, entry);
         }
     }

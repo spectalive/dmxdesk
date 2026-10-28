@@ -19,8 +19,10 @@ int desk_show_rig(const struct show_map *map, int page, int x, int w, struct des
     if (desk_show_panel(out, page, x, DESK_RIG_Y, w, DESK_RIG_H, "COLOR DEL RIG", -1,
                         DESK_PANEL_NAMES_RUNNING) != 0)
         return -1;
-    if (desk_show_place(out, map->count + 4, page, x + w - 166, DESK_RIG_Y + 12,
-                        154, 44, TILE_COMPACT) != 0)
+    // Narrow, with its bolt: at 154 px wide and no mark it outweighed the
+    // swatches it modifies (owner, 2026-10-28). It keeps the 44 px finger height.
+    if (desk_show_place(out, map->count + 4, page, x + w - 144, DESK_RIG_Y + 12,
+                        132, 44, TILE_COMPACT) != 0)
         return -1;
     int x0 = x + DESK_PANEL_PAD;
     int inner_w = w - 2 * DESK_PANEL_PAD;

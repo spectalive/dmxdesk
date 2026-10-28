@@ -262,6 +262,8 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
     memset(&color_mode, 0, sizeof color_mode);
     color_mode.kind = DESK_COLOR_MODE;
     snprintf(color_mode.label, sizeof color_mode.label, "GOLPES DE COLOR");
+    // The bolt the swatches wear while hits are on (2026-10-28: the switch had none).
+    snprintf(color_mode.icon, sizeof color_mode.icon, "\xe2\x9a\xa1");
     color_mode.widget_id = -1;
     color_mode.function_id = -1;
     color_mode.shot_widget_id = -1;

@@ -218,6 +218,9 @@ Window {
                 visible: !!modelData.caption
                 x: 50; y: 0; width: parent.width - 62; height: parent.height
                 text: modelData.caption || ""; color: "#f5f7fa"; font.pixelSize: 12
+                // A bank of two sections, or a split one with its part, can run
+                // longer than one name: shrink before eliding the part away.
+                fontSizeMode: Text.HorizontalFit; minimumPixelSize: 9
                 verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
             }
         }

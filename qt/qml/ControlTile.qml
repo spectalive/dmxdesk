@@ -195,11 +195,26 @@ Rectangle {
         x: 3; y: 3; width: parent.width - 6; height: parent.height - 6
         radius: 7; color: tile.swatches.length ? tile.swatches[0] : "transparent"
     }
-    Rectangle {
-        visible: tile.mini && tile.colorOneShot
-        x: parent.width - 30; y: 5; width: 24; height: 24; radius: 7
-        color: "#0c0e12"
-        DeskIcon { anchors.centerIn: parent; width: 18; height: 18; glyph: "⚡" }
+    // Hits on: the bolt sits on the swatch itself, centred, with no plate;
+    // dark on a light colour, where the white mark would vanish (2026-10-28).
+    readonly property bool lightSwatch: {
+        if (!tile.swatches.length)
+            return false
+        const c = Qt.color(tile.swatches[0])
+        return 0.299 * c.r + 0.587 * c.g + 0.114 * c.b > 150 / 255
+    }
+    DeskIcon {
+        visible: tile.mini && tile.colorOneShot && !tile.lightSwatch
+        anchors.centerIn: parent
+        width: 26; height: 26; glyph: "⚡"
+    }
+    Image {
+        visible: tile.mini && tile.colorOneShot && tile.lightSwatch
+        anchors.centerIn: parent
+        width: 26; height: 26
+        source: Qt.resolvedUrl("icons/bolt_dark.ico")
+        fillMode: Image.PreserveAspectFit; smooth: true
+        sourceSize.width: 48; sourceSize.height: 48
     }
     Text {
         visible: tile.master

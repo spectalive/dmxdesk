@@ -397,9 +397,12 @@ static void paint_mini(struct canvas *c, const struct desk_control *ctl,
     uint32_t line = brightest < 0x30 ? DESK_LINE : colour;
     desk_paint_keyline(c, r.x + inset, r.y + inset, r.w - 2 * inset, r.h - 2 * inset, 8, colour, line);
     if (one_shot) {
-        int badge_x = r.x + r.w - 29, badge_y = r.y + 5;
-        canvas_blend_round_rect(c, badge_x, badge_y, 24, 24, 8, DESK_GLASS);
-        icon_paint(c, ICON_BOLT, badge_x, badge_y, DESK_INK);
+        // The bolt on the swatch itself, centred and with no plate (owner,
+        // 2026-10-28); dark on a light colour, where white would vanish.
+        int luma = (int)((colour >> 16 & 0xFF) * 299 + (colour >> 8 & 0xFF) * 587 +
+                         (colour & 0xFF) * 114) / 1000;
+        icon_paint(c, ICON_BOLT, r.x + (r.w - MARK) / 2, r.y + (r.h - MARK) / 2,
+                   luma > 150 ? DESK_GLASS : DESK_INK);
     }
     if (on) {
         int badge_x = r.x + 5, badge_y = r.y + r.h - 29;

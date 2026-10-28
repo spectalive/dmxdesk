@@ -11,6 +11,12 @@ from pathlib import Path
 from PIL import Image
 
 
+# Marks that also sit on a light swatch, where the white mask would vanish: the
+# colour-hit bolt on white, yellow or cyan (2026-10-28). DESK_GLASS's colour.
+DARK = ("ICON_BOLT",)
+DARK_INK = (12, 14, 18, 0)
+
+
 def load_vectors(root):
     spec = importlib.util.spec_from_file_location("desk_icons", root / "tools/icons.py")
     module = importlib.util.module_from_spec(spec)
@@ -39,6 +45,10 @@ def main():
             mask = Image.frombytes("L", (size, size), values)
             icon.putalpha(mask.resize((size * 2, size * 2), Image.Resampling.LANCZOS))
         icon.save(output / f"{name[5:].lower()}.png")
+        if name in DARK:
+            dark = Image.new("RGBA", icon.size, DARK_INK)
+            dark.putalpha(icon.getchannel("A"))
+            dark.save(output / f"{name[5:].lower()}_dark.png")
 
 
 if __name__ == "__main__":
