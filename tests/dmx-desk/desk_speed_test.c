@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c desk_speed_target_rect.c
+// SOURCES: desk_speed.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c desk_speed_target_rect.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
 // The cards against the Vibra map and console: unknown until the snapshot,
 // then 120 BPM on both; +1 sends 496 and waits; an echo of 496 is silent, an
 // unexpected one is "State updated"; x2 sends factor 7; a same-value tap
@@ -14,6 +14,7 @@
 #include "desk_speed_target_rect.h"
 #include "showmap.h"
 #include "vcjson.h"
+#include "test_surface.h"
 
 static char *slurp(const char *path, size_t *len) {
     FILE *f = fopen(path, "rb");
@@ -66,13 +67,13 @@ int main(void) {
     assert(!desk_speed_target_enabled(&s, 0, SPEED_T_TAP));
     assert(tap(&s, tx(0, SPEED_T_BPM_UP), ty(0, SPEED_T_BPM_UP), now).kind == SPEED_ACT_NONE);
 
-    desk_speed_validate(&s, &console);
+    desk_speed_validate(&s, test_surface(&console));
     assert(s.dial[0].known && s.dial[0].base_ms == 500 && s.dial[0].factor == 6);
     assert(s.dial[1].known && s.dial[1].widget_id == movement_widget && s.dial[1].max_ms == 2000);
     assert(desk_speed_bpm(&s.dial[0]) == 120);
     struct desk_speed direct_s;
     desk_speed_init(&direct_s, &map);
-    desk_speed_validate(&direct_s, &console);
+    desk_speed_validate(&direct_s, test_surface(&console));
     struct speed_action direct = desk_speed_direct(&direct_s, 0, SPEED_T_BPM_UP, now, now);
     assert(direct.kind == SPEED_ACT_TIME && direct.widget_id == tempo_widget && direct.ms == 496);
     assert(desk_speed_direct(&direct_s, 0, SPEED_T_BPM_UP, now, now).kind == SPEED_ACT_NONE);
@@ -181,7 +182,7 @@ int main(void) {
     assert(strcmp(s.dial[0].note, "No answer") == 0);
     assert(!desk_speed_target_enabled(&s, 0, SPEED_T_TAP));
     s.refresh_wanted = 0;
-    desk_speed_validate(&s, &console);
+    desk_speed_validate(&s, test_surface(&console));
     assert(s.dial[0].known && s.dial[0].base_ms == 500);
 
     // A link drop forgets everything; the link coming back knows nothing yet.
@@ -198,7 +199,7 @@ int main(void) {
     other.dial[1].widget_id = 9999;
     struct desk_speed o;
     desk_speed_init(&o, &other);
-    desk_speed_validate(&o, &console);
+    desk_speed_validate(&o, test_surface(&console));
     assert(o.dial[0].enabled && !o.dial[1].enabled && strcmp(o.dial[1].reason, "not in this show") == 0);
     assert(!desk_speed_target_enabled(&o, 0, SPEED_T_BOTH));
 

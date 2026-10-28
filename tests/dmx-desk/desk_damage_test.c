@@ -1,4 +1,4 @@
-// SOURCES: desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_panel_holds.c
+// SOURCES: desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_panel_holds.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
 // What changed is what gets painted: a push lights one tile's rectangle, a
 // view change everything, and a clip keeps a primitive inside its damage.
 #include <assert.h>
@@ -12,6 +12,7 @@
 #include "showmap.h"
 #include "showmap_validate.h"
 #include "vcjson.h"
+#include "test_surface.h"
 
 static char *slurp(const char *path, size_t *len) {
     FILE *f = fopen(path, "rb");
@@ -43,7 +44,7 @@ int main(void) {
     }
     assert(auto_function >= 0 && charla_function >= 0);
     struct desk_model m;
-    showmap_build(&m, &map, &doc);
+    showmap_build(&m, &map, test_surface(&doc));
     struct desk_layout layout;
     assert(desk_layout_resolve(&map, map.count, map.count + 1, map.count + 2, map.count + 3, &layout) == 0);
     desk_set_layout(&m, &layout);

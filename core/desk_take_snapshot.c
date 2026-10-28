@@ -3,15 +3,16 @@
 #include <stdio.h>
 
 #include "desk_build_holds.h"
+#include "desk_surface_free.h"
 #include "desk_rebuild_model.h"
 #include "desk_release_holds.h"
 #include "showmap_validate.h"
 
 void desk_take_snapshot(struct desk_app *app, int64_t now) {
-    struct vc_doc fresh;
+    struct desk_surface fresh;
     if (!app->master.take_snapshot(app->master.ctx, &fresh))
         return;
-    vc_free(&app->console);
+    desk_surface_free(&app->console);
     app->console = fresh;
     desk_release_holds(&app->hold, &app->model, &app->master, app->hold_owner, now);
     int enabled = desk_rebuild_model(&app->model, &app->map, &app->console, &app->layout);

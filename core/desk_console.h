@@ -3,8 +3,8 @@
 // adapter (qlc_console for QLC+) fills the table and passes its own state as
 // ctx. Nothing here blocks: the loop polls the fds it hands out.
 //
-// The snapshot is still QLC+'s virtual console document: an adapter for
-// another console describes its surface in that shape.
+// The snapshot is a desk_surface: the adapter describes the console's
+// controls in the desk's own terms (qlc_surface_of for QLC+'s /vc.json).
 #ifndef DESK_CONSOLE_H
 #define DESK_CONSOLE_H
 
@@ -15,7 +15,7 @@
 #include "desk_command.h"
 #include "desk_console_link.h"
 #include "desk_event.h"
-#include "vcjson.h"
+#include "desk_surface.h"
 
 struct desk_console {
     void *ctx;
@@ -24,7 +24,7 @@ struct desk_console {
     // Retries, timeouts, heartbeats: everything time-driven. Returns the link.
     enum desk_console_link (*step)(void *ctx, int64_t now);
     // 1 when a fresh snapshot is waiting; the caller owns out afterwards.
-    int (*take_snapshot)(void *ctx, struct vc_doc *out);
+    int (*take_snapshot)(void *ctx, struct desk_surface *out);
     // 1 and an event, or 0 when none is waiting.
     int (*recv)(void *ctx, struct desk_event *out);
     // 0 sent, -1 dropped: never kept for later, because a toggle sent late

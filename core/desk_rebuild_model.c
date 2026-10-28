@@ -9,7 +9,7 @@
 // the family EFECTOS reopens included.
 // Installing a genuinely new show still uses desk_set_layout and starts at zero.
 int desk_rebuild_model(struct desk_model *model, const struct show_map *map,
-                       const struct vc_doc *console, const struct desk_layout *layout) {
+                       const struct desk_surface *console, const struct desk_layout *layout) {
     int page = model->page;
     int pages = model->layout.pages;
     int effects = model->effects_page;

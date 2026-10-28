@@ -3,6 +3,7 @@
 #include "context.h"
 #include "icon_data.h"
 #include "canvas_blend.h"
+#include "vcjson.h"
 extern struct audit_context *audit_active;
 void audit_note(struct audit_context *a, int warning, const char *rule, const char *fmt, ...);
 void audit_record(struct desk_rect rect, const char *label, unsigned char *ink);

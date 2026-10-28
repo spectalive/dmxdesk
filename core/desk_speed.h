@@ -11,7 +11,7 @@
 
 #include "desk_tap.h"
 #include "showmap.h"
-#include "vcjson.h"
+#include "desk_surface.h"
 
 #define SPEED_PENDING_MS 1500
 #define SPEED_NOTE_MS 3000
@@ -65,7 +65,7 @@ struct desk_speed {
 
 void desk_speed_init(struct desk_speed *s, const struct show_map *map);
 // The console's word on each dial: whether it exists, its time, factor and range.
-void desk_speed_validate(struct desk_speed *s, const struct vc_doc *console);
+void desk_speed_validate(struct desk_speed *s, const struct desk_surface *console);
 // Every dial off, with the reason: the console is another show.
 void desk_speed_disable(struct desk_speed *s, const char *reason);
 

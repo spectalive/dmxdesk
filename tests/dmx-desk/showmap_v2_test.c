@@ -1,4 +1,4 @@
-// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_panel_holds.c
+// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_panel_holds.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
 // The generated map (schema 2) parsed with its bounds, and built against the
 // console the master really serves: the room's states pressable, the held
 // hits carried disabled, the panic button live, and a console that is not
@@ -16,6 +16,7 @@
 #include "showmap.h"
 #include "showmap_validate.h"
 #include "vcjson.h"
+#include "test_surface.h"
 
 static char *slurp(const char *path, size_t *len) {
     FILE *f = fopen(path, "rb");
@@ -172,7 +173,7 @@ int main(void) {
     struct vc_doc console;
     assert(vc_parse(vc_text, vc_len, &console) == 0);
     struct desk_model model;
-    int enabled = showmap_build(&model, &map, &console);
+    int enabled = showmap_build(&model, &map, test_surface(&console));
     assert(model.count == map.count + 6);
     struct desk_layout layout;
     assert(desk_layout_resolve(&map, map.count, map.count + 1, map.count + 2, map.count + 3, &layout) == 0);
@@ -253,7 +254,7 @@ int main(void) {
     for (int i = 0; i < changed.count; i++)
         if (changed.widget[i].id == auto_ctl->widget_id)
             changed.widget[i].function_id = auto_ctl->function_id + 1;
-    showmap_build(&model, &map, &changed);
+    showmap_build(&model, &map, test_surface(&changed));
     a = by_label(&model, "AUTO");
     assert(a && !a->enabled && strcmp(a->reason, "drives another cue") == 0);
     vc_free(&changed);
@@ -261,7 +262,7 @@ int main(void) {
     // Another QLC+ line is another show: everything off, one reason.
     char *newer = edited(vc_text, "\"version\":\"5.2.2\"", "\"version\":\"5.3.0\"");
     assert(vc_parse(newer, strlen(newer), &changed) == 0);
-    assert(showmap_build(&model, &map, &changed) == 0);
+    assert(showmap_build(&model, &map, test_surface(&changed)) == 0);
     for (int i = 0; i < model.count; i++)
         assert(!model.control[i].enabled && strcmp(model.control[i].reason, "show mismatch") == 0);
     vc_free(&changed);

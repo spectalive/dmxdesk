@@ -225,3 +225,8 @@ core/qlc_console_refresh.c
 core/qlc_console_set_host.c
 core/qlc_console_last_rtt.c
 core/qlc_console_reason.c
+core/desk_surface_find.c
+core/desk_surface_free.c
+core/desk_surface_is_button.c
+core/qlc_surface_kind.c
+core/qlc_surface_of.c

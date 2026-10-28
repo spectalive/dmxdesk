@@ -35,6 +35,7 @@
 #include "desk_layout.h"
 #include "desk_platform.h"
 #include "desk_run.h"
+#include "desk_surface_free.h"
 #include "showmap_validate.h"
 #include "linux_desk.h"
 #include "linux_desk_display.h"
@@ -320,6 +321,6 @@ int main(int argc, char **argv) {
     desk_fonts_close(&app.fonts);
     free(app.canvas.px);
     present_close(desk.present);
-    vc_free(&app.console);
+    desk_surface_free(&app.console);
     return 0;
 }

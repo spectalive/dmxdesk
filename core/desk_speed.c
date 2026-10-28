@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "desk_speed_layout.h"
+#include "desk_surface_find.h"
 #include "desk_speed_target_rect.h"
 #include "speed_factor.h"
 
@@ -35,22 +36,22 @@ void desk_speed_init(struct desk_speed *s, const struct show_map *map) {
     s->dirty = 1;
 }
 
-void desk_speed_validate(struct desk_speed *s, const struct vc_doc *console) {
+void desk_speed_validate(struct desk_speed *s, const struct desk_surface *console) {
     for (int i = 0; i < s->dials; i++) {
         struct desk_dial *d = &s->dial[i];
-        const struct vc_widget *w = vc_find(console, d->widget_id);
+        const struct desk_surface_item *w = desk_surface_find(console, d->widget_id);
         d->pending = 0;
-        if (!w || w->type_id != VC_SPEED_DIAL) {
+        if (!w || w->kind != SURFACE_DIAL) {
             d->enabled = 0;
             d->known = 0;
             snprintf(d->reason, sizeof d->reason, "not in this show");
             continue;
         }
         d->enabled = 1;
-        d->max_ms = w->speed_max_ms > 0 && w->speed_max_ms < SPEED_MAX_MS ? w->speed_max_ms : SPEED_MAX_MS;
-        if (w->speed_ms >= 0 && speed_factor_valid(w->speed_factor)) {
-            d->base_ms = w->speed_ms;
-            d->factor = w->speed_factor;
+        d->max_ms = w->dial_max_ms > 0 && w->dial_max_ms < SPEED_MAX_MS ? w->dial_max_ms : SPEED_MAX_MS;
+        if (w->dial_ms >= 0 && speed_factor_valid(w->dial_factor)) {
+            d->base_ms = w->dial_ms;
+            d->factor = w->dial_factor;
             d->known = 1;
             d->reason[0] = '\0';
         } else {

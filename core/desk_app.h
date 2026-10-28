@@ -22,13 +22,13 @@
 #include "showmap.h"
 #include "status.h"
 #include "touch_event.h"
-#include "vcjson.h"
+#include "desk_surface.h"
 
 struct desk_app {
     struct show_map map;
     struct desk_layout layout;
     struct desk_model model;
-    struct vc_doc console;
+    struct desk_surface console;
     struct desk_input input;
     struct desk_speed speed;
     struct desk_hold hold;

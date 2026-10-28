@@ -77,9 +77,13 @@ master, speed dial time and multiplier) and reads back events
 (`core/desk_event.h`: a function's state, the grand master, a speed dial's
 echo). `core/qlc_console.c` is the QLC+ adapter: it encodes each command as a
 web-access frame, decodes the master's pushes and steps the session. The
-snapshot the desk builds its model from is still QLC+'s virtual console
-document, so an adapter for another console describes its surface in that
-shape for now.
+snapshot the desk builds its model from is a surface of its own,
+`struct desk_surface` (`core/desk_surface.h`): one item per control under the
+console's id, with its kind (toggle, flash, stop-all, other button, fader,
+dial, group), the group holding it, the function it drives and its live
+state. The QLC+ adapter translates `/vc.json` into it (`core/qlc_surface_of.c`),
+so the map validation, the speed dials and the tiles never see QLC+'s widget
+tree, and an adapter for another console fills the same surface.
 
 ## Building
 

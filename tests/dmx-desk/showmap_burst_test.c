@@ -1,4 +1,4 @@
-// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c desk_model.c desk_master_level_at.c vcjson.c desk_damage_running.c desk_panel_holds.c
+// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c desk_model.c desk_master_level_at.c vcjson.c desk_damage_running.c desk_panel_holds.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
 // A burst in the map: role, length and the hit it stands for parsed; a
 // burst without a length or a function refused; against a console with a
 // toggle over the chaser it validates as a burst control the master's own
@@ -11,6 +11,7 @@
 #include "showmap.h"
 #include "showmap_validate.h"
 #include "vcjson.h"
+#include "test_surface.h"
 
 static const char MAP[] =
     "{\"schema\":2,\"qlcVersion\":\"5.2.2\",\"show\":{\"key\":\"t\",\"workspace\":\"t.qxw\",\"sha256\":\"\"},"
@@ -43,7 +44,7 @@ int main(void) {
     struct vc_doc console;
     assert(vc_parse(VC, strlen(VC), &console) == 0);
     struct desk_model model;
-    int enabled = showmap_build(&model, &map, &console);
+    int enabled = showmap_build(&model, &map, test_surface(&console));
     assert(enabled >= 1);
     const struct desk_control *b = &model.control[0];
     assert(b->kind == DESK_BURST && b->enabled && b->burst_ms == 3000 && b->function_id == 813);

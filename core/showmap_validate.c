@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "desk_surface_find.h"
+#include "desk_surface_is_button.h"
 #include "showmap_check_priority.h"
 
 
@@ -12,15 +14,15 @@ static void disable(struct desk_control *c, const char *reason) {
 
 // Whether the widget sits inside the frame, at any depth: a pick in an inner
 // multipage frame still belongs to the solo frame around it.
-static int under_frame(const struct vc_doc *doc, const struct vc_widget *w, int frame_id) {
-    int cur = w->parent_id;
+static int under_frame(const struct desk_surface *doc, const struct desk_surface_item *w, int frame_id) {
+    int cur = w->group_id;
     for (int depth = 0; depth < 16 && cur >= 0; depth++) {
         if (cur == frame_id)
             return 1;
-        const struct vc_widget *p = vc_find(doc, cur);
-        if (!p || p->parent_id == cur)
+        const struct desk_surface_item *p = desk_surface_find(doc, cur);
+        if (!p || p->group_id == cur)
             break;
-        cur = p->parent_id;
+        cur = p->group_id;
     }
     return 0;
 }
@@ -32,15 +34,15 @@ static int under_frame(const struct vc_doc *doc, const struct vc_widget *w, int 
 // A hit fired while the finger is down: its widget must be a Flash button
 // of this show. Fog stays on the Mac until a finite burst is proven there:
 // a tablet's cap cannot bound an output after the link is lost.
-static const struct vc_widget *check_hold(struct desk_control *c,
+static const struct desk_surface_item *check_hold(struct desk_control *c,
                                           const struct map_control *m,
-                                          const struct vc_doc *doc) {
-    const struct vc_widget *w = vc_find(doc, m->widget_id);
+                                          const struct desk_surface *doc) {
+    const struct desk_surface_item *w = desk_surface_find(doc, m->widget_id);
     if (!w) {
         disable(c, "not in this show");
         return NULL;
     }
-    if (w->type_id != VC_BUTTON || w->action_type != VC_FLASH) {
+    if (w->kind != SURFACE_FLASH) {
         disable(c, "not a flash button");
         return NULL;
     }
@@ -64,21 +66,21 @@ static int is_fog(const struct map_control *m) {
     return strncmp(m->key, "humo", 4) == 0 || strncmp(m->key, "strobo", 6) == 0;
 }
 
-static const struct vc_widget *check_cue(struct desk_control *c,
+static const struct desk_surface_item *check_cue(struct desk_control *c,
                                          const struct map_control *m,
-                                         const struct vc_doc *doc) {
-    const struct vc_widget *w = vc_find(doc, m->widget_id);
+                                         const struct desk_surface *doc) {
+    const struct desk_surface_item *w = desk_surface_find(doc, m->widget_id);
     if (!w) {
         disable(c, "not in this show");
         return NULL;
     }
-    if (w->type_id != VC_BUTTON) {
+    if (!desk_surface_is_button(w->kind)) {
         disable(c, "not a button");
         return NULL;
     }
-    if (w->action_type != VC_TOGGLE) {
+    if (w->kind != SURFACE_TOGGLE) {
         // Flash is the one that cannot be made safe over a network.
-        disable(c, w->action_type == VC_FLASH ? "held, not safe here"
+        disable(c, w->kind == SURFACE_FLASH ? "held, not safe here"
                                               : "wrong button action");
         return NULL;
     }
@@ -104,16 +106,16 @@ static const struct vc_widget *check_cue(struct desk_control *c,
 // this side and the same QLC+ line on the master's. A mismatch disables the
 // whole desk, because a map read against another show cannot be reasoned
 // about, only misread.
-int showmap_mismatch(const struct show_map *map, const struct vc_doc *doc) {
+int showmap_mismatch(const struct show_map *map, const struct desk_surface *doc) {
     if (map->schema != 2)
         return 1;
-    if (doc->app_version[0] && strcmp(doc->app_version, map->qlc_version) != 0)
+    if (doc->version[0] && strcmp(doc->version, map->qlc_version) != 0)
         return 1;
     return 0;
 }
 
 int showmap_build(struct desk_model *model, const struct show_map *map,
-                  const struct vc_doc *doc) {
+                  const struct desk_surface *doc) {
     desk_init(model);
     snprintf(model->master_name, sizeof model->master_name, "%s", map->key);
     int wrong_show = showmap_mismatch(map, doc);
@@ -139,7 +141,7 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
             c.swatch[s] = 0xFF000000u | m->swatch[s];
         c.swatches = m->swatches;
 
-        const struct vc_widget *widget = NULL;
+        const struct desk_surface_item *widget = NULL;
         if (wrong_show)
             disable(&c, "show mismatch");
         else if (m->role == MAP_ROLE_BURST) {
@@ -172,7 +174,7 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
         // socket sends nothing, so without this every tile would start
         // unknown and stay unknown until someone touched the show.
         if (widget)
-            model->control[index].state = widget->state ? DESK_ON : DESK_OFF;
+            model->control[index].state = widget->on ? DESK_ON : DESK_OFF;
         if (!c.enabled && !wrong_show)
             fprintf(stderr, "desk: %s: %s\n", c.label, c.reason);
         enabled += c.enabled;
@@ -191,9 +193,9 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
     // The console's own word on the level: the snapshot carries the slider,
     // so the fader is known from the first frame rather than from the first
     // time somebody moves it on the Mac.
-    const struct vc_widget *gm = wrong_show ? NULL : vc_find(doc, map->grand_master_widget);
-    int gm_known = gm && gm->type_id == VC_SLIDER;
-    master.level = gm_known ? gm->value : 0;
+    const struct desk_surface_item *gm = wrong_show ? NULL : desk_surface_find(doc, map->grand_master_widget);
+    int gm_known = gm && gm->kind == SURFACE_LEVEL;
+    master.level = gm_known ? gm->level : 0;
     master.requested_level = master.level;
     int master_index = desk_add(model, &master);
     if (master_index >= 0) {
@@ -240,12 +242,12 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
     stop.widget_id = map->stop_all_widget;
     stop.function_id = -1;
     stop.page = -1;
-    const struct vc_widget *w = map->stop_all_widget >= 0 ? vc_find(doc, map->stop_all_widget) : NULL;
+    const struct desk_surface_item *w = map->stop_all_widget >= 0 ? desk_surface_find(doc, map->stop_all_widget) : NULL;
     if (wrong_show)
         disable(&stop, "show mismatch");
     else if (!w)
         disable(&stop, "not in this show");
-    else if (w->type_id != VC_BUTTON || w->action_type != VC_STOP_ALL)
+    else if (w->kind != SURFACE_STOP_ALL)
         disable(&stop, "not a stop-all button");
     else
         stop.enabled = 1;

@@ -1,4 +1,4 @@
-// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c desk_model.c desk_master_level_at.c vcjson.c desk_damage_running.c desk_panel_holds.c
+// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c desk_model.c desk_master_level_at.c vcjson.c desk_damage_running.c desk_panel_holds.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
 // 2026-10-21: a Fiesta colour step must not reclaim the 7R wheel during a
 // white Flash, and a disconnected tablet must not leave that Flash running.
 #include <assert.h>
@@ -8,6 +8,7 @@
 #include "showmap.h"
 #include "showmap_validate.h"
 #include "vcjson.h"
+#include "test_surface.h"
 
 int main(void) {
     const char *map_json =
@@ -33,17 +34,17 @@ int main(void) {
     struct desk_model model;
     assert(showmap_parse(map_json, strlen(map_json), &map) == 0);
     assert(vc_parse(old_vc, strlen(old_vc), &console) == 0);
-    showmap_build(&model, &map, &console);
+    showmap_build(&model, &map, test_surface(&console));
     assert(!model.control[0].enabled);
     assert(strcmp(model.control[0].reason, "master timeout missing") == 0);
     vc_free(&console);
     assert(vc_parse(unprioritized_vc, strlen(unprioritized_vc), &console) == 0);
-    showmap_build(&model, &map, &console);
+    showmap_build(&model, &map, test_surface(&console));
     assert(!model.control[0].enabled);
     assert(strcmp(model.control[0].reason, "master priority missing") == 0);
     vc_free(&console);
     assert(vc_parse(bounded_vc, strlen(bounded_vc), &console) == 0);
-    showmap_build(&model, &map, &console);
+    showmap_build(&model, &map, test_surface(&console));
     assert(model.control[0].enabled);
     assert(model.control[0].priority_widget_id == 47);
     vc_free(&console);

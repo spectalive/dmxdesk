@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_speed_paint.c desk_speed_tempo_step_rect.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_speed_target_rect.c desk_text_upper.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_speed_tempo_step_rect.c desk_tap.c speed_factor.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_speed_target_rect.c desk_text_upper.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
 // The SPEED page's cards painted: both dials known from the console, one
 // change waiting, one noted; then the page before anything is known.
 #include <assert.h>
@@ -13,6 +13,7 @@
 #include "desk_speed_target_rect.h"
 #include "desk_fonts.h"
 #include "font.h"
+#include "test_surface.h"
 
 static char *slurp(const char *path, size_t *len) {
     FILE *f = fopen(path, "rb");
@@ -74,7 +75,7 @@ int main(void) {
     desk_speed_paint(&canvas, &s, &fonts);
     save(&canvas, "speed-unknown.ppm");
 
-    desk_speed_validate(&s, &console);
+    desk_speed_validate(&s, test_surface(&console));
     assert(s.dial[0].known && s.dial[0].widget_id == tempo_widget);
     desk_speed_apply(&s, movement_widget, 400, 7, 1000);          // "State updated" on the second
     struct desk_rect up = desk_speed_target_rect(0, SPEED_T_BPM_UP);
