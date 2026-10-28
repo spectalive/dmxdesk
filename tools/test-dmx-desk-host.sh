@@ -57,4 +57,16 @@ for t in "$here"/tests/dmx-desk/*_test.c; do
         fail=1
     fi
 done
+# The bench converter builds, and its output on the Vibra console parses as
+# the desk will read it (the tool parses it back and fails otherwise).
+if CC="$CC" "$here/tools/build-qlc-osc-surface.sh" >/dev/null &&
+    "$here/output/qlc-osc-surface" --grand-master 266 \
+        "$here/tests/dmx-desk/fixtures/vc-vibra.json" >"$out/vibra.osc.json" &&
+    "$here/output/qlc-osc-surface" --channels \
+        "$here/tests/dmx-desk/fixtures/vc-vibra.json" | grep -q "$(printf '^33\t0\t')"; then
+    echo "PASS qlc_osc_surface_tool"
+else
+    echo "FAIL qlc_osc_surface_tool"
+    fail=1
+fi
 exit "$fail"

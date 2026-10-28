@@ -197,6 +197,11 @@ int showmap_build(struct desk_model *model, const struct show_map *map,
     int gm_known = gm && gm->kind == SURFACE_LEVEL;
     master.level = gm_known ? gm->level : 0;
     master.requested_level = master.level;
+    // A fader the console will not move is not offered, as for every other
+    // control: QLC+ ignores OSC input to a widget on a hidden frame page, and
+    // its OSC surface file declares such a widget disabled (2026-10-28).
+    if (gm_known && gm->disabled)
+        disable(&master, "disabled on the master");
     int master_index = desk_add(model, &master);
     if (master_index >= 0) {
         enabled += master.enabled;

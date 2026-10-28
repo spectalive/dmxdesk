@@ -116,6 +116,38 @@ has to say, each found there:
   `"disabled": true`; 17 of the 181 controls Vibra's map names are there,
   the grand master among them.
 
+`tools/qlc-osc-surface` writes that file from QLC+'s own `/vc.json`, with
+all four rules applied (`core/qlc_osc_surface_json.c`), so nobody has to
+type it. It runs on the bench, not on the tablet:
+
+```sh
+tools/get-cjson.sh                      # once, if tools/vendor/cjson is empty
+tools/build-qlc-osc-surface.sh          # builds output/qlc-osc-surface
+curl -s http://<master>:9999/vc.json > vc.json
+output/qlc-osc-surface --prefix /vibra --grand-master 266 vc.json > vibra.osc.json
+output/qlc-osc-surface --prefix /vibra --channels vc.json > vibra.osc.channels
+dmxdesk --osc vibra.osc.json --host <master> --port 7700 --osc-listen 9000 --map vibra.desk.json
+```
+
+The surface file alone is half of it: QLC+ must also listen. The
+workspace needs an OSC input on universe 1 (QLC+ listens on UDP 7700 for
+universe 1, 7700 + n - 1 in general), and the same line as its feedback
+patch with `feedbackIP` set to the desk's address and `feedbackPort` to
+`--osc-listen` (9000 by default for universe 1). Each widget then needs
+the external inputs the `--channels` table lists, one line each:
+`<widget id> <input id> <channel> <path>`. The channel is the CRC-16 that
+QLC+'s OSC plugin computes from the path, and `--channels` checks it
+against a mapping QLC+ accepted. Input 0 is a button's press, a fader's
+level or a dial's wheel; a dial's multipliers are its inputs 4 and 6-13.
+Vibra has 518 such inputs plus 18 multiplier buttons, too many to enter by
+hand. The 2026-10-28 trial patched a copy of the `.qxw`, and that belongs
+in the show generator (see `TODO.md`).
+
+Three limits remain. The hidden-page rule takes the frame pages that were
+showing when `/vc.json` was served, so take it with the operator's usual
+pages up. A burst (`DESK_CMD_FUNCTION`) has no widget to press, so it is
+dropped. A dial's time arrives in QLC+'s 8-bit steps.
+
 ## Building
 
 The desk needs a C99 compiler, libdrm, cJSON 1.7.19 and stb_truetype. Both
