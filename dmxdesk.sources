@@ -278,3 +278,4 @@ core/osc_msg_make.c
 core/osc_msg_number.c
 core/osc_padded.c
 core/osc_resolve.c
+core/osc_same_host.c

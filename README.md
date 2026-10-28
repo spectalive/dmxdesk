@@ -92,7 +92,8 @@ fields as `struct desk_surface`, plus the address each control answers to
 (format in `core/osc_map_parse.h`). A press is a button going to 1 and back to
 0; a flash or a function carries its 1 or 0, the grand master its level as
 0..1, a dial its time and multiplier as ints. A console that reports its state
-back (`"feedback": true`) is heard on the listen port; one that does not has
+back (`"feedback": true`) is heard on the listen port, from its own host only;
+one that does not is not heard at all, and has
 the desk loop its own commands back, so it shows what it asked for.
 `tests/dmx-desk/osc_vibra_test.c` writes the Vibra console out as such a file
 and checks the desk builds the very same model and speed dials from it.

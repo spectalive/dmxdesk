@@ -1,9 +1,10 @@
-// SOURCES: osc_map_load.c osc_map_parse.c osc_map_parse_items.c osc_map_parse_functions.c osc_item_parse.c osc_function_parse.c osc_kind_of.c osc_json_int.c osc_json_bool.c osc_json_address.c osc_map_free.c desk_surface_free.c desk_surface_find.c desk_surface_is_button.c osc_map_target.c osc_map_apply.c osc_clamp.c osc_msg_number.c osc_event_of.c osc_command_messages.c osc_echo_of.c osc_msg_make.c osc_console.c osc_console_pollfds.c osc_console_step.c osc_console_take_snapshot.c osc_console_recv.c osc_console_send.c osc_console_describe.c osc_console_refresh.c osc_console_set_host.c osc_console_last_rtt.c osc_console_reason.c osc_link_new.c osc_link_free.c osc_link_close.c osc_link_open.c osc_resolve.c osc_any_address.c osc_loop_push.c osc_loop_pop.c osc_link_next_msg.c osc_link_send_msg.c osc_link_echo.c osc_encode.c osc_decode.c osc_padded.c osc_be32_read.c osc_be32_write.c osc_msg_format.c desk_surface_copy.c
+// SOURCES: osc_map_load.c osc_map_parse.c osc_map_parse_items.c osc_map_parse_functions.c osc_item_parse.c osc_function_parse.c osc_kind_of.c osc_json_int.c osc_json_bool.c osc_json_address.c osc_map_free.c desk_surface_free.c desk_surface_find.c desk_surface_is_button.c osc_map_target.c osc_map_apply.c osc_clamp.c osc_msg_number.c osc_event_of.c osc_command_messages.c osc_echo_of.c osc_msg_make.c osc_console.c osc_console_pollfds.c osc_console_step.c osc_console_take_snapshot.c osc_console_recv.c osc_console_send.c osc_console_describe.c osc_console_refresh.c osc_console_set_host.c osc_console_last_rtt.c osc_console_reason.c osc_link_new.c osc_link_free.c osc_link_close.c osc_link_open.c osc_resolve.c osc_any_address.c osc_loop_push.c osc_loop_pop.c osc_link_next_msg.c osc_link_send_msg.c osc_link_echo.c osc_encode.c osc_decode.c osc_padded.c osc_be32_read.c osc_be32_write.c osc_msg_format.c desk_surface_copy.c osc_same_host.c
 // The OSC console behind the desk's table (2026-10-28), over real UDP on
 // loopback: a socket in the test plays the console. The link comes up and
 // offers its surface once, a command reaches the console as its messages,
 // a console without feedback still shows the desk what it asked for, a
-// console with feedback is heard, and a new address reopens the link.
+// console with feedback is heard and nobody else is, and a new address
+// reopens the link.
 #include <arpa/inet.h>
 #include <assert.h>
 #include <netinet/in.h>
@@ -21,6 +22,7 @@
 #include "osc_encode.h"
 #include "osc_link_free.h"
 #include "osc_link_new.h"
+#include "osc_same_host.h"
 
 static int console_fd;
 static int console_port;
@@ -161,6 +163,13 @@ int main(void) {
     // A datagram that is not OSC is read and means nothing.
     assert(sendto(console_fd, "junk", 4, 0, (struct sockaddr *)&desk_addr, sizeof desk_addr) == 4);
     assert(desk_reads(&c, &e) == 1 && e.kind == DESK_EVENT_NONE);
+    // Nor is a well-formed reply heard from a console declared without
+    // feedback: the desk keeps what it asked for.
+    console_says(&desk_addr, "/x/12/factor", 'i', 7);
+    assert(desk_reads(&c, &e) == 1 && e.kind == DESK_EVENT_NONE);
+    c.refresh(c.ctx, 1250);
+    assert(c.take_snapshot(c.ctx, &s) == 1 && desk_surface_find(&s, 12)->dial_factor == 3);
+    desk_surface_free(&s);
 
     // A new address closes the socket; the next step reopens it and offers
     // the surface again. No address at all keeps the link down with a reason.
@@ -195,6 +204,28 @@ int main(void) {
     assert(desk_reads(&c, &e) == 1 && e.kind == DESK_EVENT_FUNCTION && e.id == 40 && e.running);
     osc_link_free(link);
     osc_link_free(NULL);
+
+    // Only the console's own host is heard, from whatever port.
+    struct sockaddr_storage a, b;
+    memset(&a, 0, sizeof a);
+    memset(&b, 0, sizeof b);
+    struct sockaddr_in *a4 = (struct sockaddr_in *)&a, *b4 = (struct sockaddr_in *)&b;
+    a4->sin_family = b4->sin_family = AF_INET;
+    a4->sin_addr.s_addr = inet_addr("192.168.1.60");
+    a4->sin_port = htons(8000);
+    b4->sin_addr.s_addr = inet_addr("192.168.1.60");
+    b4->sin_port = htons(53001);
+    assert(osc_same_host(&a, &b));
+    b4->sin_addr.s_addr = inet_addr("192.168.1.61");
+    assert(!osc_same_host(&a, &b));
+    struct sockaddr_in6 *c6 = (struct sockaddr_in6 *)&b;
+    memset(&b, 0, sizeof b);
+    c6->sin6_family = AF_INET6;
+    assert(!osc_same_host(&a, &b));
+    memcpy(&a, &b, sizeof a);
+    assert(osc_same_host(&a, &b));
+    c6->sin6_addr.s6_addr[15] = 1;
+    assert(!osc_same_host(&a, &b));
     unlink(cfg.surface_path);
     close(console_fd);
     return 0;
