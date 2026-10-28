@@ -12,13 +12,15 @@ struct desk_event osc_event_of(const struct osc_map *map, struct osc_target targ
     }
     if (target.kind == OSC_TARGET_NONE)
         return e;
-    const struct desk_surface_item *it = &map->surface.item[target.index];
+    int index = target.kind == OSC_TARGET_FACTOR_PRESS ? map->factor_press[target.index].item
+                                                       : target.index;
+    const struct desk_surface_item *it = &map->surface.item[index];
     if (it->kind == SURFACE_DIAL) {
         e.kind = DESK_EVENT_SPEED;
         e.id = it->id;
         e.value = it->dial_ms;
         e.factor = it->dial_factor;
-    } else if (it->kind == SURFACE_LEVEL && target.index == map->grand_master) {
+    } else if (it->kind == SURFACE_LEVEL && index == map->grand_master) {
         e.kind = DESK_EVENT_GRAND_MASTER;
         e.value = it->level;
     } else if (desk_surface_is_button(it->kind) && it->function_id >= 0) {

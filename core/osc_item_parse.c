@@ -6,10 +6,11 @@
 #include "osc_json_address.h"
 #include "osc_json_bool.h"
 #include "osc_json_int.h"
+#include "osc_json_range.h"
 #include "osc_kind_of.h"
 
 const char *osc_item_parse(const cJSON *node, struct desk_surface_item *item, char *address,
-                           char *factor_address) {
+                           char *factor_address, int ms_range[2]) {
     memset(item, 0, sizeof *item);
     item->group_id = item->function_id = -1;
     item->dial_ms = item->dial_factor = item->dial_max_ms = -1;
@@ -39,5 +40,9 @@ const char *osc_item_parse(const cJSON *node, struct desk_surface_item *item, ch
         return "a control the desk drives has no address";
     if (factor_address[0] && item->kind != SURFACE_DIAL)
         return "only a dial takes a factorAddress";
+    if (osc_json_range(node, "msRange", ms_range) != 0)
+        return "msRange is not [min, max] with 0 <= min < max";
+    if (ms_range[0] >= 0 && item->kind != SURFACE_DIAL)
+        return "only a dial takes an msRange";
     return NULL;
 }

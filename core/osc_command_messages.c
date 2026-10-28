@@ -2,6 +2,8 @@
 
 #include "desk_surface_find.h"
 #include "desk_surface_is_button.h"
+#include "osc_dial_fraction.h"
+#include "osc_factor_press_find.h"
 #include "osc_msg_make.h"
 
 int osc_command_messages(const struct osc_map *map, const struct desk_command *cmd,
@@ -30,9 +32,24 @@ int osc_command_messages(const struct osc_map *map, const struct desk_command *c
         return desk_surface_is_button(it->kind)
              ? osc_msg_make(out, map->address[at], 'f', 0, cmd->value ? 1.0f : 0.0f) : -1;
     case DESK_CMD_SPEED_MS:
-        return it->kind == SURFACE_DIAL ? osc_msg_make(out, map->address[at], 'i', cmd->value, 0) : -1;
-    case DESK_CMD_SPEED_FACTOR:
-        return it->kind == SURFACE_DIAL ? osc_msg_make(out, map->factor_address[at], 'i', cmd->value, 0) : -1;
+        if (it->kind != SURFACE_DIAL)
+            return -1;
+        if (map->ms_range[at][0] >= 0)
+            return osc_msg_make(out, map->address[at], 'f', 0,
+                                osc_dial_fraction(map->ms_range[at], cmd->value));
+        return osc_msg_make(out, map->address[at], 'i', cmd->value, 0);
+    case DESK_CMD_SPEED_FACTOR: {
+        if (it->kind != SURFACE_DIAL)
+            return -1;
+        if (map->factor_address[at][0])
+            return osc_msg_make(out, map->factor_address[at], 'i', cmd->value, 0);
+        int press = osc_factor_press_find(map, at, cmd->value);
+        if (press < 0)
+            return -1;
+        osc_msg_make(&out[0], map->factor_press[press].address, 'f', 0, 1.0f);
+        osc_msg_make(&out[1], map->factor_press[press].address, 'f', 0, 0.0f);
+        return 2;
+    }
     default:
         return -1;
     }

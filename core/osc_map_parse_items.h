@@ -1,6 +1,8 @@
 // A surface file's "items" into the map's surface and addresses, which it
 // allocates. NULL, or why the list is wrong; the ids must rise strictly,
-// which is the order desk_surface_find searches.
+// which is the order desk_surface_find searches. An item's "feedback":
+// false marks a control its console does not report, which the desk then
+// echoes itself, as QLC+ does not report a speed dial.
 #ifndef OSC_MAP_PARSE_ITEMS_H
 #define OSC_MAP_PARSE_ITEMS_H
 

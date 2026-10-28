@@ -279,3 +279,10 @@ core/osc_msg_number.c
 core/osc_padded.c
 core/osc_resolve.c
 core/osc_same_host.c
+core/osc_json_range.c
+core/osc_factor_presses_parse.c
+core/osc_factor_key.c
+core/osc_dial_ms_of.c
+core/osc_dial_fraction.c
+core/osc_factor_press_find.c
+core/osc_command_reported.c

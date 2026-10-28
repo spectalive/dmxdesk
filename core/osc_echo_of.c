@@ -15,8 +15,9 @@ int osc_echo_of(const struct osc_map *map, const struct desk_command *cmd, struc
                             it->on ? 0.0f : 1.0f) == 1;
     }
     struct osc_msg msgs[2];
-    if (osc_command_messages(map, cmd, msgs) != 1)
+    int n = osc_command_messages(map, cmd, msgs);
+    if (n != 1 && !(n == 2 && cmd->kind == DESK_CMD_SPEED_FACTOR))
         return 0;
-    *out = msgs[0];
+    *out = msgs[0];     // a multiplier button's press is what sets it
     return 1;
 }

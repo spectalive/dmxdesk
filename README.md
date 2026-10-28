@@ -98,6 +98,24 @@ the desk loop its own commands back, so it shows what it asked for.
 `tests/dmx-desk/osc_vibra_test.c` writes the Vibra console out as such a file
 and checks the desk builds the very same model and speed dials from it.
 
+QLC+'s own OSC input was the first real console it drove (2026-10-28, a
+headless QLC+ 5.2.2 on loopback): buttons, solo frames, flashes and stop-all
+work as above, with QLC+'s feedback heard. Four things a QLC+ surface file
+has to say, each found there:
+
+- a speed dial takes its time as 0..1 of the widget's AbsoluteValue range
+  (`"msRange": [0, 2000]`), since QLC+ divides an int above 255 down to 0, and
+  arrives in 8-bit steps (504 ms becomes 501);
+- its multiplier is one input per factor (`"factorAddresses"`, mapped to the
+  dial's inputs 6-9 for 1/16x-1/2x, 4 for 1x, 10-13 for 2x-16x);
+- QLC+ 5 sends no runtime feedback for a speed dial, nor for a fader moved by
+  its own input, so those items take `"feedback": false` and the desk echoes
+  them;
+- a widget on a hidden page of a multipage frame ignores external input
+  (`VCPage::inputValueChanged` requires it visible), so it must be declared
+  `"disabled": true`; 17 of the 181 controls Vibra's map names are there,
+  the grand master among them.
+
 ## Building
 
 The desk needs a C99 compiler, libdrm, cJSON 1.7.19 and stb_truetype. Both

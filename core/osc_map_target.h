@@ -1,5 +1,6 @@
 // What an incoming address names in the map: a control's address, a dial's
-// multiplier, a function's address, or nothing.
+// multiplier or one of its multiplier buttons, a function's address, or
+// nothing.
 #ifndef OSC_MAP_TARGET_H
 #define OSC_MAP_TARGET_H
 

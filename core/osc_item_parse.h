@@ -3,6 +3,8 @@
 // address, since the desk could not drive it otherwise; only a dial takes a
 // factorAddress for its multiplier. A dial's ms, factor and maxMs are -1
 // when the console does not say, as in desk_surface; the desk checks them.
+// A dial's "msRange": [min, max] says its console takes the time as a
+// fraction 0..1 of that range; ms_range is -1, -1 otherwise.
 #ifndef OSC_ITEM_PARSE_H
 #define OSC_ITEM_PARSE_H
 
@@ -11,6 +13,6 @@
 #include "desk_surface.h"
 
 const char *osc_item_parse(const cJSON *node, struct desk_surface_item *item, char *address,
-                           char *factor_address);
+                           char *factor_address, int ms_range[2]);
 
 #endif

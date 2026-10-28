@@ -12,6 +12,7 @@
   { "id": 12, "kind": "dial", "address": "/x/12/ms", "factorAddress": "/x/12/factor", "ms": 500, "factor": 3, "maxMs": 10000 },
   { "id": 13, "kind": "dial", "address": "/x/13/ms", "ms": 250 },
   { "id": 14, "kind": "button", "address": "/x/14", "disabled": true },
+  { "id": 15, "kind": "dial", "address": "/x/15", "ms": 500, "factor": 6, "maxMs": 2000, "msRange": [0, 2000], "feedback": false, "factorAddresses": { "6": "/x/15/1x", "7": "/x/15/2x" } },
   { "id": 20, "kind": "other" }
  ],
  "functions": [ { "id": 6, "address": "/f/6" }, { "id": 40, "address": "/f/40" } ]

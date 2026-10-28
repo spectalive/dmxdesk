@@ -1,4 +1,4 @@
-// SOURCES: osc_map_load.c osc_map_parse.c osc_map_parse_items.c osc_map_parse_functions.c osc_item_parse.c osc_function_parse.c osc_kind_of.c osc_json_int.c osc_json_bool.c osc_json_address.c osc_map_free.c desk_surface_free.c desk_surface_find.c desk_surface_is_button.c osc_map_target.c osc_map_apply.c osc_clamp.c osc_msg_number.c osc_event_of.c osc_command_messages.c osc_echo_of.c osc_msg_make.c osc_console.c osc_console_pollfds.c osc_console_step.c osc_console_take_snapshot.c osc_console_recv.c osc_console_send.c osc_console_describe.c osc_console_refresh.c osc_console_set_host.c osc_console_last_rtt.c osc_console_reason.c osc_link_new.c osc_link_free.c osc_link_close.c osc_link_open.c osc_resolve.c osc_any_address.c osc_loop_push.c osc_loop_pop.c osc_link_next_msg.c osc_link_send_msg.c osc_link_echo.c osc_encode.c osc_decode.c osc_padded.c osc_be32_read.c osc_be32_write.c osc_msg_format.c desk_surface_copy.c osc_same_host.c
+// SOURCES: osc_map_load.c osc_map_parse.c osc_map_parse_items.c osc_map_parse_functions.c osc_item_parse.c osc_function_parse.c osc_kind_of.c osc_json_int.c osc_json_bool.c osc_json_address.c osc_map_free.c desk_surface_free.c desk_surface_find.c desk_surface_is_button.c osc_map_target.c osc_map_apply.c osc_clamp.c osc_msg_number.c osc_event_of.c osc_command_messages.c osc_echo_of.c osc_msg_make.c osc_console.c osc_console_pollfds.c osc_console_step.c osc_console_take_snapshot.c osc_console_recv.c osc_console_send.c osc_console_describe.c osc_console_refresh.c osc_console_set_host.c osc_console_last_rtt.c osc_console_reason.c osc_link_new.c osc_link_free.c osc_link_close.c osc_link_open.c osc_resolve.c osc_any_address.c osc_loop_push.c osc_loop_pop.c osc_link_next_msg.c osc_link_send_msg.c osc_link_echo.c osc_encode.c osc_decode.c osc_padded.c osc_be32_read.c osc_be32_write.c osc_msg_format.c desk_surface_copy.c osc_same_host.c osc_json_range.c osc_factor_presses_parse.c osc_factor_key.c osc_dial_ms_of.c osc_dial_fraction.c osc_factor_press_find.c osc_command_reported.c
 // The OSC console behind the desk's table (2026-10-28), over real UDP on
 // loopback: a socket in the test plays the console. The link comes up and
 // offers its surface once, a command reaches the console as its messages,
@@ -84,7 +84,7 @@ static char *surface_with_feedback(void) {
     assert(in && out);
     char line[512];
     while (fgets(line, sizeof line, in))
-        fputs(strstr(line, "\"feedback\"") ? " \"feedback\": true,\n" : line, out);
+        fputs(!strncmp(line, " \"feedback\"", 11) ? " \"feedback\": true,\n" : line, out);
     fclose(in);
     fclose(out);
     return path;
@@ -115,7 +115,7 @@ int main(void) {
     // The first step opens the socket and offers the surface, once.
     assert(c.step(c.ctx, 1000) == DESK_CONSOLE_READY);
     assert(c.take_snapshot(c.ctx, &s) == 1);
-    assert(s.count == 9 && desk_surface_find(&s, 12)->dial_ms == 500);
+    assert(s.count == 10 && desk_surface_find(&s, 12)->dial_ms == 500);
     desk_surface_free(&s);
     assert(c.take_snapshot(c.ctx, &s) == 0);
     assert(c.step(c.ctx, 1100) == DESK_CONSOLE_READY && c.take_snapshot(c.ctx, &s) == 0);
@@ -196,6 +196,14 @@ int main(void) {
     assert(c.send(c.ctx, &speed) == 0);
     m = console_hears(&desk_addr);
     assert(ntohs(desk_addr.sin_port) == console_port + 1);
+    assert(c.recv(c.ctx, &e) == 0);
+    // A control this console leaves silent, as QLC+ leaves a speed dial
+    // (2026-10-28 trial), still shows the desk what it asked for.
+    struct desk_command silent = { DESK_CMD_SPEED_MS, 15, 600 };
+    assert(c.send(c.ctx, &silent) == 0);
+    m = console_hears(&desk_addr);
+    assert(!strcmp(m.address, "/x/15") && m.type == 'f' && m.f == 0.3f);
+    assert(c.recv(c.ctx, &e) == 1 && e.kind == DESK_EVENT_SPEED && e.id == 15 && e.value == 600);
     assert(c.recv(c.ctx, &e) == 0);
     console_says(&desk_addr, "/x/12/factor", 'i', 5);
     assert(desk_reads(&c, &e) == 1 && e.kind == DESK_EVENT_SPEED && e.id == 12 && e.value == 500 &&

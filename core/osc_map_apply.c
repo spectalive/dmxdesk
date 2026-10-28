@@ -3,6 +3,7 @@
 #include "desk_surface_is_button.h"
 #include "osc_clamp.h"
 #include "osc_map_target.h"
+#include "osc_dial_ms_of.h"
 #include "osc_msg_number.h"
 
 struct osc_target osc_map_apply(struct osc_map *map, const struct osc_msg *msg) {
@@ -10,6 +11,12 @@ struct osc_target osc_map_apply(struct osc_map *map, const struct osc_msg *msg) 
     float number = osc_msg_number(msg);
     if (t.kind == OSC_TARGET_FUNCTION) {
         map->function[t.index].running = number > 0.5f;
+        return t;
+    }
+    if (t.kind == OSC_TARGET_FACTOR_PRESS) {
+        const struct osc_factor_press *fp = &map->factor_press[t.index];
+        if (number > 0.5f)
+            map->surface.item[fp->item].dial_factor = fp->factor;
         return t;
     }
     if (t.kind == OSC_TARGET_NONE)
@@ -22,6 +29,6 @@ struct osc_target osc_map_apply(struct osc_map *map, const struct osc_msg *msg) 
     else if (it->kind == SURFACE_LEVEL)
         it->level = osc_clamp(msg->type == 'f' ? number * 255.0f : number, 0, 255);
     else if (it->kind == SURFACE_DIAL)
-        it->dial_ms = osc_clamp(number, 0, 0x7fffffff);
+        it->dial_ms = osc_dial_ms_of(map->ms_range[t.index], msg);
     return t;
 }
