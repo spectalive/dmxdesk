@@ -16,7 +16,7 @@ int desk_touch_press(struct desk_app *app, const struct desk_platform *p,
         if (hc->enabled && hc->hold_index >= 0 && model->link == DESK_LINK_READY) {
             struct hold_action ha = desk_hold_press(&app->hold, hc->hold_index, slot, now);
             if (ha.widget_id >= 0) {
-                desk_send_hold(&app->hold, app->session, ha, now);
+                desk_send_hold(&app->hold, &app->master, ha, now);
                 app->hold_owner[slot] = ci;
                 desk_set_hold_progress(model, ci, 0, 1);
             }
@@ -32,7 +32,7 @@ int desk_touch_press(struct desk_app *app, const struct desk_platform *p,
     desk_speed_tempo_tap_rect(tp->x, tp->y, tp->w, tp->h, &tx, &ty, &tw, &th);
     if (x >= tx && x < tx + tw && y >= ty && y < ty + th) {
         int64_t at = e->t > 0 ? (int64_t)(e->t * 1000.0) : now;
-        desk_send_speed(app->session, desk_speed_direct(&app->speed, 0, SPEED_T_TAP,
+        desk_send_speed(&app->master, desk_speed_direct(&app->speed, 0, SPEED_T_TAP,
                                                         p->now(p->ctx), at), now);
         app->hold_owner[slot] = ci;     // the release is consumed, the target reads pressed
         desk_set_hold_progress(model, ci, -1, 1);
@@ -43,7 +43,7 @@ int desk_touch_press(struct desk_app *app, const struct desk_platform *p,
                                    (enum speed_target)step, &tx, &ty, &tw, &th);
         if (x < tx || x >= tx + tw || y < ty || y >= ty + th)
             continue;
-        desk_send_speed(app->session, desk_speed_direct(&app->speed, 0, (enum speed_target)step,
+        desk_send_speed(&app->master, desk_speed_direct(&app->speed, 0, (enum speed_target)step,
                                                         p->now(p->ctx), now), now);
         app->hold_owner[slot] = ci;
         break;

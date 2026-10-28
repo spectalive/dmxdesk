@@ -20,7 +20,7 @@ int linux_desk_present(struct linux_desk *d, struct desk_app *app, int damaged,
     if (d->log_perf)
         perf_window_add(&d->present_ms, (int)(linux_desk_now(d) - t1));
     d->flips++;
-    if (d->dump && (app->link == QLC_READY || now - d->start_ms > 6000)) {
+    if (d->dump && (app->link == DESK_CONSOLE_READY || now - d->start_ms > 6000)) {
         desk_dump_ppm(&app->canvas, d->dump);
         return 1;
     }

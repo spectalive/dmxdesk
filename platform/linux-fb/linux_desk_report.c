@@ -8,7 +8,7 @@ void linux_desk_report(struct linux_desk *d, struct desk_app *app, int64_t now) 
     if (now - d->last_report_ms >= 10000) {
         d->last_report_ms = now;
         printf("desk: %lu flips so far, link %s (%s)\n", d->flips,
-               app->link == QLC_READY ? "up" : "down", qlc_session_reason(app->session));
+               app->link == DESK_CONSOLE_READY ? "up" : "down", app->master.reason(app->master.ctx));
         if (d->log_perf) {
             printf("perf: paint p50 %d p95 %d ms (%d) present p50 %d p95 %d ms (%d)"
                    " rss %ld kB memavail %ld kB\n",

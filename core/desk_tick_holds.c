@@ -7,12 +7,12 @@ void desk_tick_holds(struct desk_app *app, int64_t now) {
     struct hold_action out[MAP_MAX_CONTROLS];
     int n = desk_hold_tick(&app->hold, now, out, MAP_MAX_CONTROLS);
     for (int k = 0; k < n; k++)
-        desk_send_hold(&app->hold, app->session, out[k], now);
-    desk_hold_set_link(&app->hold, app->link == QLC_READY);
-    if (app->link == QLC_READY) {
+        desk_send_hold(&app->hold, &app->master, out[k], now);
+    desk_hold_set_link(&app->hold, app->link == DESK_CONSOLE_READY);
+    if (app->link == DESK_CONSOLE_READY) {
         n = desk_hold_owed(&app->hold, out, MAP_MAX_CONTROLS);
         for (int k = 0; k < n; k++)
-            desk_send_hold(&app->hold, app->session, out[k], now);
+            desk_send_hold(&app->hold, &app->master, out[k], now);
     }
     for (int i = 0; i < model->count; i++) {
         struct desk_control *c = &model->control[i];

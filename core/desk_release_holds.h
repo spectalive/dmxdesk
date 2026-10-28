@@ -5,11 +5,11 @@
 
 #include "desk_hold.h"
 #include "desk_model.h"
-#include "qlc_session.h"
+#include "desk_console.h"
 
 #include <stdint.h>
 
-void desk_release_holds(struct desk_hold *hold, struct desk_model *model, struct qlc_session *session,
+void desk_release_holds(struct desk_hold *hold, struct desk_model *model, const struct desk_console *console,
                         int *owner, int64_t now);
 
 #endif

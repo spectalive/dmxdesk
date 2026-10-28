@@ -4,10 +4,10 @@
 #define DESK_SEND_SPEED_H
 
 #include "desk_speed.h"
-#include "qlc_session.h"
+#include "desk_console.h"
 
 #include <stdint.h>
 
-void desk_send_speed(struct qlc_session *session, struct speed_action action, int64_t now);
+void desk_send_speed(const struct desk_console *console, struct speed_action action, int64_t now);
 
 #endif

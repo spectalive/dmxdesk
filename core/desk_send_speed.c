@@ -1,28 +1,29 @@
 #include "desk_send_speed.h"
 
-#include "qlc_codec.h"
-
 #include <stdio.h>
 
-void desk_send_speed(struct qlc_session *session, struct speed_action action, int64_t now) {
-    char frame[64];
-    int n = -1;
+#include "desk_try_send.h"
+
+void desk_send_speed(const struct desk_console *console, struct speed_action action, int64_t now) {
+    struct desk_command cmd;
     switch (action.kind) {
     case SPEED_ACT_TIME:
     case SPEED_ACT_TIME_BOTH:
-        n = qlc_encode_speed_ms(frame, sizeof frame, action.widget_id, action.ms);
+        cmd = (struct desk_command){ DESK_CMD_SPEED_MS, action.widget_id, action.ms };
         break;
     case SPEED_ACT_FACTOR:
-        n = qlc_encode_speed_factor(frame, sizeof frame, action.widget_id, action.factor);
+        cmd = (struct desk_command){ DESK_CMD_SPEED_FACTOR, action.widget_id, action.factor };
         break;
     case SPEED_ACT_NONE:
+    default:
         return;
     }
-    if (n > 0 && qlc_session_send(session, frame) == 0)
-        fprintf(stderr, "speed: sent %s at %lld\n", frame, (long long)now);
-    if (action.kind == SPEED_ACT_TIME_BOTH && action.widget_id2 >= 0) {
-        n = qlc_encode_speed_ms(frame, sizeof frame, action.widget_id2, action.ms2);
-        if (n > 0 && qlc_session_send(session, frame) == 0)
-            fprintf(stderr, "speed: sent %s at %lld\n", frame, (long long)now);
-    }
+    char text[64];
+    if (desk_try_send(console, &cmd, text, sizeof text) == 0)
+        fprintf(stderr, "speed: sent %s at %lld\n", text, (long long)now);
+    if (action.kind != SPEED_ACT_TIME_BOTH || action.widget_id2 < 0)
+        return;
+    cmd = (struct desk_command){ DESK_CMD_SPEED_MS, action.widget_id2, action.ms2 };
+    if (desk_try_send(console, &cmd, text, sizeof text) == 0)
+        fprintf(stderr, "speed: sent %s at %lld\n", text, (long long)now);
 }

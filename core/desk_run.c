@@ -19,7 +19,7 @@ void desk_run(struct desk_app *app, const struct desk_platform *p) {
         int64_t iteration_at = loop_trace(NULL, 0);
         int64_t phase_at = iteration_at;
         struct pollfd fds[2];
-        int count = qlc_session_pollfds(app->session, fds, 2);
+        int count = app->master.pollfds(app->master.ctx, fds, 2);
         p->wait(p->ctx, fds, count, app->no_wait ? 0 : 100);
         phase_at = loop_trace("poll", phase_at);
         int64_t now = p->now(p->ctx);
@@ -31,7 +31,7 @@ void desk_run(struct desk_app *app, const struct desk_platform *p) {
         desk_take_touches(app, p, now);
         // A toggle held in the spacing queue since an earlier turn, whose
         // slot has now come.
-        desk_toggle_drain(app->session, &app->toggles, now);
+        desk_toggle_drain(&app->master, &app->toggles, now);
         phase_at = loop_trace("touch-input", phase_at);
         p->service(p->ctx, app, now);
         phase_at = loop_trace("services", phase_at);

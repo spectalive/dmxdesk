@@ -8,9 +8,9 @@ void desk_take_touches(struct desk_app *app, const struct desk_platform *p, int6
     struct touch_event events[32];
     int n = p->touches(p->ctx, events, 32);
     if (n < 0) {
-        desk_release_holds(&app->hold, &app->model, app->session, app->hold_owner, now);
+        desk_release_holds(&app->hold, &app->model, &app->master, app->hold_owner, now);
         // The final release must reach the socket before the desk exits.
-        qlc_session_step(app->session, now);
+        app->master.step(app->master.ctx, now);
         desk_cancel_all(&app->model);
         desk_speed_touch_cancel(&app->speed);
         desk_setup_touch_cancel(&app->setup);

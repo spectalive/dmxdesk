@@ -9,11 +9,11 @@
 
 void desk_take_snapshot(struct desk_app *app, int64_t now) {
     struct vc_doc fresh;
-    if (!qlc_session_take_snapshot(app->session, &fresh))
+    if (!app->master.take_snapshot(app->master.ctx, &fresh))
         return;
     vc_free(&app->console);
     app->console = fresh;
-    desk_release_holds(&app->hold, &app->model, app->session, app->hold_owner, now);
+    desk_release_holds(&app->hold, &app->model, &app->master, app->hold_owner, now);
     int enabled = desk_rebuild_model(&app->model, &app->map, &app->console, &app->layout);
     desk_build_holds(&app->hold, &app->model, app->hold_owner);
     if (showmap_mismatch(&app->map, &app->console))

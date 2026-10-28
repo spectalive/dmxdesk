@@ -1,4 +1,4 @@
-// One gesture, one frame. A toggle is queued so two struck in the same engine
+// One gesture, one command. A toggle is queued so two struck in the same engine
 // tick cannot both land before either one's effect is read back (2026-09-26:
 // AUTO plus a colour pick of the same solo frame left the pick's colour
 // stopped with RGB at 0 while AUTO ran); stop-all and the master go at once.
@@ -9,12 +9,12 @@
 
 #include "desk_model.h"
 #include "desk_toggle_queue.h"
-#include "qlc_session.h"
+#include "desk_console.h"
 #include "showmap.h"
 
 #include <stdint.h>
 
-void desk_send_action(struct qlc_session *session, struct desk_toggle_queue *toggles,
+void desk_send_action(const struct desk_console *console, struct desk_toggle_queue *toggles,
                       struct desk_model *model, const struct show_map *map,
                       struct desk_action action, int64_t now);
 

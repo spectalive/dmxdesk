@@ -1,5 +1,5 @@
 // Pure hold-to-fire model. The caller supplies nonnegative monotonic milliseconds
-// and sends each returned action once with qlc_encode_flash. No action is {-1, 0}.
+// and sends each returned action once as a flash command. No action is {-1, 0}.
 #ifndef DESK_HOLD_H
 #define DESK_HOLD_H
 

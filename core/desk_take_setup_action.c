@@ -21,7 +21,7 @@ void desk_take_setup_action(struct desk_app *app, const struct desk_platform *p,
         } else {
             app->setup.save_note[0] = '\0';
         }
-        qlc_session_set_host(app->session, app->conf.master, app->conf.port);
+        app->master.set_host(app->master.ctx, app->conf.master, app->conf.port);
         desk_setup_set_master(&app->setup, app->conf.master, app->conf.port, 1);
         fprintf(stderr, "desk: master %s:%d\n", app->conf.master, app->conf.port);
         break;

@@ -21,9 +21,9 @@ struct desk_platform {
     int64_t (*now)(void *ctx);
     // 1 once the desk was asked to stop from outside: a signal.
     int (*stopping)(void *ctx);
-    // Sleeps until a device or one of the session's sockets is ready, at
+    // Sleeps until a device or one of the master's sockets is ready, at
     // most timeout_ms; the readiness it saw answers the next reads.
-    void (*wait)(void *ctx, const struct pollfd *session, int count, int timeout_ms);
+    void (*wait)(void *ctx, const struct pollfd *master, int count, int timeout_ms);
     // 1 when the power key was pressed since the last wait.
     int (*power_key)(void *ctx);
     // Up to cap touches in screen pixels, 0 when none, -1 once the source
@@ -39,7 +39,7 @@ struct desk_platform {
     // scan, join, find, the backlight. CLOSE and SET_MASTER are the desk's.
     void (*setup_action)(void *ctx, struct desk_app *app, const struct setup_action *act,
                          int64_t now);
-    // Once per turn, before the session: the services' own progress, which
+    // Once per turn, before the master is stepped: the services' own progress, which
     // lands on the settings surface.
     void (*service)(void *ctx, struct desk_app *app, int64_t now);
     // The bar's facts, read at most once a second; the platform also keeps

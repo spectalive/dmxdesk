@@ -1,4 +1,4 @@
-// The session's turn: its sockets, a fresh console, the master's pushes,
+// The master's turn: its sockets, a fresh console, the master's pushes,
 // the link on the banner and the speed model's clock.
 #ifndef DESK_TICK_SESSION_H
 #define DESK_TICK_SESSION_H

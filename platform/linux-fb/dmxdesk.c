@@ -53,6 +53,7 @@
 #include "linux_desk_wait.h"
 #include "loop_trace.h"
 #include "master_find.h"
+#include "qlc_console.h"
 #include "touch_flip.h"
 
 #define VC_LIMIT (1024 * 1024)
@@ -225,9 +226,10 @@ int main(int argc, char **argv) {
     };
     snprintf(cfg.host, sizeof cfg.host, "%s", app.conf.master);
     cfg.port = app.conf.port;
-    app.session = qlc_session_new(&cfg);
-    if (!app.session)
+    struct qlc_session *session = qlc_session_new(&cfg);
+    if (!session)
         return 1;
+    app.master = qlc_console(session);
 
     // The settings surface and what it drives: the backlight, the
     // supplicant, the join, the finder. Each is optional; the card says so.
@@ -280,7 +282,7 @@ int main(int argc, char **argv) {
     app.no_wait = desk.force_flip || app.fake_drag;
     desk.last_report_ms = linux_desk_now(&desk);
     desk.snapshot_pending = 1;
-    app.last_link = QLC_DOWN;
+    app.last_link = DESK_CONSOLE_DOWN;
     desk_toggle_queue_init(&app.toggles);
 
     struct desk_platform platform = {
@@ -306,7 +308,7 @@ int main(int argc, char **argv) {
         close(desk.touch_fd);
     if (desk.power_fd >= 0)
         close(desk.power_fd);
-    qlc_session_free(app.session);
+    qlc_session_free(session);
     wifi_join_free(&desk.join);
     if (desk.wpa) {
         int64_t detach_at = loop_trace(NULL, 0);

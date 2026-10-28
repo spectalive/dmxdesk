@@ -1,6 +1,6 @@
 // Everything the desk knows between two turns of its loop: the show, the
 // console it was checked against, the models behind the surface, who owns
-// which finger, the settings surface and the session to the master. One
+// which finger, the settings surface and the console it drives. One
 // instance per desk; desk_run turns it, a platform fills its devices in.
 #ifndef DESK_APP_H
 #define DESK_APP_H
@@ -9,6 +9,7 @@
 
 #include "canvas.h"
 #include "desk_conf.h"
+#include "desk_console.h"
 #include "desk_fonts.h"
 #include "desk_hold.h"
 #include "desk_input.h"
@@ -18,7 +19,6 @@
 #include "desk_setup.h"
 #include "desk_speed.h"
 #include "desk_toggle_queue.h"
-#include "qlc_session.h"
 #include "showmap.h"
 #include "status.h"
 #include "touch_event.h"
@@ -36,7 +36,7 @@ struct desk_app {
     struct desk_lock lock;
     struct desk_setup setup;
     struct desk_toggle_queue toggles;
-    struct qlc_session *session;
+    struct desk_console master;         // the lighting console the desk drives
     struct desk_conf conf;
     const char *conf_path;              // where SET_MASTER saves the master
     struct desk_fonts fonts;
@@ -49,8 +49,8 @@ struct desk_app {
     int last_page;
     int bar_ready;      // the bar's facts reach the model on the next status tick
     int64_t last_status_ms;
-    enum qlc_link link;
-    enum qlc_link last_link;
+    enum desk_console_link link;
+    enum desk_console_link last_link;
     char last_reason[96];
     int last_rtt_logged;
 

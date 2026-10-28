@@ -10,7 +10,7 @@ void desk_take_power_key(struct desk_app *app, const struct desk_platform *p, in
     desk_speed_touch_cancel(&app->speed);
     desk_setup_touch_cancel(&app->setup);
     desk_input_cancel_all(&app->input);
-    desk_release_holds(&app->hold, &app->model, app->session, app->hold_owner, now);
+    desk_release_holds(&app->hold, &app->model, &app->master, app->hold_owner, now);
     app->gear_slot = app->setup_slot = app->speed_slot = -1;
     if (app->setup.open) {
         desk_setup_close(&app->setup);

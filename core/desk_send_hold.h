@@ -6,11 +6,11 @@
 #define DESK_SEND_HOLD_H
 
 #include "desk_hold.h"
-#include "qlc_session.h"
+#include "desk_console.h"
 
 #include <stdint.h>
 
-void desk_send_hold(struct desk_hold *hold, struct qlc_session *session, struct hold_action ha,
+void desk_send_hold(struct desk_hold *hold, const struct desk_console *console, struct hold_action ha,
                     int64_t now);
 
 #endif

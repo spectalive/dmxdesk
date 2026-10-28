@@ -29,7 +29,7 @@ void desk_touch_content(struct desk_app *app, const struct desk_platform *p,
             // target while this one rests on the card.
             if (app->speed.capture != SPEED_T_NONE)
                 app->speed_slot = slot;
-            desk_send_speed(app->session, sa, now);
+            desk_send_speed(&app->master, sa, now);
             return;
         }
         break;
@@ -43,5 +43,5 @@ void desk_touch_content(struct desk_app *app, const struct desk_platform *p,
         desk_touch_cancel(model, slot);
         break;
     }
-    desk_send_action(app->session, &app->toggles, model, &app->map, action, now);
+    desk_send_action(&app->master, &app->toggles, model, &app->map, action, now);
 }

@@ -4,10 +4,10 @@
 #define DESK_TOGGLE_DRAIN_H
 
 #include "desk_toggle_queue.h"
-#include "qlc_session.h"
+#include "desk_console.h"
 
 #include <stdint.h>
 
-void desk_toggle_drain(struct qlc_session *session, struct desk_toggle_queue *toggles, int64_t now);
+void desk_toggle_drain(const struct desk_console *console, struct desk_toggle_queue *toggles, int64_t now);
 
 #endif

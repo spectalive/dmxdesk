@@ -4,8 +4,8 @@
 #define DESK_LINK_OF_H
 
 #include "desk_model.h"
-#include "qlc_session.h"
+#include "desk_console_link.h"
 
-enum desk_link desk_link_of(enum qlc_link link, int have_master);
+enum desk_link desk_link_of(enum desk_console_link link, int have_master);
 
 #endif

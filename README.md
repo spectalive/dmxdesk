@@ -70,6 +70,17 @@ opens the devices and calls `desk_run`; a second backend fills its own table
 and reuses the loop unchanged. `tests/dmx-desk/desk_run_test.c` drives the
 loop through a scripted platform with no Linux under it.
 
+The console the desk drives sits behind a second table, `struct desk_console`
+(`core/desk_console.h`). The desk sends it commands in its own words
+(`core/desk_command.h`: toggle, stop-all, flash, function on or off, grand
+master, speed dial time and multiplier) and reads back events
+(`core/desk_event.h`: a function's state, the grand master, a speed dial's
+echo). `core/qlc_console.c` is the QLC+ adapter: it encodes each command as a
+web-access frame, decodes the master's pushes and steps the session. The
+snapshot the desk builds its model from is still QLC+'s virtual console
+document, so an adapter for another console describes its surface in that
+shape for now.
+
 ## Building
 
 The desk needs a C99 compiler, libdrm, cJSON 1.7.19 and stb_truetype. Both

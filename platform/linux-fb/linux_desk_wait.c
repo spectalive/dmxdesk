@@ -5,7 +5,7 @@
 #include "linux_desk.h"
 #include "pollfd_watch.h"
 
-void linux_desk_wait(void *ctx, const struct pollfd *session, int count, int timeout_ms) {
+void linux_desk_wait(void *ctx, const struct pollfd *master, int count, int timeout_ms) {
     struct linux_desk *d = ctx;
     struct pollfd fds[8];
     int n = 0, touch_slot = -1, power_slot = -1;
@@ -27,7 +27,7 @@ void linux_desk_wait(void *ctx, const struct pollfd *session, int count, int tim
         pollfd_watch(fds, &n, wpa_ctrl_request_fd(d->wpa));
     }
     for (int i = 0; i < count && i < 2; i++)
-        fds[n++] = session[i];
+        fds[n++] = master[i];
     poll(fds, (nfds_t)n, timeout_ms);
     d->touch_ready = touch_slot >= 0 && (fds[touch_slot].revents & POLLIN);
     d->power_ready = power_slot >= 0 && (fds[power_slot].revents & POLLIN);
