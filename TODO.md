@@ -22,7 +22,7 @@ the tablet. Items here are about this repository on its own.
 
 ## Core
 
-- [ ] **Have the show generator map the Virtual Console to OSC.** On 2026-10-28 `tools/qlc-osc-surface` began writing the desk's OSC surface file from QLC+'s `/vc.json`, together with the table of external inputs QLC+ must have (`--channels`: widget, input id, CRC-16 channel, path). The workspace side, an OSC input and feedback patch on universe 1 and those 518 widget inputs plus 18 dial multiplier inputs for Vibra, was done in the trial by patching a copy of the `.qxw` in a scratch script, which is not in any repository. Next: teach spectalive/qlctool to emit the OSC inputs from the same rule (path `<prefix>/<widget id>`, channel = QLC+'s `Utils::getChecksum` of it, dial multipliers on inputs 4 and 6-13), so an OSC-driven show is generated like the others. Also, the burst holds have no widget to press over OSC: decide whether the generator gives each burst function a button.
+- [ ] **Decide how the desk's burst holds reach QLC+ over OSC.** Since spectalive/qlctool v0.2.6 (2026-10-28) a show generated with `[controllers] osc = "<prefix>"` binds every button, slider and speed dial to `<prefix>/<widget id>`, but the burst holds are functions with no widget, so the OSC adapter has nothing to press for them. Next: decide whether the generator gives each burst function a button (on a hidden page they would ignore external input, `VCPage::inputValueChanged`) or the OSC surface leaves bursts out.
 
 ## Design
 

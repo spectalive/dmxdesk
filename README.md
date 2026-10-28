@@ -140,8 +140,14 @@ QLC+'s OSC plugin computes from the path, and `--channels` checks it
 against a mapping QLC+ accepted. Input 0 is a button's press, a fader's
 level or a dial's wheel; a dial's multipliers are its inputs 4 and 6-13.
 Vibra has 518 such inputs plus 18 multiplier buttons, too many to enter by
-hand. The 2026-10-28 trial patched a copy of the `.qxw`, and that belongs
-in the show generator (see `TODO.md`).
+hand, so the show generator writes them: spectalive/qlctool v0.2.6 and
+later, given `[controllers] osc = "/vibra"` in the show description, adds
+an OSC input universe after the show's own and binds every widget by this
+same rule. Beside Vibra's one DMX universe that is the second universe,
+UDP 7701, with feedback to port 9001 by default; pass `--port 7701
+--osc-listen 9001`. The generator leaves feedback out, because its
+address is the desk's on the night: add the feedback patch on the same
+line in QLC+'s Inputs/Outputs tab.
 
 Three limits remain. The hidden-page rule takes the frame pages that were
 showing when `/vc.json` was served, so take it with the operator's usual
