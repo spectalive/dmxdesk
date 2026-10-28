@@ -286,3 +286,6 @@ core/osc_dial_ms_of.c
 core/osc_dial_fraction.c
 core/osc_factor_press_find.c
 core/osc_command_reported.c
+core/desk_luminance.c
+core/desk_mark_dark.c
+core/desk_srgb_linear.c

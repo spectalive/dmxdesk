@@ -10,19 +10,19 @@
 #include <string.h>
 
 #define RIG_COLUMNS 6
-// The swatch slots start under the heading and button and keep a fixed
-// height, leaving the panel's spare room below the grid.
-#define RIG_TOP 61
-#define RIG_SLOT_H 65
+// The swatch slots start under the heading row, which the button shares,
+// and fill the panel down to its padding.
+#define RIG_TOP 52
+#define RIG_SLOT_H 71
 
 int desk_show_rig(const struct show_map *map, int page, int x, int w, struct desk_layout *out) {
     if (desk_show_panel(out, page, x, DESK_RIG_Y, w, DESK_RIG_H, "COLOR DEL RIG", -1,
                         DESK_PANEL_NAMES_RUNNING) != 0)
         return -1;
-    // Narrow, with its bolt: at 154 px wide and no mark it outweighed the
-    // swatches it modifies (owner, 2026-10-28). It keeps the 44 px finger height.
-    if (desk_show_place(out, map->count + 4, page, x + w - 144, DESK_RIG_Y + 12,
-                        132, 44, TILE_COMPACT) != 0)
+    // On the heading row, one line high, with its bolt: at 44 px tall it took
+    // a row of room from the swatches it modifies (owner, 2026-10-28).
+    if (desk_show_place(out, map->count + 4, page, x + w - DESK_PANEL_PAD - 168,
+                        DESK_RIG_Y + DESK_PANEL_PAD, 168, 32, TILE_COMPACT) != 0)
         return -1;
     int x0 = x + DESK_PANEL_PAD;
     int inner_w = w - 2 * DESK_PANEL_PAD;

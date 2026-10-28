@@ -8,6 +8,7 @@
 #include <cjson/cJSON.h>
 
 #include "desk_view.h"
+#include "desk_mark_dark.h"
 #include "desk_room_summary.h"
 #include "desk_pager_bank_caption.h"
 #include "desk_trajectory_of.h"
@@ -138,6 +139,8 @@ char *desk_view_snapshot(const struct desk_model *model,
             snprintf(color, sizeof color, "#%06x", c->swatch[j] & 0xffffffu);
             cJSON_AddItemToArray(swatches, cJSON_CreateString(color));
         }
+        // The Qt desk draws its marks on the swatch with the framebuffer's choice.
+        cJSON_AddBoolToObject(control, "markDark", c->swatches && desk_mark_dark(c->swatch[0]));
         cJSON_AddItemToArray(controls, control);
     }
     cJSON *dials = cJSON_AddArrayToObject(root, "dials");

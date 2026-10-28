@@ -173,7 +173,13 @@ int main(void) {
     assert(swatches == 18 && top_row == 6 && in_panel(&l, rig) == 19);
     const struct desk_placement *shot_mode = find(&l, map.count + 4, 0);
     assert(shot_mode && shot_mode->tile == TILE_COMPACT && inside(shot_mode, rig));
-    assert(shot_mode->h >= 44 && shot_mode->y + shot_mode->h <= mini->y);
+    // The colour-hit switch shares the heading row at 32 px, about 7 mm on the
+    // tablet, so the swatches get the room (owner, 2026-10-28); the grid fills
+    // the panel down to its padding.
+    assert(shot_mode->h >= 32 && shot_mode->y + shot_mode->h <= mini->y);
+    assert(shot_mode->y + shot_mode->h <= rig->y + DESK_PANEL_TOP + DESK_GAP);
+    int grid_end = mini->y - 5 + 3 * (mini->h + 10) + 2 * DESK_GAP;
+    assert(grid_end <= rig->y + rig->h - DESK_PANEL_PAD && grid_end > rig->y + rig->h - DESK_PANEL_PAD - 3);
     const struct desk_placement *tempo = find(&l, map.count + 3, 0);
     assert(tempo && tempo->tile == TILE_TEMPO && tempo->x + tempo->w == DESK_CONTENT_X + DESK_CONTENT_W);
     assert(tempo->x == DESK_TEMPO_X && tempo->y == DESK_TEMPO_Y && tempo->h == DESK_TEMPO_H);
@@ -183,7 +189,7 @@ int main(void) {
     for (int i = 0; i < l.placements; i++)
         if (l.placement[i].page == 0)
             assert(l.placement[i].w >= (l.placement[i].tile == TILE_MINI ? 42 : 48) &&
-                   l.placement[i].h >= (l.placement[i].tile == TILE_COMPACT ? 44 : 48));
+                   l.placement[i].h >= (l.placement[i].tile == TILE_COMPACT ? 32 : 48));
     assert(strcmp(l.title[0], "SHOW") == 0 && l.banks[0] == 1);
     // color-beam vanished from LIVE. The new colores-completos hook on
     // COLOR retains the colour-toggle role, as a cue beside the other hooks.

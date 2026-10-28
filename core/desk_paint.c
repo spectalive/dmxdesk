@@ -7,6 +7,7 @@
 #include "desk_caption.h"
 #include "desk_colour_dim.h"
 #include "desk_layout.h"
+#include "desk_mark_dark.h"
 #include "desk_master_track.h"
 #include "desk_master_metrics.h"
 #include "desk_view.h"
@@ -398,11 +399,9 @@ static void paint_mini(struct canvas *c, const struct desk_control *ctl,
     desk_paint_keyline(c, r.x + inset, r.y + inset, r.w - 2 * inset, r.h - 2 * inset, 8, colour, line);
     if (one_shot) {
         // The bolt on the swatch itself, centred and with no plate (owner,
-        // 2026-10-28); dark on a light colour, where white would vanish.
-        int luma = (int)((colour >> 16 & 0xFF) * 299 + (colour >> 8 & 0xFF) * 587 +
-                         (colour & 0xFF) * 114) / 1000;
+        // 2026-10-28); dark wherever it contrasts more than white.
         icon_paint(c, ICON_BOLT, r.x + (r.w - MARK) / 2, r.y + (r.h - MARK) / 2,
-                   luma > 150 ? DESK_GLASS : DESK_INK);
+                   desk_mark_dark(colour) ? DESK_GLASS : DESK_INK);
     }
     if (on) {
         int badge_x = r.x + 5, badge_y = r.y + r.h - 29;

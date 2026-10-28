@@ -1,4 +1,4 @@
-// SOURCES: desk_view_snapshot.c keyboard.c desk_view_pager.c desk_pager_label.c desk_pager_bank_caption.c desk_pager_caption.c canvas.c canvas_blend.c font.c desk_trajectory_of.c desk_room_summary.c desk_rig_name.c speed_factor.c
+// SOURCES: desk_view_snapshot.c keyboard.c desk_view_pager.c desk_pager_label.c desk_pager_bank_caption.c desk_pager_caption.c canvas.c canvas_blend.c font.c desk_trajectory_of.c desk_room_summary.c desk_rig_name.c speed_factor.c desk_mark_dark.c desk_luminance.c desk_srgb_linear.c
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>

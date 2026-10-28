@@ -196,13 +196,8 @@ Rectangle {
         radius: 7; color: tile.swatches.length ? tile.swatches[0] : "transparent"
     }
     // Hits on: the bolt sits on the swatch itself, centred, with no plate;
-    // dark on a light colour, where the white mark would vanish (2026-10-28).
-    readonly property bool lightSwatch: {
-        if (!tile.swatches.length)
-            return false
-        const c = Qt.color(tile.swatches[0])
-        return 0.299 * c.r + 0.587 * c.g + 0.114 * c.b > 150 / 255
-    }
+    // dark wherever the core finds it contrasts more than white (2026-10-28).
+    readonly property bool lightSwatch: !!control.markDark
     DeskIcon {
         visible: tile.mini && tile.colorOneShot && !tile.lightSwatch
         anchors.centerIn: parent
