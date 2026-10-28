@@ -10,19 +10,22 @@
 #include <string.h>
 
 #define RIG_COLUMNS 6
-// The swatch slots start under the heading row, which the button shares,
+// The swatch slots start under the heading row, which the switch shares,
 // and fill the panel down to its padding.
-#define RIG_TOP 52
-#define RIG_SLOT_H 71
+#define RIG_TOP 48
+#define RIG_SLOT_H 72
+#define RIG_SWITCH_W 36
+#define RIG_SWITCH_H 28
 
 int desk_show_rig(const struct show_map *map, int page, int x, int w, struct desk_layout *out) {
     if (desk_show_panel(out, page, x, DESK_RIG_Y, w, DESK_RIG_H, "COLOR DEL RIG", -1,
                         DESK_PANEL_NAMES_RUNNING) != 0)
         return -1;
-    // On the heading row, one line high, with its bolt: at 44 px tall it took
-    // a row of room from the swatches it modifies (owner, 2026-10-28).
-    if (desk_show_place(out, map->count + 4, page, x + w - DESK_PANEL_PAD - 168,
-                        DESK_RIG_Y + DESK_PANEL_PAD, 168, 32, TILE_COMPACT) != 0)
+    // The bolt alone on the heading row; the heading says GOLPES DE COLOR
+    // while it is on. Any words on the switch took room from the swatches it
+    // modifies (owner, 2026-10-28).
+    if (desk_show_place(out, map->count + 4, page, x + w - DESK_PANEL_PAD - RIG_SWITCH_W,
+                        DESK_RIG_Y + DESK_PANEL_PAD, RIG_SWITCH_W, RIG_SWITCH_H, TILE_ICON) != 0)
         return -1;
     int x0 = x + DESK_PANEL_PAD;
     int inner_w = w - 2 * DESK_PANEL_PAD;

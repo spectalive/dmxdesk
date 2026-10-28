@@ -1,4 +1,4 @@
-// SOURCES: desk_speed.c desk_speed_paint.c desk_speed_tempo_step_rect.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_room_status.c desk_room_summary.c desk_paint_text_at.c desk_speed_target_rect.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_paint_hold.c desk_paint_selected.c desk_paint_selected_mark.c icon_paint_mid.c desk_paint_room_picture.c icon_paint_hero.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c desk_mark_dark.c desk_luminance.c desk_srgb_linear.c
+// SOURCES: desk_speed.c desk_speed_paint.c desk_speed_tempo_step_rect.c desk_tap.c speed_factor.c desk_model.c desk_master_level_at.c desk_paint.c desk_master_track.c desk_pager_caption.c desk_pager_bank_caption.c icon.c icon_glyph.c desk_caption.c desk_view.c desk_view_pager.c desk_pager_label.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c vcjson.c canvas.c canvas_blend.c font.c desk_fonts.c desk_paint_keyline.c desk_paint_text_centred.c desk_paint_tabs.c desk_paint_families.c desk_tab_page.c desk_tab_title.c desk_view_family.c desk_family_icon.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_text_upper.c desk_colour_dim.c desk_panel_holds.c desk_panel_running.c desk_rig_name.c desk_paint_room.c desk_paint_room_status.c desk_room_summary.c desk_paint_text_at.c desk_speed_target_rect.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_paint_number.c desk_paint_trajectory.c desk_paint_tile_base.c icon_paint_large.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_paint_hold.c desk_paint_selected.c desk_paint_selected_mark.c icon_paint_mid.c desk_paint_room_picture.c icon_paint_hero.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c desk_mark_dark.c desk_luminance.c desk_srgb_linear.c desk_panel_title.c
 // The desk, built from the generated Vibra map against the real console
 // document, pressed once, and painted. Writes $TEST_OUT/desk.ppm so the screen can be
 // looked at on a laptop before it reaches the tablet, and one render per tab:
@@ -14,6 +14,8 @@
 #include "desk_layout_resolve.h"
 #include "desk_model.h"
 #include "desk_paint.h"
+#include "desk_panel_running.h"
+#include "desk_panel_title.h"
 #include "desk_speed.h"
 #include "desk_speed_paint.h"
 #include "desk_tab.h"
@@ -202,7 +204,19 @@ int main(void) {
     assert(ttw >= 48 && tth >= 48 && ttx + ttw <= tempo->x + tempo->w && tty + tth <= tempo->y + tempo->h);
     assert(canvas.px[(tty + 4) * canvas.w + ttx + ttw / 2] == DESK_RAISED);
     assert(canvas.px[(tempo->y + 4) * canvas.w + tempo->x + tempo->w / 2] == DESK_PANEL);
+    // Hits on, as the switch sets them: COLOR DEL RIG takes the mode's name,
+    // the switch being only its bolt (owner, 2026-10-28).
+    const struct desk_heading *rig_heading = NULL;
+    for (int i = 0; i < model.layout.headings; i++)
+        if (model.layout.heading[i].page == 0 && model.layout.heading[i].kind == DESK_PANEL_NAMES_RUNNING)
+            rig_heading = &model.layout.heading[i];
+    assert(rig_heading && strcmp(desk_panel_title(&model, rig_heading), "COLOR DEL RIG") == 0);
+    for (int i = 0; i < model.count; i++)
+        if (model.control[i].kind == DESK_COLOR_MODE)
+            model.control[i].state = DESK_ON;
     model.color_one_shot = 1;
+    assert(strcmp(desk_panel_title(&model, rig_heading), "GOLPES DE COLOR") == 0);
+    assert(strcmp(desk_panel_running(&model, rig_heading)->label, "Rig Rojo Fuego") == 0);
     desk_paint(&canvas, &model, &fonts);
     desk_speed_paint_tempo(&canvas, &speed, 0, &fonts, tempo->x, tempo->y, tempo->w, tempo->h, 0);
     snprintf(path, sizeof path, "%s/desk-colour-hits.ppm", out ? out : "/tmp");

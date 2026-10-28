@@ -289,3 +289,4 @@ core/osc_command_reported.c
 core/desk_luminance.c
 core/desk_mark_dark.c
 core/desk_srgb_linear.c
+core/desk_panel_title.c

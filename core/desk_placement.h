@@ -20,6 +20,7 @@ enum desk_tile {
     TILE_TEMPO,     // the TEMPO SHOW panel: the show dial's BPM and a tap target
     TILE_MASTER,    // the fader in the right column
     TILE_PANIC,     // the stop-all under it
+    TILE_ICON,      // a switch that is its mark alone, no words
 };
 
 struct desk_placement {

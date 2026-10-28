@@ -8,7 +8,8 @@ const struct desk_control *desk_panel_running(const struct desk_model *m, const 
         if (!desk_panel_holds(h, p) || p->control < 0 || p->control >= m->count)
             continue;
         const struct desk_control *c = &m->control[p->control];
-        if (c->enabled && c->state == DESK_ON)
+        // A mode switch names the panel itself (desk_panel_title), not what runs.
+        if (c->enabled && c->state == DESK_ON && c->kind != DESK_COLOR_MODE)
             return c;
     }
     return NULL;

@@ -22,6 +22,7 @@
 #include "desk_paint_tabs.h"
 #include "desk_paint_trajectory.h"
 #include "desk_panel_running.h"
+#include "desk_panel_title.h"
 #include "desk_rig_name.h"
 #include "desk_tab.h"
 #include "desk_text_upper.h"
@@ -449,6 +450,24 @@ static void paint_compact(struct canvas *c, const struct desk_control *ctl,
     pending_mark(c, ctl, r);
 }
 
+// A switch that is its mark alone, centred; lit in the accent while on.
+static void paint_icon_switch(struct canvas *c, const struct desk_control *ctl,
+                              const struct desk_placement *p, enum desk_link link) {
+    struct rect r = of(p);
+    int on = ctl->state == DESK_ON && ctl->enabled;
+    uint32_t fill = tile_fill(ctl);
+    tile_frame(c, r, DESK_RADIUS, ctl, fill);
+    if (ctl->pressed)
+        press_outline(c, r, fill);
+    uint32_t ink = on ? DESK_ACCENT_INK : DESK_INK;
+    if (!ctl->enabled || link != DESK_LINK_READY)
+        ink = DESK_MUTED;
+    int mark = icon_glyph(ctl->icon);
+    if (mark >= 0)
+        icon_paint(c, (enum icon_id)mark, r.x + (r.w - MARK) / 2, r.y + (r.h - MARK) / 2, ink);
+    pending_mark(c, ctl, r);
+}
+
 // The master: a dark track, one thumb for the confirmed level, and a readout.
 static void paint_master(struct canvas *c, const struct desk_control *ctl,
                          const struct desk_placement *p, const struct desk_fonts *fonts,
@@ -593,12 +612,13 @@ static void paint_headings(struct canvas *c, const struct desk_model *model,
                 if (ctl->section == h->section && ctl->state == DESK_ON)
                     elsewhere = ctl->label;
             }
+        const char *title = desk_panel_title(model, h);
         if (h->parts > 1 && elsewhere)
-            snprintf(text, sizeof text, "%.60s  %d/%d  \xc2\xb7  %.47s", h->text, h->part, h->parts, elsewhere);
+            snprintf(text, sizeof text, "%.60s  %d/%d  \xc2\xb7  %.47s", title, h->part, h->parts, elsewhere);
         else if (h->parts > 1)
-            snprintf(text, sizeof text, "%.60s  %d/%d", h->text, h->part, h->parts);
+            snprintf(text, sizeof text, "%.60s  %d/%d", title, h->part, h->parts);
         else
-            snprintf(text, sizeof text, "%.60s%s", h->text, any && held_only ? "  \xc2\xb7  solo en el Mac" : "");
+            snprintf(text, sizeof text, "%.60s%s", title, any && held_only ? "  \xc2\xb7  solo en el Mac" : "");
         // A panel whose tiles carry no words names the one running.
         const struct desk_control *running =
             h->kind == DESK_PANEL_NAMES_RUNNING ? desk_panel_running(model, h) : NULL;
@@ -608,7 +628,7 @@ static void paint_headings(struct canvas *c, const struct desk_model *model,
             snprintf(text, sizeof text, "%s", named);
         }
         if (h->h <= 0) {
-            int title_w = h->kind == DESK_PANEL_NAMES_RUNNING ? h->w - 166 : h->w;
+            int title_w = h->kind == DESK_PANEL_NAMES_RUNNING ? h->w - 2 * DESK_PANEL_PAD - 36 - DESK_GAP : h->w;
             desk_paint_section(c, fonts, h->x, h->y, title_w, text);
             continue;
         }
@@ -721,6 +741,7 @@ void desk_paint(struct canvas *canvas, const struct desk_model *model,
         case TILE_MINI:    paint_mini(canvas, ctl, p, model->link, model->color_one_shot); break;
         case TILE_TEMPO:   paint_tempo_frame(canvas, ctl, p, fonts); break;
         case TILE_COMPACT: paint_compact(canvas, ctl, p, fonts, model->link); break;
+        case TILE_ICON:    paint_icon_switch(canvas, ctl, p, model->link); break;
         default:           paint_cue(canvas, ctl, p, fonts, model->link); break;
         }
     }

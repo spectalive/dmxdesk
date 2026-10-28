@@ -153,8 +153,10 @@ Window {
     Text {
         visible: root.currentTab === 0
         x: 28; y: 296; width: 320
+        // While hits are on the switch is the bolt alone and the heading names the mode.
+        readonly property string title: root.view.colorOneShot ? "GOLPES DE COLOR" : "COLOR DEL RIG"
         text: root.view.activeColor && root.view.activeColor !== "—" ?
-              "COLOR DEL RIG · " + root.view.activeColor.toUpperCase() : "COLOR DEL RIG"
+              title + " · " + root.view.activeColor.toUpperCase() : title
         color: "#dbeafc"; font.pixelSize: 11; elide: Text.ElideRight
     }
     Text {

@@ -18,6 +18,7 @@ Rectangle {
     readonly property bool panic: control.tile === 14
     readonly property bool tempo: control.tile === 12
     readonly property bool trajectory: control.tile === 4
+    readonly property bool iconOnly: control.tile === 15
     readonly property bool burst: control.tile === 7 && control.role === 7 && !control.icon
     readonly property var trajectoryNames: [
         "traj_circle", "traj_circle_simultaneous", "traj_circle_alternate",
@@ -122,9 +123,9 @@ Rectangle {
     DeskIcon {
         visible: !!tile.control.icon && !tile.ambientLoop && !tile.pick && !tile.stateTile && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo && !tile.trajectory
         glyph: tile.control.icon
-        width: 24
+        width: tile.iconOnly ? 20 : 24
         height: width
-        x: 12
+        x: tile.iconOnly ? (parent.width - width) / 2 : 12
         y: (parent.height - height) / 2
     }
     IconLabelTileContent {
@@ -154,7 +155,7 @@ Rectangle {
         active: tile.selected
     }
     Text {
-        visible: !tile.ambientLoop && !tile.pick && !tile.stateTile && !tile.trajectory && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo
+        visible: !tile.ambientLoop && !tile.pick && !tile.stateTile && !tile.trajectory && !tile.hold && !tile.mini && !tile.master && !tile.panic && !tile.tempo && !tile.iconOnly
         readonly property bool centred: tile.hazeOff || !tile.control.icon
         objectName: tile.hazeOff ? "align-x-parent" : ""
         x: centred ? 0 : tile.panic ? 5 : 46
