@@ -628,7 +628,7 @@ static void paint_headings(struct canvas *c, const struct desk_model *model,
             snprintf(text, sizeof text, "%s", named);
         }
         if (h->h <= 0) {
-            int title_w = h->kind == DESK_PANEL_NAMES_RUNNING ? h->w - 2 * DESK_PANEL_PAD - 36 - DESK_GAP : h->w;
+            int title_w = h->kind == DESK_PANEL_NAMES_RUNNING ? h->w - 2 * DESK_PANEL_PAD - 28 - DESK_GAP : h->w;
             desk_paint_section(c, fonts, h->x, h->y, title_w, text);
             continue;
         }

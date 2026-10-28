@@ -14,8 +14,8 @@
 // and fill the panel down to its padding.
 #define RIG_TOP 48
 #define RIG_SLOT_H 72
-#define RIG_SWITCH_W 36
 #define RIG_SWITCH_H 28
+#define RIG_SWITCH_W RIG_SWITCH_H   // square (owner, 2026-10-29)
 
 int desk_show_rig(const struct show_map *map, int page, int x, int w, struct desk_layout *out) {
     if (desk_show_panel(out, page, x, DESK_RIG_Y, w, DESK_RIG_H, "COLOR DEL RIG", -1,

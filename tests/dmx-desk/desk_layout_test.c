@@ -173,10 +173,11 @@ int main(void) {
     assert(swatches == 18 && top_row == 6 && in_panel(&l, rig) == 19);
     const struct desk_placement *shot_mode = find(&l, map.count + 4, 0);
     assert(shot_mode && shot_mode->tile == TILE_ICON && inside(shot_mode, rig));
-    // The colour-hit switch is its bolt alone on the heading row, 36x28, so the
-    // swatches get the room (owner, 2026-10-28: 168x32 with words was still
-    // too big); the grid fills the panel down to its padding.
-    assert(shot_mode->w >= 36 && shot_mode->h >= 28 && shot_mode->y + shot_mode->h <= mini->y);
+    // The colour-hit switch is its bolt alone on the heading row, a 28 px
+    // square, so the swatches get the room (owner, 2026-10-28: 168x32 with
+    // words was still too big; 2026-10-29: square); the grid fills the panel
+    // down to its padding.
+    assert(shot_mode->w == shot_mode->h && shot_mode->h >= 28 && shot_mode->y + shot_mode->h <= mini->y);
     assert(shot_mode->y + shot_mode->h <= rig->y + DESK_PANEL_TOP + DESK_GAP);
     int grid_end = mini->y - 5 + 3 * (mini->h + 10) + 2 * DESK_GAP;
     assert(grid_end <= rig->y + rig->h - DESK_PANEL_PAD && grid_end > rig->y + rig->h - DESK_PANEL_PAD - 3);
@@ -188,7 +189,7 @@ int main(void) {
     // colours, ten in a third of the row, which keep the 42x44 finger minimum.
     for (int i = 0; i < l.placements; i++)
         if (l.placement[i].page == 0)
-            assert(l.placement[i].w >= (l.placement[i].tile == TILE_MINI ? 42 : l.placement[i].tile == TILE_ICON ? 36 : 48) &&
+            assert(l.placement[i].w >= (l.placement[i].tile == TILE_MINI ? 42 : l.placement[i].tile == TILE_ICON ? 28 : 48) &&
                    l.placement[i].h >= (l.placement[i].tile == TILE_ICON ? 28 : 48));
     assert(strcmp(l.title[0], "SHOW") == 0 && l.banks[0] == 1);
     // color-beam vanished from LIVE. The new colores-completos hook on
