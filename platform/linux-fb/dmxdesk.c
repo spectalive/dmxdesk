@@ -6,7 +6,11 @@
 //
 //   dmxdesk [--host 192.168.1.50] --map /etc/taq102/show-map.json
 //   dmxdesk --qt-pipe --map /usr/share/dmxdesk/vibra.desk.json
+//   dmxdesk --osc /etc/taq102/console.osc.json --host 192.168.1.60 --port 8000
 //
+// --osc drives a console over plain OSC instead of QLC+: the file declares
+// its controls and their addresses (core/osc_map_parse.h), and --osc-listen
+// is the port it answers to, when it answers at all.
 // The master comes from --host, else from /data/desk.conf, which the gear in
 // the status bar writes: the settings surface joins a Wi-Fi, finds a running
 // QLC+ on the subnet or takes a typed address, and sets the brightness.
@@ -54,6 +58,9 @@
 #include "linux_desk_wait.h"
 #include "loop_trace.h"
 #include "master_find.h"
+#include "osc_console.h"
+#include "osc_link_free.h"
+#include "osc_link_new.h"
 #include "qlc_console.h"
 #include "touch_flip.h"
 
@@ -86,6 +93,8 @@ int main(int argc, char **argv) {
     int view_page = 0, view_bank = 0;    // --view P,B: the first page shown, for dumps
     int start_setup = 0;                 // --setup: the surface open at start, for dumps
     int qt_pipe = 0;
+    const char *osc_path = NULL;         // --osc FILE: an OSC console instead of QLC+
+    int osc_listen = 0;
 
     if (argc == 4 && !strcmp(argv[1], "--find")) {
         char *end;
@@ -110,6 +119,8 @@ int main(int argc, char **argv) {
         else if (!strcmp(argv[i], "--power") && i + 1 < argc) power_device = argv[++i];
         else if (!strcmp(argv[i], "--setup")) start_setup = 1;
         else if (!strcmp(argv[i], "--qt-pipe")) qt_pipe = 1;
+        else if (!strcmp(argv[i], "--osc") && i + 1 < argc) osc_path = argv[++i];
+        else if (!strcmp(argv[i], "--osc-listen") && i + 1 < argc) osc_listen = atoi(argv[++i]);
         else if (!strcmp(argv[i], "--view") && i + 1 < argc) {
             if (sscanf(argv[++i], "%d,%d", &view_page, &view_bank) != 2)
                 view_page = view_bank = 0;
@@ -117,7 +128,8 @@ int main(int argc, char **argv) {
         else {
             fprintf(stderr, "usage: %s [--host H] [--port P] [--map FILE]"
                             " [--card /dev/dri/cardN] [--touch /dev/input/eventN]"
-                            " [--power /dev/input/eventN] [--view PAGE,BANK] [--setup] [--qt-pipe]\n"
+                            " [--power /dev/input/eventN] [--view PAGE,BANK] [--setup] [--qt-pipe]"
+                            " [--osc FILE [--osc-listen PORT]]\n"
                             "       %s --find ADDR/PREFIX PORT\n",
                     argv[0], argv[0]);
             return 2;
@@ -227,10 +239,22 @@ int main(int argc, char **argv) {
     };
     snprintf(cfg.host, sizeof cfg.host, "%s", app.conf.master);
     cfg.port = app.conf.port;
-    struct qlc_session *session = qlc_session_new(&cfg);
-    if (!session)
-        return 1;
-    app.master = qlc_console(session);
+    struct qlc_session *session = NULL;
+    struct osc_link *osc = NULL;
+    if (osc_path) {
+        struct osc_link_config osc_cfg = { .surface_path = osc_path, .port = app.conf.port,
+                                           .listen_port = osc_listen };
+        snprintf(osc_cfg.host, sizeof osc_cfg.host, "%s", app.conf.master);
+        osc = osc_link_new(&osc_cfg);
+        if (!osc)
+            return 1;
+        app.master = osc_console(osc);
+    } else {
+        session = qlc_session_new(&cfg);
+        if (!session)
+            return 1;
+        app.master = qlc_console(session);
+    }
 
     // The settings surface and what it drives: the backlight, the
     // supplicant, the join, the finder. Each is optional; the card says so.
@@ -309,7 +333,9 @@ int main(int argc, char **argv) {
         close(desk.touch_fd);
     if (desk.power_fd >= 0)
         close(desk.power_fd);
-    qlc_session_free(session);
+    if (session)
+        qlc_session_free(session);
+    osc_link_free(osc);
     wifi_join_free(&desk.join);
     if (desk.wpa) {
         int64_t detach_at = loop_trace(NULL, 0);

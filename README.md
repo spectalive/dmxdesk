@@ -85,6 +85,18 @@ state. The QLC+ adapter translates `/vc.json` into it (`core/qlc_surface_of.c`),
 so the map validation, the speed dials and the tiles never see QLC+'s widget
 tree, and an adapter for another console fills the same surface.
 
+`core/osc_console.c` is the second adapter: any console driven by plain OSC
+over UDP (`dmxdesk --osc FILE --host H --port P [--osc-listen PORT]`). OSC
+cannot ask a console what it has, so a surface file declares it: the same
+fields as `struct desk_surface`, plus the address each control answers to
+(format in `core/osc_map_parse.h`). A press is a button going to 1 and back to
+0; a flash or a function carries its 1 or 0, the grand master its level as
+0..1, a dial its time and multiplier as ints. A console that reports its state
+back (`"feedback": true`) is heard on the listen port; one that does not has
+the desk loop its own commands back, so it shows what it asked for.
+`tests/dmx-desk/osc_vibra_test.c` writes the Vibra console out as such a file
+and checks the desk builds the very same model and speed dials from it.
+
 ## Building
 
 The desk needs a C99 compiler, libdrm, cJSON 1.7.19 and stb_truetype. Both
