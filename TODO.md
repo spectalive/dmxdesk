@@ -18,8 +18,6 @@ the tablet. Items here are about this repository on its own.
 
 ## Packaging
 
-- [ ] **Update the taq102 package for the core/platform split before the next version bump.** On 2026-10-27 `src/` became `core/` and `platform/linux-fb/`, and the source list moved to `dmxdesk.sources` at the repository root with paths. spectalive/taq102's `br2-external/package/dmxdesk/dmxdesk.mk` still builds `$(@D)/src/` with `-I$(@D)/src`, which is right for the pinned release but fails on any tag after the split. Next: when bumping, change it to `-I$(@D)/core -I$(@D)/platform/linux-fb` and `$(addprefix $(@D)/,$(shell cat $(@D)/dmxdesk.sources))`. The Buildroot cross-compiler already links the split tree, and its stripped binary is byte-identical to the pre-split one.
-
 ## Core
 
 - [ ] **Decide how the desk's burst holds reach QLC+ over OSC.** Since spectalive/qlctool v0.2.6 (2026-10-28) a show generated with `[controllers] osc = "<prefix>"` binds every button, slider and speed dial to `<prefix>/<widget id>`, but the burst holds are functions with no widget, so the OSC adapter has nothing to press for them. Next: decide whether the generator gives each burst function a button (on a hidden page they would ignore external input, `VCPage::inputValueChanged`) or the OSC surface leaves bursts out.
