@@ -111,7 +111,7 @@ Rectangle {
 
     Rectangle {
         objectName: "selection-marker"
-        visible: opacity > 0 && !tile.pick && !tile.mini && !tile.master
+        visible: opacity > 0 && !tile.pick && !tile.mini && !tile.master && !tile.iconOnly
         opacity: tile.selected ? 1 : 0
         anchors.top: parent.top; anchors.topMargin: 5
         anchors.horizontalCenter: parent.horizontalCenter

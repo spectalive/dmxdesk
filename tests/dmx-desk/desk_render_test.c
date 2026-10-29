@@ -221,6 +221,16 @@ int main(void) {
     desk_speed_paint_tempo(&canvas, &speed, 0, &fonts, tempo->x, tempo->y, tempo->w, tempo->h, 0);
     snprintf(path, sizeof path, "%s/desk-colour-hits.ppm", out ? out : "/tmp");
     write_ppm(&canvas, path);
+    // On, the switch is the highlighted square and nothing else: the accent
+    // bar crossed the bolt on 28 px (owner, 2026-10-29).
+    const struct desk_placement *bolt = NULL;
+    for (int i = 0; i < model.layout.placements; i++)
+        if (model.layout.placement[i].page == 0 && model.layout.placement[i].tile == TILE_ICON)
+            bolt = &model.layout.placement[i];
+    assert(bolt && canvas.px[(bolt->y + bolt->h / 2) * canvas.w + bolt->x + 3] == DESK_SELECTED_FILL);
+    for (int y = bolt->y; y < bolt->y + bolt->h; y++)
+        for (int x = bolt->x; x < bolt->x + bolt->w; x++)
+            assert(canvas.px[y * canvas.w + x] != DESK_ACCENT);
 
     // The COLOR page with the pick lit, the gobos' second bank, CABEZAS: the
     // EFECTOS tab lit, the family on screen lit in the column at the left,

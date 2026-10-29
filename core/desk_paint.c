@@ -456,7 +456,12 @@ static void paint_icon_switch(struct canvas *c, const struct desk_control *ctl,
     struct rect r = of(p);
     int on = ctl->state == DESK_ON && ctl->enabled;
     uint32_t fill = tile_fill(ctl);
-    tile_frame(c, r, DESK_RADIUS, ctl, fill);
+    // On is the highlighted square and the accent bolt, with no bar: on a
+    // 28 px square the bar crossed the bolt (owner, 2026-10-29).
+    if (fill == DESK_SELECTED_FILL)
+        desk_paint_selected(c, r.x, r.y, r.w, r.h, DESK_RADIUS);
+    else
+        tile_frame(c, r, DESK_RADIUS, ctl, fill);
     if (ctl->pressed)
         press_outline(c, r, fill);
     uint32_t ink = on ? DESK_ACCENT_INK : DESK_INK;
