@@ -1,5 +1,7 @@
 platform/linux-fb/dmxdesk.c
 core/desk_model.c
+core/desk_placement_hit.c
+core/desk_placement_target.c
 core/desk_master_level_at.c
 core/desk_master_track.c
 core/desk_rebuild_model.c

@@ -1,4 +1,4 @@
-// SOURCES: desk_release_hook.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_model.c desk_master_level_at.c desk_damage_running.c desk_panel_holds.c
+// SOURCES: desk_release_hook.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_model.c desk_placement_hit.c desk_placement_target.c desk_master_level_at.c desk_damage_running.c desk_panel_holds.c
 // Which hook a pick's release presses: the one its releaseTo names for the
 // room state that is on, only when the tap turns the pick off, and only when
 // that hook is not already running (a Toggle pressed while running stops).

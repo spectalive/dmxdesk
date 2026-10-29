@@ -1,5 +1,6 @@
 #include "api.h"
 #include "desk_pager_hit.h"
+#include "desk_placement_target.h"
 #include "desk_speed_layout.h"
 #include "desk_speed_paint.h"
 #include "desk_speed_target_rect.h"
@@ -34,7 +35,9 @@ void audit_inventory(struct audit_context *a) {
         r=(struct desk_rect){p->x,p->y,p->w,p->h};
         if(c->kind==DESK_TEMPO)
             desk_speed_tempo_tap_rect(p->x,p->y,p->w,p->h,&r.x,&r.y,&r.w,&r.h);
-        audit_add(a,A_CONTROL,p->control,0,c->enabled,c->label,r,r,r);
+        // An icon switch's touch margin is the production helper's contract.
+        struct desk_rect target=c->kind==DESK_TEMPO?r:desk_placement_target(p);
+        audit_add(a,A_CONTROL,p->control,0,c->enabled,c->label,r,target,target);
         if(c->kind==DESK_TEMPO && !a->setup.open)
             for(int step=SPEED_T_BPM_DOWN;step<=SPEED_T_BPM_UP;step++) {
                 desk_speed_tempo_step_rect(p->x,p->y,p->w,p->h,(enum speed_target)step,

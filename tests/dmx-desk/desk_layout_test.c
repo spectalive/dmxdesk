@@ -1,4 +1,4 @@
-// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c
+// SOURCES: desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_placement_hit.c desk_placement_target.c
 // The resolver over the real map: every control placed, nothing overlapping,
 // nothing outside the content area, the banks as the arithmetic yields them,
 // three tabs, six EFECTOS families, and every flowed section on its panel.
@@ -9,6 +9,7 @@
 
 #include "desk_layout.h"
 #include "desk_layout_resolve.h"
+#include "desk_placement_hit.h"
 #include "desk_show_layout.h"
 #include "desk_show_slot.h"
 #include "desk_tab.h"
@@ -179,6 +180,21 @@ int main(void) {
     // down to its padding.
     assert(shot_mode->w == shot_mode->h && shot_mode->h >= 28 && shot_mode->y + shot_mode->h <= mini->y);
     assert(shot_mode->y + shot_mode->h <= rig->y + DESK_PANEL_TOP + DESK_GAP);
+    // Its touch target is a 44 px square around it, and nothing else on the
+    // view lies under that margin: a finger 8 px off the bolt still turns it.
+    assert(desk_placement_hit(shot_mode, shot_mode->x - 8, shot_mode->y - 8));
+    assert(desk_placement_hit(shot_mode, shot_mode->x + shot_mode->w + 7, shot_mode->y + shot_mode->h + 7));
+    assert(!desk_placement_hit(shot_mode, shot_mode->x - 9, shot_mode->y));
+    assert(!desk_placement_hit(shot_mode, shot_mode->x, shot_mode->y + shot_mode->h + 8));
+    for (int y = shot_mode->y - 8; y < shot_mode->y + shot_mode->h + 8; y++)
+        for (int x = shot_mode->x - 8; x < shot_mode->x + shot_mode->w + 8; x++) {
+            assert(x >= rig->x && x < rig->x + rig->w && y >= rig->y);
+            for (int i = 0; i < l.placements; i++) {
+                const struct desk_placement *p = &l.placement[i];
+                assert(p == shot_mode || p->page != shot_mode->page || p->bank != shot_mode->bank ||
+                       !desk_placement_hit(p, x, y));
+            }
+        }
     int grid_end = mini->y - 5 + 3 * (mini->h + 10) + 2 * DESK_GAP;
     assert(grid_end <= rig->y + rig->h - DESK_PANEL_PAD && grid_end > rig->y + rig->h - DESK_PANEL_PAD - 3);
     const struct desk_placement *tempo = find(&l, map.count + 3, 0);

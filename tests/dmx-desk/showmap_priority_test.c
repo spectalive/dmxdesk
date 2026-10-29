@@ -1,4 +1,4 @@
-// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c desk_model.c desk_master_level_at.c vcjson.c desk_damage_running.c desk_panel_holds.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
+// SOURCES: showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c desk_model.c desk_placement_hit.c desk_placement_target.c desk_master_level_at.c vcjson.c desk_damage_running.c desk_panel_holds.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
 // 2026-10-21: a Fiesta colour step must not reclaim the 7R wheel during a
 // white Flash, and a disconnected tablet must not leave that Flash running.
 #include <assert.h>

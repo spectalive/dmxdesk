@@ -3,6 +3,7 @@
 #include "desk_model.h"
 #include "desk_setup.h"
 #include "desk_speed.h"
+#include "desk_placement_target.h"
 #include "desk_region_mark.h"
 #include "desk_setup_inert_mask.h"
 #include "desk_speed_inert_mask.h"

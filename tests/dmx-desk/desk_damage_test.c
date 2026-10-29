@@ -1,4 +1,4 @@
-// SOURCES: desk_model.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_panel_holds.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
+// SOURCES: desk_model.c desk_placement_hit.c desk_placement_target.c desk_master_level_at.c desk_layout_resolve.c desk_show_layout.c showmap.c showmap_release_to_parse.c showmap_release_to_prune.c showmap_validate.c showmap_check_priority.c vcjson.c desk_family_icon.c icon_glyph.c desk_show_slot.c desk_show_place.c desk_show_panel.c desk_show_section.c desk_show_accent_tile.c desk_show_live_page.c desk_show_is_rig.c desk_pick_numbered.c desk_caption_number.c desk_trajectory_of.c desk_show_holds.c desk_show_haze.c desk_show_rig.c desk_damage_running.c desk_panel_holds.c desk_surface_find.c desk_surface_free.c desk_surface_is_button.c qlc_surface_kind.c qlc_surface_of.c
 // What changed is what gets painted: a push lights one tile's rectangle, a
 // view change everything, and a clip keeps a primitive inside its damage.
 #include <assert.h>
@@ -151,8 +151,10 @@ int main(void) {
     action = desk_touch_up(&m, 0, rig->x + 2, rig->y + 2);
     assert(action.kind == DESK_ACT_TOGGLE && action.widget_id == m.control[rig_ix].widget_id);
     desk_take_damage(&m, &x, &y, &w, &h);
-    desk_touch_down(&m, 0, mode->x + 2, mode->y + 2, NULL);
-    action = desk_touch_up(&m, 0, mode->x + 2, mode->y + 2);
+    // The bolt is a 28 px square; a finger landing 6 px off it, below and to
+    // its left, still turns colour hits on.
+    desk_touch_down(&m, 0, mode->x - 6, mode->y + mode->h + 5, NULL);
+    action = desk_touch_up(&m, 0, mode->x - 6, mode->y + mode->h + 5);
     assert(action.kind == DESK_ACT_NONE && m.color_one_shot && m.control[mode_ix].state == DESK_ON);
     assert(desk_take_damage(&m, &x, &y, &w, &h) == 1);
     assert(x <= rig->x && y <= rig->y && x + w >= rig->x + rig->w && y + h >= rig->y + rig->h);

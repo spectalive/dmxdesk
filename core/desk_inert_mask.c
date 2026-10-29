@@ -32,7 +32,7 @@ void desk_inert_mask(const struct desk_model *m, const struct desk_setup *s, con
         if (p->page != m->page || p->bank != m->bank || p->control < 0 || p->control >= m->count ||
             (s->open && p->x < SETUP_SHEET_W) || !m->control[p->control].enabled)
             continue;
-        struct desk_rect r = {p->x, p->y, p->w, p->h};
+        struct desk_rect r = desk_placement_target(p);
         if (m->control[p->control].kind == DESK_TEMPO) {
             desk_speed_tempo_tap_rect(p->x, p->y, p->w, p->h, &r.x, &r.y, &r.w, &r.h);
             desk_region_mark(mask, r, 0);

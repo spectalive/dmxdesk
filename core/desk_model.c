@@ -4,6 +4,7 @@
 
 #include "desk_damage_running.h"
 #include "desk_master_level_at.h"
+#include "desk_placement_hit.h"
 #include "desk_tab.h"
 
 #define NO_CAPTURE (-1)
@@ -11,11 +12,6 @@
 static struct desk_action none(void) {
     struct desk_action a = { DESK_ACT_NONE, -1, 0 };
     return a;
-}
-
-static int inside(const struct desk_placement *p, int x, int y) {
-    return p->w > 0 && p->h > 0 &&
-           x >= p->x && x < p->x + p->w && y >= p->y && y < p->y + p->h;
 }
 
 static int on_view(const struct desk_model *m, const struct desk_placement *p) {
@@ -26,7 +22,7 @@ static int on_view(const struct desk_model *m, const struct desk_placement *p) {
 static int hit(const struct desk_model *m, int x, int y) {
     for (int i = 0; i < m->layout.placements; i++) {
         const struct desk_placement *p = &m->layout.placement[i];
-        if (on_view(m, p) && inside(p, x, y))
+        if (on_view(m, p) && desk_placement_hit(p, x, y))
             return i;
     }
     return -1;
@@ -240,7 +236,7 @@ struct desk_action desk_touch_move(struct desk_model *m, int slot, int x, int y,
         // The outline follows the truth: off the button, nothing will fire.
         const struct desk_placement *pp = &m->layout.placement[m->panic_placement];
         struct desk_control *pc = &m->control[pp->control];
-        int in = inside(pp, x, y);
+        int in = desk_placement_hit(pp, x, y);
         if (pc->pressed != in) {
             pc->pressed = in;
             damage_control(m, pp->control);
@@ -264,7 +260,7 @@ struct desk_action desk_touch_move(struct desk_model *m, int slot, int x, int y,
         return none();
     }
     int was = c->pressed;
-    c->pressed = inside(p, x, y);
+    c->pressed = desk_placement_hit(p, x, y);
     if (c->pressed != was)
         damage_control(m, m->capture_index);
     return none();
@@ -274,7 +270,7 @@ struct desk_action desk_touch_up(struct desk_model *m, int slot, int x, int y) {
     if (slot == m->panic_slot && m->panic_placement >= 0) {
         const struct desk_placement *pp = &m->layout.placement[m->panic_placement];
         struct desk_control *pc = &m->control[pp->control];
-        int fired = inside(pp, x, y) && usable(m, pc);
+        int fired = desk_placement_hit(pp, x, y) && usable(m, pc);
         release_panic(m);
         m->dirty = 1;
         if (!fired)
@@ -291,7 +287,7 @@ struct desk_action desk_touch_up(struct desk_model *m, int slot, int x, int y) {
     const struct desk_placement *p = &m->layout.placement[m->capture_placement];
     int fired = (c->kind == DESK_CUE || c->kind == DESK_STOP_ALL ||
                  c->kind == DESK_HAZE_OFF || c->kind == DESK_COLOR_MODE) &&
-                inside(p, x, y) && usable(m, c);
+                desk_placement_hit(p, x, y) && usable(m, c);
     release(m);
     if (!fired)
         return none();
