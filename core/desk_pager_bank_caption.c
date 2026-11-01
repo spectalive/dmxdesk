@@ -48,19 +48,13 @@ void desk_pager_bank_caption(const struct desk_model *model, struct font *font,
 
     // Join complete headings when they fit. Otherwise name the section whose
     // tiles occupy the most area on this bank (first heading wins ties), not
-    // a small section that merely starts it. +N acknowledges the other sections.
+    // a small section that merely starts it. The other sections go unnamed:
+    // a "+1" after the name read as noise on the tablet (owner, 2026-11-01).
     // Reserve the part first: it distinguishes banks of the same section and
     // must survive even when the font fallback leaves room for no name at all.
-    char part[24] = "", suffix[48];
+    char suffix[24] = "";
     if (preferred->parts > 1)
-        snprintf(part, sizeof part, " %d/%d", preferred->part, preferred->parts);
-    if (headings > 1)
-        snprintf(suffix, sizeof suffix, "%s +%d", part, headings - 1);
-    else
-        snprintf(suffix, sizeof suffix, "%s", part);
-    if ((font ? font_width(font, suffix + (suffix[0] == ' ')) :
-                canvas_text_width(suffix + (suffix[0] == ' '), 3)) > width)
-        snprintf(suffix, sizeof suffix, "%s", part);
+        snprintf(suffix, sizeof suffix, " %d/%d", preferred->part, preferred->parts);
     int budget = width - (font ? font_width(font, suffix) : canvas_text_width(suffix, 3));
     do {
         char name[MAP_CAPTION_MAX + 4];

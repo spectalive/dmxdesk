@@ -147,10 +147,10 @@ int main(void) {
             .w = i == 2 ? 100 : 10, .h = 100, .tile = TILE_CUE };
     desk_pager_bank_caption(&model, font, 0, 0, 346, caption);
     assert(strcmp(caption, "AUTO \xc2\xb7 ELEGIR 1/2") == 0);
-    int narrow = font_width(font, "ELEGIR 1/2 +1");
+    int narrow = font_width(font, "ELEGIR 1/2 +1"); // Room for one name, not both.
     assert(narrow < font_width(font, "AUTO \xc2\xb7 ELEGIR 1/2"));
     desk_pager_bank_caption(&model, font, 0, 0, narrow, caption);
-    assert(strcmp(caption, "ELEGIR 1/2 +1") == 0);
+    assert(strcmp(caption, "ELEGIR 1/2") == 0); // No "+1" (2026-11-01).
     for (int fallback = 0; fallback <= 1; fallback++) {
         struct font *face = fallback ? NULL : font;
         desk_pager_bank_caption(&model, face, 0, 0, 64, caption);
@@ -159,7 +159,7 @@ int main(void) {
     }
     model.layout.placement[2].w = 20; // Equal total area: stable heading order.
     desk_pager_bank_caption(&model, font, 0, 0, narrow, caption);
-    assert(strcmp(caption, "AUTO +1") == 0);
+    assert(strcmp(caption, "AUTO") == 0);
     desk_pager_bank_caption(&model, font, 0, 1, 346, caption);
     assert(!caption[0]); // Headings on a different bank cannot name this one.
     strcpy(model.layout.heading[0].text, "First complete section caption");
@@ -187,7 +187,7 @@ int main(void) {
             if (strcmp(layout.title[page], "COLOR") == 0) {
                 // The expanded palette keeps ELEGIR and GOLPES readable on
                 // two banks each.
-                const char *expected[] = { "ELEGIR 1/2 +1", "ELEGIR 2/2", "GOLPES 1/2", "GOLPES 2/2" };
+                const char *expected[] = { "ELEGIR 1/2", "ELEGIR 2/2", "GOLPES 1/2", "GOLPES 2/2" };
                 assert(layout.banks[page] == 4);
                 assert(strcmp(caption, expected[bank]) == 0);
             }

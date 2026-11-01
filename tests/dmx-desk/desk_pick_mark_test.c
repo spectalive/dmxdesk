@@ -54,7 +54,7 @@ int main(void) {
                     assert(caption[0] >= '0' && caption[0] <= '9');
                     prism_numbers++;
                 } else {
-                    assert(strcmp(map.page[p].key, "pixels") == 0 && strncmp(caption, "Effect ", 7) == 0);
+                    assert(strcmp(map.page[p].key, "pixels") == 0 && strncmp(caption, "Efecto ", 7) == 0);
                     pixel_numbers++;
                 }
             }

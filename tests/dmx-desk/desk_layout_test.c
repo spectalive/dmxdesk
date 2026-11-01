@@ -373,9 +373,15 @@ int main(void) {
     assert(gobos == 17 && l.banks[4] == 2);
     assert(find(&l, control_named(&map, "1 y 3"), 5)->tile == TILE_NUMBER);
     assert(find(&l, control_named(&map, "4"), 5)->tile == TILE_NUMBER);
-    assert(find(&l, control_named(&map, "Insert Prism"), 5)->tile == TILE_SWATCH);
+    assert(find(&l, control_named(&map, "Todos"), 5)->tile == TILE_SWATCH);
     assert(find(&l, control_named(&map, "Prisma Giro Rapido"), 5)->tile == TILE_SWATCH);
-    assert(find(&l, control_named(&map, "Effect 42"), 2)->tile == TILE_NUMBER);
+    // 2026-11-01: the all-beams prism ("Insert Prism" then) led the picks and
+    // sat alone on its row; listed after the numbers it shares the spins' row.
+    assert(find(&l, control_named(&map, "Todos"), 5)->y ==
+           find(&l, control_named(&map, "Prisma Giro Rapido"), 5)->y);
+    assert(find(&l, control_named(&map, "1"), 5)->y ==
+           find(&l, control_named(&map, "2 y 4"), 5)->y);
+    assert(find(&l, control_named(&map, "Efecto 42"), 2)->tile == TILE_NUMBER);
     assert(find(&l, control_named(&map, "Paneles Manual"), 2)->tile == TILE_SWATCH);
     // CABEZAS: every pick that leads with a figure's name draws it, the rest
     // keep their glyph; six to a row, over two banks.
