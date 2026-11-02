@@ -302,6 +302,39 @@ int main(void) {
     assert(ask(c, "PING", buf, sizeof buf) == 5 && strcmp(buf, "PONG\n") == 0);
     assert(scan_event(c, buf, sizeof buf));
     assert(wpa_ctrl_event(c, buf, sizeof buf) == 0);
+    // The daemon restarting while a request is pending (2026-11-02): the
+    // caller abandons it at its deadline, the abandon's dial reaches the new
+    // daemon at once, and no later send fails, so only the abandon can tell
+    // the new daemon to send us events. LATE is never answered.
+    assert(wpa_ctrl_begin(c, "LATE") == 0);
+    kill(helper, 9);
+    waitpid(helper, NULL, 0);
+    close(k.fd);
+    unlink(k.path);
+    fake_open(&k);
+    helper = fork();
+    assert(helper >= 0);
+    if (helper == 0) {
+        alarm(30);
+        for (;;)
+            fake_service(&k, NULL);
+        _exit(0);
+    }
+    wpa_ctrl_abandon(c);
+    assert(wpa_ctrl_request_fd(c) >= 0);
+    assert(scan_event(c, buf, sizeof buf));
+    assert(wpa_ctrl_event(c, buf, sizeof buf) == 0);
+    // An abandon against a daemon that never went away attaches again and
+    // still gets one event per scan: nothing arrives on the old socket.
+    // (This fake keeps one attachment, so it cannot show the DETACH.)
+    assert(wpa_ctrl_begin(c, "LATE") == 0);
+    wpa_ctrl_abandon(c);
+    assert(scan_event(c, buf, sizeof buf));
+    for (int i = 0; i < 20; i++) {
+        struct pollfd p = { .fd = wpa_ctrl_event_fd(c), .events = POLLIN, .revents = 0 };
+        poll(&p, 1, 10);
+        assert(wpa_ctrl_event(c, buf, sizeof buf) == 0);
+    }
     wpa_ctrl_close(c);
     kill(helper, 9);
     waitpid(helper, NULL, 0);

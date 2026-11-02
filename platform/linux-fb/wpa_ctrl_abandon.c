@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "wpa_ctrl_dial.h"
 #include "wpa_ctrl_private.h"
+#include "wpa_ctrl_reattach.h"
 
 void wpa_ctrl_abandon(struct wpa_ctrl *c) {
     if (!c)
@@ -20,4 +21,8 @@ void wpa_ctrl_abandon(struct wpa_ctrl *c) {
         return;
     }
     c->fd = wpa_ctrl_dial(c->path, c->local);
+    // A request is abandoned on a timeout or a broken socket, and the daemon
+    // may have restarted behind either: a new one never heard our ATTACH.
+    if (c->fd >= 0)
+        wpa_ctrl_reattach(c);
 }
