@@ -14,8 +14,6 @@ the tablet. Items here are about this repository on its own.
 
 ## Tests
 
-- [ ] **Make the Qt pipe integration map requirement explicit.** On 2026-10-24, the installed backend did not link when the command omitted its map; adding `--map /usr/share/dmxdesk/vibra.desk.json` passed tabs, colour-hit mode, two-finger Stop All and EOF Flash release. Next: expose a map argument in `tests/qt_pipe_integration.py` and preserve redacted backend diagnostics when linking fails.
-
 ## Packaging
 
 ## Core

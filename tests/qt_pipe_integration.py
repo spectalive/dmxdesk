@@ -1,7 +1,9 @@
 """Exercise a real desk backend against a local mock master.
 
-The command and reachable host are supplied by the caller so this also works
-against the ARM binary through SSH without storing device access in this repo.
+The command, reachable host and map path (as the backend sees it) are
+supplied by the caller so this also works against the ARM binary through SSH
+without storing device access in this repo. When the desk does not link, the
+failure carries the backend's stderr with the master's address removed.
 """
 
 import argparse
@@ -10,10 +12,12 @@ import queue
 import select
 import shlex
 import subprocess
+import tempfile
 import threading
 import time
 from pathlib import Path
 
+from qt_backend_diagnostics import backend_diagnostics
 from qt_mock_handler import QtMockHandler
 from qt_mock_server import QtMockServer
 
@@ -22,6 +26,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--connect-host", required=True)
     parser.add_argument("--backend-command", required=True)
+    # The backend's default map is the device path, so a bench run without
+    # this never links and only says so on stderr.
+    parser.add_argument("--map", required=True,
+                        help="desk map as the backend sees it, e.g. show/vibra.desk.json")
     args = parser.parse_args()
     fixture = Path(__file__).parent / "dmx-desk/fixtures/vc-vibra.json"
     with QtMockServer(("0.0.0.0", 0), QtMockHandler) as server:
@@ -30,11 +38,12 @@ def main():
         threading.Thread(target=server.serve_forever, daemon=True).start()
         command = shlex.split(args.backend_command) + [
             "--qt-pipe", "--host", args.connect_host,
-            "--port", str(server.server_address[1]),
+            "--port", str(server.server_address[1]), "--map", args.map,
         ]
+        stderr = tempfile.NamedTemporaryFile(prefix="qt-pipe-backend-", suffix=".log")
         child = subprocess.Popen(
             command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL, text=True, bufsize=1,
+            stderr=stderr, text=True, bufsize=1,
         )
         try:
             deadline = time.monotonic() + 8
@@ -48,7 +57,11 @@ def main():
                     if candidate["link"] == 3:
                         view = candidate
                         break
-            assert view, "desk did not link to the mock master"
+            if not view:
+                child.kill()
+                child.wait()
+                raise AssertionError("desk did not link to the mock master; backend stderr:\n"
+                                     + backend_diagnostics(stderr.name, args.connect_host))
             for x, expected_page in ((230, 1), (80, 0)):
                 at = int(time.monotonic() * 1000)
                 child.stdin.write(f"D 0 {x} 24 {at}\nU 0 {x} 24 {at + 30}\n")
@@ -137,6 +150,7 @@ def main():
                 child.kill()
                 child.wait()
             server.shutdown()
+            stderr.close()
 
 
 if __name__ == "__main__":

@@ -6,6 +6,12 @@
 
 ## 2026
 
+### 2026-11
+
+- [x] 2026-11-02 — **Tests:** **Make the Qt pipe integration map requirement explicit.** On 2026-10-24, the installed backend did not link when the command omitted its map; adding `--map /usr/share/dmxdesk/vibra.desk.json` passed tabs, colour-hit mode, two-finger Stop All and EOF Flash release. Next: expose a map argument in `tests/qt_pipe_integration.py` and preserve redacted backend diagnostics when linking fails.
+  - Result: tests/qt_pipe_integration.py requires --map and passes it to the backend; when the desk does not link, the assertion carries the backend's last stderr lines with the connect host and IPv4 addresses replaced (tests/qt_backend_diagnostics.py).
+  - Evidence: 2026-11-02, backend built in alpine:3.22 and run through a docker wrapper against the mock master: --map show/vibra.desk.json passed linked, tabs, colour-hit, two-finger stop-all and EOF release; --map /nope.json failed with 'map: cannot open /nope.json'; no --map is an argparse error; redaction checked on a sample with an IP and a hostname.
+
 ### 2026-10
 
 - [x] 2026-10-28 — **Packaging:** **Update the taq102 package for the core/platform split before the next version bump.** On 2026-10-27 `src/` became `core/` and `platform/linux-fb/`, and the source list moved to `dmxdesk.sources` at the repository root with paths. spectalive/taq102's `br2-external/package/dmxdesk/dmxdesk.mk` still builds `$(@D)/src/` with `-I$(@D)/src`, which is right for the pinned release but fails on any tag after the split. Next: when bumping, change it to `-I$(@D)/core -I$(@D)/platform/linux-fb` and `$(addprefix $(@D)/,$(shell cat $(@D)/dmxdesk.sources))`. The Buildroot cross-compiler already links the split tree, and its stripped binary is byte-identical to the pre-split one.
