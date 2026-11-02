@@ -26,7 +26,7 @@ if(BUILD_TESTING)
     target_link_libraries(qt-desk-alignment-test PRIVATE Qt6::Gui Qt6::Quick)
     add_test(NAME qt-desk-alignment COMMAND qt-desk-alignment-test)
     set_tests_properties(qt-desk-alignment PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
-    add_executable(qt-desk-layout-test tests/DeskLayoutAuditTest.cpp
+    add_executable(qt-desk-layout-test tests/DeskLayoutAuditTest.cpp tests/scene_items.cpp
         desk_layout_audit.cpp desk_layout_audit.h
         desk_effects_layout_audit.cpp desk_effects_layout_audit.h)
     target_link_libraries(qt-desk-layout-test PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
@@ -43,7 +43,7 @@ if(BUILD_TESTING)
     add_test(NAME qt-desk-status-icons COMMAND qt-desk-status-icons-test)
     set_tests_properties(qt-desk-status-icons PROPERTIES
         ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_SCALE_FACTOR=1")
-    add_executable(qt-desk-motion-test tests/DeskMotionTest.cpp tests/advance_scene.cpp
+    add_executable(qt-desk-motion-test tests/DeskMotionTest.cpp tests/advance_scene.cpp tests/scene_items.cpp
         desk_text_audit.cpp desk_alignment_audit.cpp desk_layout_audit.cpp
         desk_effects_layout_audit.cpp desk_view_audit.cpp)
     target_link_libraries(qt-desk-motion-test PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
@@ -54,7 +54,7 @@ if(BUILD_TESTING)
     set_tests_properties(qt-desk-motion PROPERTIES
         ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_SCALE_FACTOR=1")
     add_executable(qt-desk-snapshot-reuse-test tests/DeskSnapshotReuseTest.cpp
-        tests/advance_scene.cpp tests/scene_items.cpp)
+        tests/advance_scene.cpp tests/scene_items.cpp tests/signal_counter.h)
     target_link_libraries(qt-desk-snapshot-reuse-test PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
     target_compile_definitions(qt-desk-snapshot-reuse-test PRIVATE
         DESK_TEST_FIXTURE="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/pages-directo-prisma.json"

@@ -1,6 +1,8 @@
 #include <QCoreApplication>
 #include <QEvent>
 #include <QFile>
+#include <QMetaMethod>
+#include <QMetaProperty>
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -18,11 +20,13 @@
 #include "DeskLayoutTestBridge.h"
 #include "advance_scene.h"
 #include "scene_items.h"
+#include "signal_counter.h"
 
 // 2026-11-02: on the tablet a tab switch spent 150-260 ms of CPU in the scene
 // graph's sync, because the desk destroyed and rebuilt its tiles whenever a
 // page had fewer controls than the last. Snapshots and page round trips must
-// reuse the items that are there.
+// reuse the items that are there, and a page round trip must not hand any
+// tile a control again, which re-runs all of its bindings.
 int main(int argc, char **argv) {
     QGuiApplication app(argc, argv);
     QFile fixture(QStringLiteral(DESK_TEST_FIXTURE));
@@ -43,10 +47,25 @@ int main(int argc, char **argv) {
     if (!window)
         return 3;
     advance_scene(300);
+    // Each page builds its tiles on its first visit; visit both first.
+    bridge.insert("state", prism);
+    advance_scene(300);
+    bridge.insert("state", direct);
+    advance_scene(300);
+    QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
 
     const qsizetype settled = scene_items(window->contentItem()).size();
     // Anything at all on a tick; on a page change, the tiles, which are the
     // expensive part (each holds every content variant).
+    // A tile that is handed a control again re-runs every binding it has.
+    SignalCounter rebound;
+    const QMetaMethod hit = rebound.metaObject()->method(rebound.metaObject()->indexOfSlot("hit()"));
+    for (QQuickItem *item : scene_items(window->contentItem()))
+        if (item->objectName().startsWith("layout-control:")) {
+            const QMetaProperty data = item->metaObject()->property(
+                item->metaObject()->indexOfProperty("modelData"));
+            QObject::connect(item, data.notifySignal(), &rebound, hit);
+        }
     int destroyed = 0;
     int tilesDestroyed = 0;
     for (QQuickItem *item : scene_items(window->contentItem())) {
@@ -87,9 +106,9 @@ int main(int argc, char **argv) {
     advance_scene(300);
     QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
     const qsizetype back = scene_items(window->contentItem()).size();
-    std::printf("back: tiles destroyed=%d items %lld -> %lld\n", tilesDestroyed,
-                static_cast<long long>(settled), static_cast<long long>(back));
-    if (tilesDestroyed != 0 || back != settled)
+    std::printf("back: tiles destroyed=%d rebound=%d items %lld -> %lld\n", tilesDestroyed,
+                rebound.count, static_cast<long long>(settled), static_cast<long long>(back));
+    if (tilesDestroyed != 0 || rebound.count != 0 || back != settled)
         return 6;
     std::puts("snapshot reuse: tick and page round trip kept every item");
     return 0;

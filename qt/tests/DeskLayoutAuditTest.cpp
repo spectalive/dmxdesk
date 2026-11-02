@@ -11,6 +11,7 @@
 
 #include "../desk_layout_audit.h"
 #include "DeskLayoutTestBridge.h"
+#include "scene_items.h"
 
 int main(int argc, char **argv) {
     QGuiApplication app(argc, argv);
@@ -31,7 +32,7 @@ int main(int argc, char **argv) {
             return 3;
         app.processEvents();
         QList<QQuickItem *> pads;
-        for (QQuickItem *item : window->contentItem()->childItems()) {
+        for (QQuickItem *item : scene_items(window->contentItem())) {
             if (item->objectName() == "layout-control:direct-effects")
                 pads.append(item);
         }

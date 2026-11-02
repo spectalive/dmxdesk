@@ -15,12 +15,17 @@ Window {
     readonly property var settings: view.settings || ({})
     readonly property int currentTab: pages.length > view.page ? pages[view.page].tab : 0
     readonly property bool linked: view.link === 3
+    // Read once here rather than in every tile: a primitive tells the tiles
+    // only when its value changes, where view is new on every snapshot.
+    readonly property bool colorOneShot: !!view.colorOneShot
+    readonly property string bpmText: view.dials && view.dials.length && view.dials[0].known ?
+                                      String(view.dials[0].bpm) : "--"
     readonly property var activeState: controls.find(c => c.tile === 8 && c.selected)
     readonly property bool roomActive: linked && !!view.activeMode
     property var touchSlots: ({})
-    // The most controls any page has shown; see the tile Repeater.
-    property int tilePool: 0
-    onControlsChanged: tilePool = Math.max(tilePool, controls.length)
+    // The most pages the show has had; see the tile Repeater.
+    property int pagePool: 0
+    onPagesChanged: pagePool = Math.max(pagePool, pages.length)
     // What a pooled tile holds while its page has no control for it.
     readonly property var idleTile: ({x: 0, y: 0, w: 0, h: 0, tile: 0, kind: 0, role: 0,
                                       label: "", detail: "", icon: "", reason: "", state: 0,
@@ -246,22 +251,61 @@ Window {
 
     TileGlassLayers { id: tileGlass; anchors.fill: parent }
     Repeater {
-        // Keep tile instances alive across snapshots so motion can settle,
-        // and across pages too: the pool only grows, and a page with fewer
-        // controls hides the rest, because building a tile costs the tablet
-        // far more than hiding one.
-        model: root.tilePool
-        delegate: ControlTile {
-            id: controlTile
+        // Each page keeps its own tiles, built on its first visit and then
+        // only hidden while another page shows: returning to a page finds its
+        // tiles holding the same controls, so nothing is rebuilt and no
+        // binding re-runs. Sharing one set of tiles between pages made every
+        // tab switch rebind every tile, and rebuilding them cost far more
+        // still. Snapshots keep the tiles too, so motion can settle.
+        model: root.pagePool
+        delegate: Item {
+            id: pageTiles
             required property int index
-            visible: index < root.controls.length
-            modelData: root.controls[index] || root.idleTile
-            objectName: "layout-control:" + (root.currentTab === 0 && controlTile.hold ? "direct-effects" : "page")
-            colorOneShot: !!root.view.colorOneShot
-            connected: root.linked
-            glassLayers: tileGlass
-            bpmText: root.view.dials && root.view.dials.length && root.view.dials[0].known ?
-                     String(root.view.dials[0].bpm) : "--"
+            // The controls this page last showed, and the most it has shown.
+            property var held: []
+            property int pool: 0
+            visible: index === (root.view.page ?? 0)
+            function take() {
+                if (index !== (root.view.page ?? 0))
+                    return
+                held = root.controls
+                pool = Math.max(pool, held.length)
+            }
+            Connections {
+                target: root
+                function onControlsChanged() { pageTiles.take() }
+            }
+            Component.onCompleted: take()
+            Repeater {
+                model: pageTiles.pool
+                delegate: ControlTile {
+                    id: controlTile
+                    required property int index
+                    visible: index < pageTiles.held.length
+                    // Every snapshot is a new object for every control, so
+                    // binding it straight in would re-run each binding of the
+                    // tile on each snapshot. Take it only when it changed.
+                    readonly property var incoming: pageTiles.held[index] || root.idleTile
+                    property string incomingKey: ""
+                    modelData: root.idleTile
+                    onIncomingChanged: {
+                        const key = JSON.stringify(incoming)
+                        if (key === incomingKey)
+                            return
+                        incomingKey = key
+                        modelData = incoming
+                    }
+                    Component.onCompleted: {
+                        incomingKey = JSON.stringify(incoming)
+                        modelData = incoming
+                    }
+                    objectName: "layout-control:" + (root.currentTab === 0 && controlTile.hold ? "direct-effects" : "page")
+                    colorOneShot: root.colorOneShot
+                    connected: root.linked
+                    glassLayers: tileGlass
+                    bpmText: root.bpmText
+                }
+            }
         }
     }
     Item {

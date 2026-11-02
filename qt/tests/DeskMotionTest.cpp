@@ -24,6 +24,7 @@
 #include "../desk_view_audit.h"
 #include "DeskLayoutTestBridge.h"
 #include "advance_scene.h"
+#include "scene_items.h"
 
 int main(int argc, char **argv) {
     QGuiApplication app(argc, argv);
@@ -49,7 +50,7 @@ int main(int argc, char **argv) {
         return 3;
     advance_scene(300);
     QPointer<QQuickItem> tile;
-    for (QQuickItem *item : window->contentItem()->childItems())
+    for (QQuickItem *item : scene_items(window->contentItem()))
         if (item->objectName() == "layout-control:direct-effects" && item->x() == 552 && item->y() == 184)
             tile = item;
     if (!tile)
