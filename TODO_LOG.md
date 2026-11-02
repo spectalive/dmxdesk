@@ -8,6 +8,16 @@
 
 ### 2026-11
 
+- [x] 2026-11-02 — **Event socket after a supplicant restart:** `wpa_ctrl_open` ATTACHes
+  the event socket once; a restarted wpa_supplicant forgets that, and
+  `wpa_ctrl_event` only ever sees EAGAIN, so `CTRL-EVENT-SCAN-RESULTS` never
+  queues the card's results and a join stops hearing events (found
+  2026-10-19 reviewing v0.1.4, untested). Next: in `wpa_ctrl_test`, restart
+  the fake and expect a SCAN's event; re-dial and re-ATTACH the event socket
+  when a request had to redial.
+  - Result: A request that had to dial the request socket again (a redial, or a send to a dead peer) now also dials the event socket and sends ATTACH without waiting (platform/linux-fb/wpa_ctrl_reattach.c); wpa_ctrl_event drops that ATTACH's unprefixed OK. Not covered: a daemon that restarts while a request is pending and whose abandon redials at once.
+  - Evidence: 2026-11-02: wpa_ctrl_test asks for a scan after each simulated restart and expects its results event (stale card events drained first); it fails at scan_event without the fix and passes with it 3/3. Full host suite tools/test-dmx-desk-host.sh: EXIT 0, 62 PASS, no FAIL; gcc -Wall -Wextra -Werror clean on the three changed files in alpine:3.22.
+
 - [x] 2026-11-02 — **Tests:** **Make the Qt pipe integration map requirement explicit.** On 2026-10-24, the installed backend did not link when the command omitted its map; adding `--map /usr/share/dmxdesk/vibra.desk.json` passed tabs, colour-hit mode, two-finger Stop All and EOF Flash release. Next: expose a map argument in `tests/qt_pipe_integration.py` and preserve redacted backend diagnostics when linking fails.
   - Result: tests/qt_pipe_integration.py requires --map and passes it to the backend; when the desk does not link, the assertion carries the backend's last stderr lines with the connect host and IPv4 addresses replaced (tests/qt_backend_diagnostics.py).
   - Evidence: 2026-11-02, backend built in alpine:3.22 and run through a docker wrapper against the mock master: --map show/vibra.desk.json passed linked, tabs, colour-hit, two-finger stop-all and EOF release; --map /nope.json failed with 'map: cannot open /nope.json'; no --map is an argparse error; redaction checked on a sample with an IP and a hostname.

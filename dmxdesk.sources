@@ -81,6 +81,7 @@ core/settings_store.c
 core/power_policy.c
 platform/linux-fb/wpa_ctrl_dial.c
 platform/linux-fb/wpa_ctrl_redial.c
+platform/linux-fb/wpa_ctrl_reattach.c
 platform/linux-fb/wpa_ctrl_transact.c
 platform/linux-fb/wpa_ctrl.c
 platform/linux-fb/wpa_ctrl_begin.c

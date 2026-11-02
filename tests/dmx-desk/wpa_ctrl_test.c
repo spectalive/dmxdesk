@@ -1,4 +1,4 @@
-// SOURCES: desk_wifi_request.c wpa_ctrl_dial.c wpa_ctrl_redial.c wpa_ctrl_transact.c wpa_ctrl.c wpa_ctrl_begin.c wpa_ctrl_request_fd.c wpa_ctrl_reply.c wpa_ctrl_abandon.c wpa_ctrl_request.c wpa_ctrl_event_fd.c wpa_ctrl_event.c wpa_ctrl_close.c
+// SOURCES: desk_wifi_request.c wpa_ctrl_dial.c wpa_ctrl_redial.c wpa_ctrl_reattach.c wpa_ctrl_transact.c wpa_ctrl.c wpa_ctrl_begin.c wpa_ctrl_request_fd.c wpa_ctrl_reply.c wpa_ctrl_abandon.c wpa_ctrl_request.c wpa_ctrl_event_fd.c wpa_ctrl_event.c wpa_ctrl_close.c
 // A fake wpa_supplicant on a unix datagram socket, serviced in the same
 // process helper: it answers PING and STATUS, acknowledges ATTACH, and after SCAN
 // pushes the scan-results event to whoever attached. No call may block
@@ -120,6 +120,20 @@ static int ask(struct wpa_ctrl *c, const char *cmd, char *buf, size_t cap) {
     return wpa_ctrl_request(c, cmd, buf, cap, 300);
 }
 
+// Asks for a scan and waits for its results event on the event socket: the
+// only way to see that a daemon has this client attached.
+static int scan_event(struct wpa_ctrl *c, char *buf, size_t cap) {
+    if (wpa_ctrl_request(c, "SCAN", buf, cap, 300) != 3)
+        return 0;
+    for (int i = 0; i < 100; i++) {
+        struct pollfd p = { .fd = wpa_ctrl_event_fd(c), .events = POLLIN, .revents = 0 };
+        poll(&p, 1, 10);
+        if (wpa_ctrl_event(c, buf, cap) == 1)
+            return strcmp(buf, "CTRL-EVENT-SCAN-RESULTS") == 0;
+    }
+    return 0;
+}
+
 int main(void) {
     struct fake k;
     fake_open(&k);
@@ -223,6 +237,14 @@ int main(void) {
     assert(poll(&request, 1, 300) == 1);
     assert(desk_wifi_request_step(&card, c, 4620, 0, 1, buf, sizeof buf) == DESK_WIFI_SCAN);
     assert(card.result == 1 && strcmp(buf, "OK\n") == 0);
+    // The card's scans above queued their results events; read them now, so
+    // an event after the restart can only come from the new daemon.
+    for (int i = 0; i < 20; i++) {
+        struct pollfd p = { .fd = wpa_ctrl_event_fd(c), .events = POLLIN, .revents = 0 };
+        poll(&p, 1, 10);
+        while (wpa_ctrl_event(c, buf, sizeof buf) == 1)
+            ;
+    }
     // The daemon restarting (2026-10-19): an abandon while it is gone cannot
     // redial, and the next request dials again instead of finding the
     // channel dead for the rest of the run. While it is still gone, a
@@ -251,6 +273,11 @@ int main(void) {
     assert(request.fd >= 0 && poll(&request, 1, 300) == 1);
     assert(wpa_ctrl_reply(c, buf, sizeof buf) == 1 && strcmp(buf, "PONG\n") == 0);
     assert(ask(c, "PING", buf, sizeof buf) == 5 && strcmp(buf, "PONG\n") == 0);
+    // The new daemon never saw our ATTACH (2026-10-19 review, fixed
+    // 2026-11-02): the request that redialled also dials and attaches the
+    // event socket, or a scan's results never arrive again.
+    assert(scan_event(c, buf, sizeof buf));
+    assert(wpa_ctrl_event(c, buf, sizeof buf) == 0);
     // The daemon restarting while nothing is pending (2026-10-19 review): no
     // abandon runs, so the socket is still connected to the dead peer and
     // its send fails. The begin that meets that failure redials once and
@@ -273,6 +300,8 @@ int main(void) {
     assert(request.fd >= 0 && poll(&request, 1, 300) == 1);
     assert(wpa_ctrl_reply(c, buf, sizeof buf) == 1 && strcmp(buf, "PONG\n") == 0);
     assert(ask(c, "PING", buf, sizeof buf) == 5 && strcmp(buf, "PONG\n") == 0);
+    assert(scan_event(c, buf, sizeof buf));
+    assert(wpa_ctrl_event(c, buf, sizeof buf) == 0);
     wpa_ctrl_close(c);
     kill(helper, 9);
     waitpid(helper, NULL, 0);

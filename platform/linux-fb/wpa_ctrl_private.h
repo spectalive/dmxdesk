@@ -7,6 +7,7 @@ struct wpa_ctrl {
     char path[108];
     int generation;
     int pending;
+    int attach_pending;   // an ATTACH sent by reattach, its OK not yet read
     char directory[108];
 };
 
