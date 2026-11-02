@@ -27,16 +27,16 @@ Item {
             border.width: 1
             border.color: "#626a78"
             Repeater {
-                model: content.swatches.length > 1 ? content.swatches : []
+                // A count, not the array: see Main.qml's Repeaters.
+                model: content.swatches.length > 1 ? content.swatches.length : 0
                 delegate: Rectangle {
                     id: stripe
                     required property int index
-                    required property var modelData
                     x: stripe.index * colorSquare.width / content.swatches.length
                     y: 0
                     width: (stripe.index + 1) * colorSquare.width / content.swatches.length - x
                     height: colorSquare.height
-                    color: stripe.modelData
+                    color: content.swatches[stripe.index] || "transparent"
                 }
             }
         }

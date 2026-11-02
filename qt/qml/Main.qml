@@ -18,6 +18,14 @@ Window {
     readonly property var activeState: controls.find(c => c.tile === 8 && c.selected)
     readonly property bool roomActive: linked && !!view.activeMode
     property var touchSlots: ({})
+    // The most controls any page has shown; see the tile Repeater.
+    property int tilePool: 0
+    onControlsChanged: tilePool = Math.max(tilePool, controls.length)
+    // What a pooled tile holds while its page has no control for it.
+    readonly property var idleTile: ({x: 0, y: 0, w: 0, h: 0, tile: 0, kind: 0, role: 0,
+                                      label: "", detail: "", icon: "", reason: "", state: 0,
+                                      level: 0, holdProgress: -1, enabled: false, selected: false,
+                                      pressed: false, pending: false, swatches: []})
 
     function familyIconName(id) {
         const names = ["gear","lock","lock_open","wifi_0","wifi_1","wifi_2","wifi_3",
@@ -129,22 +137,24 @@ Window {
         color: "#eef1f6"; font.family: "Inter"; font.pixelSize: 12
         verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
     }
+    // Repeaters count rather than take a fresh array: an array built in a
+    // binding is new on every snapshot, and the Repeater then destroys and
+    // recreates every delegate it holds, which the tablet's CPU feels.
     Repeater {
-        model: root.currentTab === 0 ? [
-            {label: "EFECTO", value: root.view.activeEffect || "—"},
-            {label: "HUMO", value: root.view.activeHaze || "—"},
-            {label: "COLOR", value: root.view.activeColor || "—"}
-        ] : []
+        model: root.currentTab === 0 ? 3 : 0
         delegate: Item {
+            required property int index
+            readonly property string value: [root.view.activeEffect, root.view.activeHaze,
+                                             root.view.activeColor][index] || "—"
             x: 294; y: 180 + index * 25; width: 215; height: 24
             Text {
                 x: 0; y: 0; width: 57; height: parent.height
-                text: modelData.label; color: "#e6f2ff"; font.pixelSize: 11
+                text: ["EFECTO", "HUMO", "COLOR"][parent.index]; color: "#e6f2ff"; font.pixelSize: 11
                 font.family: "Inter"; verticalAlignment: Text.AlignVCenter
             }
             Text {
                 x: 65; y: 0; width: parent.width - 65; height: parent.height
-                text: modelData.value; color: "#e6f2ff"; font.pixelSize: 11
+                text: parent.value; color: "#e6f2ff"; font.pixelSize: 11
                 font.family: "Inter"; verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
             }
@@ -176,16 +186,20 @@ Window {
 
     // EFECTOS' headings and family rail come from the validated layout.
     Repeater {
-        model: root.currentTab === 0 ? [] : root.view.headings || []
+        model: root.currentTab === 0 ? 0 : (root.view.headings || []).length
         delegate: StagePanel {
-            x: modelData.x; y: modelData.y; width: modelData.w
+            required property int index
+            readonly property var modelData: root.view.headings[index] || ({})
+            x: modelData.x || 0; y: modelData.y || 0; width: modelData.w || 0
             height: modelData.h > 0 ? modelData.h : 36
-            Text { x: 12; y: 11; text: modelData.text; color: "#dbeafc"; font.pixelSize: 12 }
+            Text { x: 12; y: 11; text: parent.modelData.text || ""; color: "#dbeafc"; font.pixelSize: 12 }
         }
     }
     Repeater {
-        model: root.currentTab === 1 ? root.view.families || [] : []
+        model: root.currentTab === 1 ? (root.view.families || []).length : 0
         delegate: Rectangle {
+            required property int index
+            readonly property var modelData: root.view.families[index] || ({})
             x: 16; y: 56 + index * 72; width: 124; height: 64; radius: 12
             color: modelData.page === root.view.page ? "#26244a" : "#141725"
             border.color: modelData.page === root.view.page ? "#8f7cf0" : "#2b3050"
@@ -203,10 +217,12 @@ Window {
         }
     }
     Repeater {
-        model: root.view.pager || []
+        model: (root.view.pager || []).length
         delegate: Rectangle {
+            required property int index
+            readonly property var modelData: root.view.pager[index] || ({})
             visible: modelData.w > 0
-            x: modelData.x; y: modelData.y; width: modelData.w; height: modelData.h
+            x: modelData.x || 0; y: modelData.y || 0; width: modelData.w || 0; height: modelData.h || 0
             radius: 10; color: modelData.bank === root.view.bank ? "#26244a" : "#141725"
             border.color: modelData.bank === root.view.bank ? "#8f7cf0" : "#2b3050"
             Text {
@@ -230,12 +246,16 @@ Window {
 
     TileGlassLayers { id: tileGlass; anchors.fill: parent }
     Repeater {
-        // Keep tile instances alive across snapshots so motion can settle.
-        model: root.controls.length
+        // Keep tile instances alive across snapshots so motion can settle,
+        // and across pages too: the pool only grows, and a page with fewer
+        // controls hides the rest, because building a tile costs the tablet
+        // far more than hiding one.
+        model: root.tilePool
         delegate: ControlTile {
             id: controlTile
             required property int index
-            modelData: root.controls[index] || ({})
+            visible: index < root.controls.length
+            modelData: root.controls[index] || root.idleTile
             objectName: "layout-control:" + (root.currentTab === 0 && controlTile.hold ? "direct-effects" : "page")
             colorOneShot: !!root.view.colorOneShot
             connected: root.linked
@@ -244,23 +264,23 @@ Window {
                      String(root.view.dials[0].bpm) : "--"
         }
     }
-    Repeater {
-        model: root.controls.filter(c => c.tile === 12)
-        delegate: Item {
-            x: modelData.x; y: modelData.y; width: modelData.w; height: modelData.h
-            Repeater {
-                model: ["-", "+", "TAP"]
-                delegate: Rectangle {
-                    x: index === 0 ? parent.width - 204 : index === 1 ? parent.width - 156 : parent.width - 100
-                    y: 24; width: index === 2 ? 88 : 44; height: 48; radius: 10
-                    border.color: "transparent"
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: "#2d375e" }
-                        GradientStop { position: 1.0; color: "#151a30" }
-                    }
-                    StageChrome { look: "key-tempo"; slice: 22; margin: 12 }
-                    Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 14 : 20; font.bold: index !== 2 }
+    Item {
+        readonly property var tempo: root.controls.find(c => c.tile === 12)
+        visible: !!tempo
+        x: tempo ? tempo.x : 0; y: tempo ? tempo.y : 0
+        width: tempo ? tempo.w : 0; height: tempo ? tempo.h : 0
+        Repeater {
+            model: ["-", "+", "TAP"]
+            delegate: Rectangle {
+                x: index === 0 ? parent.width - 204 : index === 1 ? parent.width - 156 : parent.width - 100
+                y: 24; width: index === 2 ? 88 : 44; height: 48; radius: 10
+                border.color: "transparent"
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "#2d375e" }
+                    GradientStop { position: 1.0; color: "#151a30" }
                 }
+                StageChrome { look: "key-tempo"; slice: 22; margin: 12 }
+                Text { anchors.centerIn: parent; text: modelData; color: "#f5f7fa"; font.pixelSize: index === 2 ? 14 : 20; font.bold: index !== 2 }
             }
         }
     }

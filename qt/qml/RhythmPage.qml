@@ -5,21 +5,23 @@ Item {
     x: 0; y: 0; width: 888; height: 600
 
     Repeater {
-        model: parent.dials
+        // A count, not the array: see Main.qml's Repeaters.
+        model: parent.dials.length
         delegate: StagePanel {
             id: card
-            property var dial: modelData
+            required property int index
+            readonly property var dial: dials[index] || ({})
             x: 16 + index * 418; y: 56; width: 410; height: 456
             Text {
                 objectName: "align-center:rhythm-" + index
                 x: 16; y: 16; width: 240
-                text: modelData.caption; color: "#dbeafc"
+                text: card.dial.caption || ""; color: "#dbeafc"
                 font.pixelSize: 12; font.bold: true
                 horizontalAlignment: Text.AlignHCenter
             }
             Text {
                 objectName: "align-center:rhythm-" + index
-                x: 16; y: 63; width: 240; text: modelData.known ? modelData.bpm : "--"
+                x: 16; y: 63; width: 240; text: card.dial.known ? card.dial.bpm : "--"
                 color: "#f5f7fa"; font.pixelSize: 52; font.bold: true
                 horizontalAlignment: Text.AlignHCenter
             }

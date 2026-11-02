@@ -53,6 +53,15 @@ if(BUILD_TESTING)
     add_test(NAME qt-desk-motion COMMAND qt-desk-motion-test)
     set_tests_properties(qt-desk-motion PROPERTIES
         ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_SCALE_FACTOR=1")
+    add_executable(qt-desk-snapshot-reuse-test tests/DeskSnapshotReuseTest.cpp
+        tests/advance_scene.cpp tests/scene_items.cpp)
+    target_link_libraries(qt-desk-snapshot-reuse-test PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
+    target_compile_definitions(qt-desk-snapshot-reuse-test PRIVATE
+        DESK_TEST_FIXTURE="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/pages-directo-prisma.json"
+        DESK_TEST_QML="${CMAKE_CURRENT_SOURCE_DIR}/qml/Main.qml")
+    add_test(NAME qt-desk-snapshot-reuse COMMAND qt-desk-snapshot-reuse-test)
+    set_tests_properties(qt-desk-snapshot-reuse PROPERTIES
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_SCALE_FACTOR=1")
     add_test(NAME qt-desk-capture-gate COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/../tests/qt_capture_gate_test.py)
     set_tests_properties(qt-desk-capture-gate PROPERTIES

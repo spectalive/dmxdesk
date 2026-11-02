@@ -12,21 +12,25 @@ Item {
         Text { anchors.centerIn: parent; text: "Cerrar"; color: "#f5f7fa"; font.pixelSize: 13 }
     }
     Repeater {
-        model: [
-            {x:16, title:"Wi-Fi", current:settings.ssid || "Sin red"},
-            {x:428, title:"Master QLC+", current:settings.master ? settings.master + ":" + settings.port : "Sin master"}
-        ]
+        // Counts, not arrays built in bindings: see Main.qml's Repeaters.
+        model: 2
         delegate: Rectangle {
-            x: modelData.x; y: 112; width: 404; height: 364; radius: 20
+            required property int index
+            x: [16, 428][index]; y: 112; width: 404; height: 364; radius: 20
             color: "#1b1f27"; border.color: "#39404d"
-            Text { x: 16; y: 13; text: modelData.title; color: "#dbeafc"; font.pixelSize: 14 }
-            Text { x: 16; y: 53; width: 372; text: modelData.current; color: "#f5f7fa"; font.pixelSize: 13; elide: Text.ElideRight }
+            Text { x: 16; y: 13; text: ["Wi-Fi", "Master QLC+"][parent.index]; color: "#dbeafc"; font.pixelSize: 14 }
+            Text {
+                x: 16; y: 53; width: 372; color: "#f5f7fa"; font.pixelSize: 13; elide: Text.ElideRight
+                text: parent.index === 0 ? settings.ssid || "Sin red" :
+                      settings.master ? settings.master + ":" + settings.port : "Sin master"
+            }
         }
     }
     Repeater {
-        model: (settings.networks || []).slice((settings.scanPage || 0) * 3,
-                                                 (settings.scanPage || 0) * 3 + 3)
+        model: Math.max(0, Math.min(3, (settings.networks || []).length - (settings.scanPage || 0) * 3))
         delegate: Rectangle {
+            required property int index
+            readonly property var modelData: settings.networks[(settings.scanPage || 0) * 3 + index] || ({})
             x: 24; y: 204 + index * 56; width: 388; height: 48; radius: 12
             color: modelData.ssid === settings.ssid ? "#262c36" : "#0c0e12"
             Text { x: 16; anchors.verticalCenter: parent.verticalCenter; width: 335
@@ -34,9 +38,10 @@ Item {
         }
     }
     Repeater {
-        model: (settings.found || []).slice((settings.foundPage || 0) * 3,
-                                              (settings.foundPage || 0) * 3 + 3)
+        model: Math.max(0, Math.min(3, (settings.found || []).length - (settings.foundPage || 0) * 3))
         delegate: Rectangle {
+            required property int index
+            readonly property var modelData: settings.found[(settings.foundPage || 0) * 3 + index] || ({})
             x: 436; y: 204 + index * 56; width: 388; height: 48; radius: 12
             color: modelData.host === settings.master ? "#262c36" : "#0c0e12"
             Text { x: 16; anchors.verticalCenter: parent.verticalCenter; width: 335
@@ -99,8 +104,10 @@ Item {
                    text: settings.keyboardMasked ? "•".repeat(settings.keyboardLength || 0) : settings.keyboardText || "" }
         }
         Repeater {
-            model: settings.keyboardKeys || []
+            model: (settings.keyboardKeys || []).length
             delegate: Rectangle {
+                required property int index
+                readonly property var modelData: settings.keyboardKeys[index] || ({})
                 x: modelData.x; y: modelData.y - 48; width: modelData.w; height: modelData.h
                 radius: 12; color: "#1b1f27"; border.color: "#39404d"
                 opacity: modelData.enabled ? 1 : 0.5
