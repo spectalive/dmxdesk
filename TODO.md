@@ -78,6 +78,7 @@ the tablet. Items here are about this repository on its own.
   page changes. The Mac pass verified persistent tiles, settled geometry,
   rapid release, reduced motion and immediate disconnected state; a 100-frame
   recording passed every capture audit. Tablet fluency still needs measuring.
+  On 2026-11-03 a Mac pass at HEAD (backend built in Alpine, mock master) captured Directo, Efectos with all six families and the GOLPES pages, Ritmo, Ajustes, the network scan and the IP keyboard: every capture VERIFY 0. The settings sheet was the one page still in flat grey panels with two button styles; it now has the Stage Console floor, panels and key face with its touch rectangles unchanged (115c388, `docs/evidence/qt-desk-settings-stage-2026-11-03.png`); ctest 8/8.
   The tablet still runs the previous backend build. Next: resume the preserved
   Buildroot build, check the new layout on the physical panel, and verify
   remaining tablet gestures before considering any default-interface change.
