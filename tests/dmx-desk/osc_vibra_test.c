@@ -140,6 +140,25 @@ int main(void) {
         pressed++;
     }
     assert(pressed > 10);
+
+    // Every enabled burst holds its priority Flash widget, a button on the
+    // surface, so over OSC it never needs a function address: the generator
+    // gives each burst one, and only a hand-written map without it would
+    // fall back to DESK_CMD_FUNCTION.
+    int bursts = 0;
+    for (int i = 0; i < model_o.count; i++) {
+        const struct desk_control *c = &model_o.control[i];
+        if (!c->enabled || c->kind != DESK_BURST)
+            continue;
+        assert(c->priority_widget_id > 0);
+        struct desk_command on = { DESK_CMD_FLASH, c->priority_widget_id, 1 };
+        struct osc_msg msg[2];
+        char want[64];
+        snprintf(want, sizeof want, "/vibra/%d", c->priority_widget_id);
+        assert(osc_command_messages(&o, &on, msg) == 1 && !strcmp(msg[0].address, want));
+        bursts++;
+    }
+    assert(bursts == 25);
     struct desk_command gm = { DESK_CMD_GRAND_MASTER, 0, 128 };
     struct osc_msg out[2];
     assert(osc_command_messages(&o, &gm, out) == 1);

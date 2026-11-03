@@ -18,8 +18,6 @@ the tablet. Items here are about this repository on its own.
 
 ## Core
 
-- [ ] **Decide how the desk's burst holds reach QLC+ over OSC.** Since spectalive/qlctool v0.2.6 (2026-10-28) a show generated with `[controllers] osc = "<prefix>"` binds every button, slider and speed dial to `<prefix>/<widget id>`, but the burst holds are functions with no widget, so the OSC adapter has nothing to press for them. Next: decide whether the generator gives each burst function a button (on a hidden page they would ignore external input, `VCPage::inputValueChanged`) or the OSC surface leaves bursts out.
-
 ## Design
 
 - [!] **Release v0.1.11 and flash it to the tablet.** Since 2026-11-01 the tablet runs `main` only from RAM (`/usr/bin/dmxdesk` and `/usr/share/dmxdesk/vibra.desk.json` replaced, backups `/tmp/dmxdesk-prev` and `/tmp/vibra.desk.json-prev`); a reboot restores v0.1.10 and its old map, which no longer matches the regenerated `Vibra.qxw` the mini's QLC+ now loads (prism and pixel picks renamed and reordered), so after a reboot reinstall `main` the same way before using PRISMA. Blocked: the owner decides when to release (owner, 2026-11-01). Then: tag v0.1.11 here, bump `DMXDESK_VERSION` in spectalive/taq102 `br2-external/package/dmxdesk/dmxdesk.mk`, build the image, flash in loader mode with the owner present.

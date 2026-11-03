@@ -151,8 +151,13 @@ line in QLC+'s Inputs/Outputs tab.
 
 Three limits remain. The hidden-page rule takes the frame pages that were
 showing when `/vc.json` was served, so take it with the operator's usual
-pages up. A burst (`DESK_CMD_FUNCTION`) has no widget to press, so it is
-dropped. A dial's time arrives in QLC+'s 8-bit steps.
+pages up; a burst whose priority Flash sits on a hidden page is disabled
+with it. A burst goes out as a press of its priority Flash widget, which
+every map spectalive/qlctool generates names (`priorityWidget`;
+`osc_vibra_test` checks all 25 of Vibra's); only a hand-written map
+without one falls back to `DESK_CMD_FUNCTION`, which reaches QLC+ only
+through a `functions` entry in the surface file, and is otherwise dropped.
+A dial's time arrives in QLC+'s 8-bit steps.
 
 ## Building
 

@@ -8,6 +8,10 @@
 
 ### 2026-11
 
+- [x] 2026-11-03 — **Core:** **Decide how the desk's burst holds reach QLC+ over OSC.** Since spectalive/qlctool v0.2.6 (2026-10-28) a show generated with `[controllers] osc = "<prefix>"` binds every button, slider and speed dial to `<prefix>/<widget id>`, but the burst holds are functions with no widget, so the OSC adapter has nothing to press for them. Next: decide whether the generator gives each burst function a button (on a hidden page they would ignore external input, `VCPage::inputValueChanged`) or the OSC surface leaves bursts out.
+  - Result: Bursts reach QLC+ over OSC as presses of their priority Flash widget, which every generated map names; no extra buttons are generated. The function-only path stays for hand-written maps through a surface 'functions' entry. A burst whose priority Flash is on a hidden page is disabled by the existing hidden-page rule.
+  - Evidence: tests/dmx-desk/osc_vibra_test.c: all 25 enabled Vibra bursts have priority_widget_id > 0 and encode as /vibra/<widget> Flash messages; full host suite (tools/test-dmx-desk-host.sh) green
+
 - [x] 2026-11-02 — **Event socket after a supplicant restart during a pending request:** an abandon whose dial reaches the new daemon at once never re-ATTACHes, so scan results stop arriving.
   - Result: wpa_ctrl_abandon re-attaches the event socket whenever its dial succeeds, since a timeout cannot be told from a restart. wpa_ctrl_reattach sends DETACH on the old event socket first, so a daemon that did not restart drops the old address, and moves the event socket to a fresh per-generation address, so that DETACH's reply never reaches the new socket.
   - Evidence: 2026-11-02: wpa_ctrl_test restarts the fake while LATE is pending, abandons, and expects a scan's results event; without the fix it fails at line 325, with it it passes 3/3. Full host suite tools/test-dmx-desk-host.sh: EXIT 0, 62 PASS, no FAIL; gcc -Wall -Wextra -Werror clean on reattach, begin, abandon and event in alpine:3.22.
