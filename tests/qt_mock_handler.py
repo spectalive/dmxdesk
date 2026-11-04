@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import socket
 import socketserver
 
 
@@ -53,7 +54,11 @@ class QtMockHandler(socketserver.BaseRequestHandler):
     def receive(self, count):
         result = b""
         while len(result) < count:
-            received = self.request.recv(count - len(result))
+            try:
+                received = self.request.recv(count - len(result))
+            except socket.timeout:
+                # A quiet desk is idle, not gone; only EOF or an error ends it.
+                continue
             if not received:
                 raise EOFError()
             result += received

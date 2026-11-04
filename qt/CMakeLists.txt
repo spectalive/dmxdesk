@@ -68,4 +68,6 @@ if(BUILD_TESTING)
         ENVIRONMENT "DMXDESK_QT_EXECUTABLE=$<TARGET_FILE:qt-desk>")
     add_test(NAME qt-desk-preview-layout COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/../tests/qt_layout_preview_bridge_test.py)
+    add_test(NAME qt-mock-idle COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../tests/qt_mock_idle_test.py)
 endif()

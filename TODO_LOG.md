@@ -8,6 +8,66 @@
 
 ### 2026-11
 
+- [x] 2026-11-04 — **Design:** **Finish the Qt Quick desk trial on the physical tablet.**
+  On 2026-11-02 the trial was brought to HEAD for the owner to see Stage Console on the tablet: `/data/qt-full/qml` is `qt/qml` at 0344440 (previous kept as `qml.2026-10-27`), `dmxdesk-backend` is the installed desk 84775a35 (previous kept as `dmxdesk-backend.2026-10-26`); `qt-desk` itself was unchanged because no Qt C++ changed since its 2026-10-26 build. Launched with `run-qt-desk-trial.sh`, linked to 192.168.1.87, and a `--capture` BMP passed `VERIFY 0`; this Qt saves BMP only, a `.png` capture fails with exit 1. The launcher returns to the C desk after 30 minutes.
+  The Qt surface renders real C desk snapshots on the 1024x600 EGLFS panel;
+  its backend has linked to QLC+, and the mock-master test covered tabs,
+  colour-hit mode, two-finger stop-all and held-Flash release. The trial
+  launcher returned to the linked C desk after capture. Real tablet touches
+  switched show controls. The Mac preview now supports agent taps, holds and
+  captures against a mock master. A Mac audit of visible Qt Text items found
+  zero overflows across Directo, Ritmo, Ajustes, keyboard and every Efectos
+  family and bank after the text corrections. A later bounded tablet capture
+  restored the C process, but its configured master then refused connections;
+  the owner identified another QLC+ instance as the cause. Both the C desk
+  and Mac Qt trial later reconnected to the intended show. A visual spacing
+  pass centered hold prompts, mode labels and trajectory labels by their
+  actual content height; the updated QML rendered on the tablet offscreen.
+  The owner's comparison found that the Qt trial had lost the effect colour
+  squares, the red Stop All face, the active room accent and comfortable gaps
+  between icons and labels. These faces were restored, reviewed in the Mac
+  preview, and captured on the physical tablet; the C desk resumed and linked.
+  The owner preferred the earlier compact hold pads, so Directo again places
+  each mark beside its name with a quiet MANTENER footer, and gives fog holds
+  their teal field. A second physical capture verified the revised layout.
+  A subsequent tablet capture restored the one-line effects heading and large
+  BPM, and showed cloud/repeat icons with short ambient haze intervals; the C
+  desk resumed and linked after capture. The owner then asked for a Mac-only
+  visual pass: the Wi-Fi mark now shows every layer and the effects heading
+  has more room. The owner clarified that Directo's number must align with
+  its label; the Mac preview now puts the number and BPM base on one axis
+  below the left heading, and timed haze uses a single custom cloud/repeat
+  asset. The latest Mac pass removed the transient pending dot, centered OFF,
+  made the ambient mark monochrome, and placed the full Humo vertical label
+  between paired smoke icons. A new runtime alignment audit and regression
+  test check the relevant axes; the final Mac capture also confirmed their
+  optical centers to the pixel. A follow-up optical-ink check exposed a
+  1.64 px vertical imbalance in those icons, now reduced to 0.36 px; the
+  selected swatch also uses its outline without a check mark. The latest Mac
+  pass puts 12 px of padding around the effects in the shared C layout and
+  aligns the rendered Tempo Show/BPM left edges. A later Mac capture exposed
+  an incomplete preview translation that left Humo Ya overlapping Humo
+  vertical. The bridge now translates all seven rectangles, tests their row
+  gaps, and the full Mac screenshot shows aligned effects. BPM numerals are
+  wider, and Tempo Show and BPM have the same visible left edge. The redundant
+  BPM Base captions were removed from Directo and Ritmo; Directo's title and
+  number now use the freed space for a 56 px numeral display, verified in the
+  Mac capture with zero visible left-edge offset and a clean runtime audit.
+  The BPM now loads its bundled Inter Display Bold face explicitly; after
+  correcting its 2 px leading-edge shift, the fresh optical capture confirms
+  zero offset again.
+  The Mac status bar now fills the battery by charge and uses an 18x14 px
+  Wi-Fi fan. Rendered-state tests cover empty, partial and full batteries,
+  unknown charge, clamping and all four signal levels.
+  Native QML motion now follows press, selection, hold countdown, status and
+  page changes. The Mac pass verified persistent tiles, settled geometry,
+  rapid release, reduced motion and immediate disconnected state; a 100-frame
+  recording passed every capture audit. Tablet fluency still needs measuring.
+  On 2026-11-03 a Mac pass at HEAD (backend built in Alpine, mock master) captured Directo, Efectos with all six families and the GOLPES pages, Ritmo, Ajustes, the network scan and the IP keyboard: every capture VERIFY 0. The settings sheet was the one page still in flat grey panels with two button styles; it now has the Stage Console floor, panels and key face with its touch rectangles unchanged (115c388, `docs/evidence/qt-desk-settings-stage-2026-11-03.png`); ctest 8/8.
+  On 2026-11-04 the physical panel was brought to HEAD without a Buildroot rebuild: only QML changed since v0.1.11, and the installed `/usr/bin/dmxdesk` (v0.1.11) already speaks `--qt-pipe`, so `/data/qt-full/qml` is now b82128e (previous kept as `qml.5b3541a`) and `/data/qt-full/dmxdesk-backend` is a copy of the installed v0.1.11 desk (previous kept as `dmxdesk-backend.2026-11-02`). Against the Mac mock master, `qt-desk --agent-stdio` captured Directo, Efectos, Ritmo and Ajustes (opened from the gear) on the EGLFS panel, every capture VERIFY 0 (`docs/evidence/qt-desk-settings-tablet-2026-11-04.png`), and `tests/qt_pipe_integration.py` passed with the tablet's backend over SSH. The first capture showed "Enlazado" beside a red dot: the mock dropped the websocket whenever the desk was quiet for 0.5 s, so the link flapped every ~2 s and the dot's 160 ms colour change never finished; fixed in `tests/qt_mock_handler.py`, guarded by `qt-mock-idle` (fails on the old handler), ctest 9/9. Earlier mock-based frame-time runs saw these same closes. Still seen on the panel: right after link-up, colour and opacity motions take about 2 s to settle (dot red at 6 s, teal at 8 s), because the first linked frames are slow. Multi-touch through the Qt EGLFS touch plugin itself: evdev events written to `/dev/input/event0` (hold FLASH at 605,225 with slot 0, tap PARAR TODO at 955,505 with slot 1, release slot 0; raw = screen / 0.615x0.670) reached the mock as `12|255` (FLASH's `priorityWidget`), `20|255` (`stopAll`) and `12|0`. The C desk relinked to the mini's QLC+ after every run.
+  - Result: The Qt desk at HEAD (b82128e QML, v0.1.11 backend) runs on the physical 1024x600 panel: every page and the settings sheet capture VERIFY 0, and two-finger stop-all and held-Flash release work through the EGLFS touch plugin.
+  - Evidence: 2026-11-04 tablet runs: agent captures VERIFY 0 (docs/evidence/qt-desk-settings-tablet-2026-11-04.png); injected evdev gesture gave 12|255, 20|255, 12|0 at the mock; qt_pipe_integration.py passed with the tablet backend; ctest 9/9 incl. qt-mock-idle.
+
 - [x] 2026-11-03 — **Design:** **Release v0.1.11 and flash it to the tablet.** Since 2026-11-01 the tablet runs `main` only from RAM (`/usr/bin/dmxdesk` and `/usr/share/dmxdesk/vibra.desk.json` replaced, backups `/tmp/dmxdesk-prev` and `/tmp/vibra.desk.json-prev`); a reboot restores v0.1.10 and its old map, which no longer matches the regenerated `Vibra.qxw` the mini's QLC+ now loads (prism and pixel picks renamed and reordered), so after a reboot reinstall `main` the same way before using PRISMA. Blocked: the owner decides when to release (owner, 2026-11-01). Then: tag v0.1.11 here, bump `DMXDESK_VERSION` in spectalive/taq102 `br2-external/package/dmxdesk/dmxdesk.mk`, build the image, flash in loader mode with the owner present.
   - Result: dmxdesk v0.1.11 tagged at d50fa83 and pinned in spectalive/taq102; the v99 image runs it from boot and recovery, so a reboot keeps main's desk and the regenerated map.
   - Evidence: taq102 v99 (SHA256 0a02be0d...) flashed 2026-11-03, boot and recovery readbacks matched; after reboot /usr/share/dmxdesk/VERSION names d50fa83 clean, map 1192f207..., and the desk logged link ready (linked)
