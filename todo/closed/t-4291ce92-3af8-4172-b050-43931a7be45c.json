@@ -1,0 +1,17 @@
+{
+  "tadu": 2,
+  "id": "t-4291ce92-3af8-4172-b050-43931a7be45c",
+  "title": "Have the show generator map the Virtual Console to OSC",
+  "state": "done",
+  "category": "core",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "On 2026-10-28 `tools/qlc-osc-surface` began writing the desk's OSC surface file from QLC+'s `/vc.json`, together with the table of external inputs QLC+ must have (`--channels`: widget, input id, CRC-16 channel, path). The workspace side, an OSC input and feedback patch on universe 1 and those 518 widget inputs plus 18 dial multiplier inputs for Vibra, was done in the trial by patching a copy of the `.qxw` in a scratch script, which is not in any repository. Next: teach spectalive/qlctool to emit the OSC inputs from the same rule (path `<prefix>/<widget id>`, channel = QLC+'s `Utils::getChecksum` of it, dial multipliers on inputs 4 and 6-13), so an OSC-driven show is generated like the others. Also, the burst holds have no widget to press over OSC: decide whether the generator gives each burst function a button."
+  ],
+  "closed": "2026-10-28",
+  "result": "The generator emits the OSC input patch and bindings from the converter's rule; an osc_control_bound_twice check guards CRC-16 collisions. Feedback stays an Inputs/Outputs setting.",
+  "evidence": [
+    "spectalive/qlctool v0.2.6 (2ed0ba3): [controllers] osc binds every Button/Slider/SpeedDial to <prefix>/<id> and dial multipliers on inputs 4 and 6-13 of an OSC universe; codeality-py gate exit 0 (1037 passed); vibra-lighting vibra_compare --validate: three workspaces identical, 0 findings, QLC+ loaded them"
+  ]
+}

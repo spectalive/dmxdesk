@@ -1,0 +1,19 @@
+{
+  "tadu": 2,
+  "id": "t-949bb575-2afb-48db-84d7-e8e381827985",
+  "title": "Confirm white and colour bursts on the physical rig",
+  "state": "in_progress",
+  "category": "design",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "On 2026-10-21, loopback Art-Net from QLC+ 5.2.2 showed AUTO colour on all",
+    "four 7R wheels in 299/302 steady frames of the tablet's white burst; the",
+    "console Flash button stayed white in 794/794. The tablet's Chaser has an",
+    "eight-second server deadline but ordinary priority. The desk now presses a",
+    "bounded, overriding Flash on the controller; the C host suite and loopback",
+    "Art-Net test verify mapping, priority, expiry and disconnect. Next: measure",
+    "the 7R wheels and smoke pumps at the physical FT232R output during Fiesta,",
+    "then confirm release at the cap on the connected tablet."
+  ]
+}

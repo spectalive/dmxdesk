@@ -1,0 +1,14 @@
+{
+  "tadu": 2,
+  "id": "t-f442e2fc-0a5c-444e-adb6-074ff8629ace",
+  "title": "Animate the Qt desk from its real state",
+  "state": "done",
+  "category": "design",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "closed": "2026-10-24",
+  "result": "Added native QML press faces, selection marks, settling icons, battery and Wi-Fi transitions, a moving tab indicator and page reveal. Kept tile instances across snapshots and tied hold countdowns to backend progress, with immediate disconnected state and support for reduced motion. Reopened the Mac preview; physical-tablet fluency remains in the Qt trial item.",
+  "evidence": [
+    "ctest --test-dir output/qt-host-build --output-on-failure: 7/7 passed in 15.93 s. The motion regression rejects the previous snapshot replacement. Mock-master pipe integration passed tabs, colour-hit mode, two-finger Stop All and EOF Flash release with an explicit map. All 100 recorded Mac frames passed VERIFY 0; see docs/evidence/qt-desk-motion-2026-10-24.mp4. Final optical checks: BPM left offset 0 px, vertical fog offset 0.53 px."
+  ]
+}

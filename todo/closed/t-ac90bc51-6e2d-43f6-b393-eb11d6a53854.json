@@ -1,0 +1,14 @@
+{
+  "tadu": 2,
+  "id": "t-ac90bc51-6e2d-43f6-b393-eb11d6a53854",
+  "title": "Connection status stays in the top bar",
+  "state": "done",
+  "category": "general",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "closed": "2026-10-21",
+  "result": "A temporary master disconnect now shows a stable \"Esperando conexión...\" status without covering the controls; a different show still gets the mismatch card.",
+  "evidence": [
+    "`desk_render_test` checks the warning dot, unchanged content and identical connecting/syncing bar; the host suite and 19,764,864-probe geometry audit passed."
+  ]
+}

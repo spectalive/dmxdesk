@@ -1,0 +1,14 @@
+{
+  "tadu": 2,
+  "id": "t-fc55df09-c42b-49ba-9de9-53a582b3c5bf",
+  "title": "SHOW tablet control refinements",
+  "state": "done",
+  "category": "general",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "closed": "2026-10-21",
+  "result": "The rig bank includes a white swatch, its colour hit respects GOLPES DE COLOR, Directo again offers BPM fine tuning, state and effect pads keep their icons and complete names, and the master and stop controls use less space.",
+  "evidence": [
+    "Host tests with address and undefined-behaviour sanitizers, the 19,764,864-probe geometry audit, Clang static analysis of changed controls, an ARM GCC 14.3.0 build, and the rendered SHOW screen."
+  ]
+}

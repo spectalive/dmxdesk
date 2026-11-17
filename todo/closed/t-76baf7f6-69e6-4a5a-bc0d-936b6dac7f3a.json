@@ -1,0 +1,17 @@
+{
+  "tadu": 2,
+  "id": "t-76baf7f6-69e6-4a5a-bc0d-936b6dac7f3a",
+  "title": "Release v0.1.11 and flash it to the tablet",
+  "state": "done",
+  "category": "design",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "Since 2026-11-01 the tablet runs `main` only from RAM (`/usr/bin/dmxdesk` and `/usr/share/dmxdesk/vibra.desk.json` replaced, backups `/tmp/dmxdesk-prev` and `/tmp/vibra.desk.json-prev`); a reboot restores v0.1.10 and its old map, which no longer matches the regenerated `Vibra.qxw` the mini's QLC+ now loads (prism and pixel picks renamed and reordered), so after a reboot reinstall `main` the same way before using PRISMA. Blocked: the owner decides when to release (owner, 2026-11-01). Then: tag v0.1.11 here, bump `DMXDESK_VERSION` in spectalive/taq102 `br2-external/package/dmxdesk/dmxdesk.mk`, build the image, flash in loader mode with the owner present."
+  ],
+  "closed": "2026-11-03",
+  "result": "dmxdesk v0.1.11 tagged at d50fa83 and pinned in spectalive/taq102; the v99 image runs it from boot and recovery, so a reboot keeps main's desk and the regenerated map.",
+  "evidence": [
+    "taq102 v99 (SHA256 0a02be0d...) flashed 2026-11-03, boot and recovery readbacks matched; after reboot /usr/share/dmxdesk/VERSION names d50fa83 clean, map 1192f207..., and the desk logged link ready (linked)"
+  ]
+}

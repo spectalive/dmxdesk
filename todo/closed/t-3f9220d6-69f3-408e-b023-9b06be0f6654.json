@@ -1,0 +1,17 @@
+{
+  "tadu": 2,
+  "id": "t-3f9220d6-69f3-408e-b023-9b06be0f6654",
+  "title": "Choose a concrete visual reference before another Qt redesign",
+  "state": "done",
+  "category": "design",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "On 2026-10-24, the owner rejected the pastel-panel pass and requested futuristic examples preserving the current distribution. Three reviewed concepts and the original screenshot are in `docs/design/futuristic-2026-10-24/`. Their control groups are retained, but spacing and idle-state illumination need refinement. The Mac app remains on the restored dark interface (`AUDIT`: `VERIFY 0`). Next: choose Precision Glass, Aerospace Instrument or Stage Console with the owner before another QML appearance pass."
+  ],
+  "closed": "2026-10-26",
+  "result": "Stage Console (concept 3) applied to the Qt desk: ceramic gradients, violet/teal/red rim halos, dimmer idle controls; geometry unchanged.",
+  "evidence": [
+    "ctest 7/7; qt_preview --capture VERIFY 0 on Directo and Efectos; docs/evidence/qt-desk-stage-console-2026-10-26.png"
+  ]
+}

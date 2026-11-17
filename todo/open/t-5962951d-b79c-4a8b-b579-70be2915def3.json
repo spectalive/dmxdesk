@@ -1,0 +1,12 @@
+{
+  "tadu": 2,
+  "id": "t-5962951d-b79c-4a8b-b579-70be2915def3",
+  "title": "A desk that runs the show without QLC+",
+  "state": "pending",
+  "category": "core",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "Owner, 2026-11-04: the aim is to use the tablet without QLC+ some day. Today every control is a QLC+ widget reached over its web socket (or OSC through the `desk_console` adapters), so QLC+ holds the show, its timing and the DMX output. Without it the desk needs its own engine behind `desk_platform`: the fixtures, scenes, chases and bursts the qlctool recipe already describes, a clock for tempo, and an output. Candidate outputs: Art-Net or sACN over Wi-Fi to a node, or the Pico USB-DMX interface planned in vibra-lighting's `docs/usb-dmx-interface.md` on the tablet's USB host port. Next: the owner sets the scope (which show functions first), then a local-engine adapter beside the QLC+ and OSC ones."
+  ]
+}

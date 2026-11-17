@@ -1,0 +1,15 @@
+{
+  "tadu": 2,
+  "categories": {
+    "core": "Core",
+    "design": "Design",
+    "event-socket-after-a-supplicant-restart": "Event socket after a supplicant restart",
+    "event-socket-after-a-supplicant-restart-during-a-pending-request": "Event socket after a supplicant restart during a pending request",
+    "general": "General",
+    "packaging": "Packaging",
+    "pulse-at-the-show-tempo-new-from-the-v3-mockups": "Pulse at the show tempo (new, from the v3 mockups)",
+    "release": "Release",
+    "request-channel-after-an-idle-supplicant-restart": "Request channel after an idle supplicant restart",
+    "tests": "Tests"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "tadu": 2,
+  "id": "t-8408bced-ce0e-4cd9-b4f4-93d36e16e08d",
+  "title": "Make the Qt desk the tablet's boot default",
+  "state": "in_progress",
+  "category": "design",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "Owner, 2026-11-04: yes. The physical trial closed that day (`TODO_LOG.md`). The image work is in spectalive/taq102: `taq102-app` chooses Qt, then the C desk, then the cube; `taq102-qt-desk` runs `qt-desk` and this repository's QML from the ramdisk over the installed desk's `--qt-pipe` backend, with the 126 MB Qt runtime on `/data/qt-runtime`; `/data/taq102-use-c-desk` keeps the C desk without a reflash. The first image carrying it, taq102 v103, also changed the kernel and did not boot (taq102 `docs/journal.md`, 2026-11-04), so the default is unproven. Next: once the kernel is settled, an image with the Qt default on a proven kernel; then tag the QML it ships as a dmxdesk release and pin it."
+  ]
+}

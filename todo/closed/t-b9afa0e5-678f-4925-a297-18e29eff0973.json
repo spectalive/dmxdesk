@@ -1,0 +1,17 @@
+{
+  "tadu": 2,
+  "id": "t-b9afa0e5-678f-4925-a297-18e29eff0973",
+  "title": "Take the desk's event loop out of `platform/linux-fb/dmxdesk.c`",
+  "state": "done",
+  "category": "core",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "After the 2026-10-27 split and the move of the session actions into `core/` (`b0db25f`), `main` is still about 1180 lines that interleave the desk's own flow (snapshot rebuilds, gestures to actions, the setup surface, holds, repaint and damage) with the device calls (DRM present, evdev, power key, backlight, wpa_supplicant). Next: define a small platform interface (touch events in, a frame out, power and network status) and move the loop body into a core `desk_run` driven through it, so a second platform such as SDL reuses it unchanged; this is the first step of the multi-backend work."
+  ],
+  "closed": "2026-10-27",
+  "result": "core/desk_run.c turns struct desk_app through struct desk_platform; linux-fb fills the table with linux_desk_* ops and main only opens devices and calls desk_run.",
+  "evidence": [
+    "d128041. Host suite 53/53 units PASS (core_without_platform, new desk_run_test with a scripted platform); Qt ctest 7/7; Buildroot ARM cross-build -Werror clean; --qt-pipe run against the mock master sends identical frames and states to the previous build."
+  ]
+}

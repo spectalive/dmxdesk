@@ -1,0 +1,17 @@
+{
+  "tadu": 2,
+  "id": "t-53ffeb98-e800-4775-9449-de008b0fdb02",
+  "title": "Make the Qt pipe integration map requirement explicit",
+  "state": "done",
+  "category": "tests",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "On 2026-10-24, the installed backend did not link when the command omitted its map; adding `--map /usr/share/dmxdesk/vibra.desk.json` passed tabs, colour-hit mode, two-finger Stop All and EOF Flash release. Next: expose a map argument in `tests/qt_pipe_integration.py` and preserve redacted backend diagnostics when linking fails."
+  ],
+  "closed": "2026-11-02",
+  "result": "tests/qt_pipe_integration.py requires --map and passes it to the backend; when the desk does not link, the assertion carries the backend's last stderr lines with the connect host and IPv4 addresses replaced (tests/qt_backend_diagnostics.py).",
+  "evidence": [
+    "2026-11-02, backend built in alpine:3.22 and run through a docker wrapper against the mock master: --map show/vibra.desk.json passed linked, tabs, colour-hit, two-finger stop-all and EOF release; --map /nope.json failed with 'map: cannot open /nope.json'; no --map is an argparse error; redaction checked on a sample with an IP and a hostname."
+  ]
+}
